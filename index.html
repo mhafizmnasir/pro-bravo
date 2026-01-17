@@ -169,21 +169,26 @@
 
 
 
-// Tambah fungsi ini supaya boleh dipanggil secara global
+// Letakkan ini di dalam <script type="module">
 window.saveNote = async (month, day) => {
-    const noteText = document.getElementById(`note-${day}`).value;
+    const noteEl = document.getElementById(`note-${day}`);
+    const noteText = noteEl.value;
     const user = auth.currentUser;
 
     if (user) {
         try {
+            // Gunakan set() untuk simpan ke Firebase
             await set(ref(db, `notes/${user.uid}/${month}/${day}`), noteText);
-            alert("Nota disimpan!");
+            alert("Nota berjaya disimpan!");
         } catch (error) {
-            console.error("Gagal simpan nota:", error);
-            alert("Ralat menyimpan nota.");
+            console.error("Ralat simpan nota:", error);
+            alert("Gagal menyimpan nota.");
         }
+    } else {
+        alert("Sesi log masuk tamat. Sila log masuk semula.");
     }
 };
+
                     
 
 
@@ -296,9 +301,16 @@ window.saveNote = async (month, day) => {
     const months = ["JANUARI", "FEBRUARI", "MAC", "APRIL", "MEI", "JUN", "JULAI", "OGOS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DISEMBER"];
     const skrg = new Date();
     
-    // Ambil semua nota pengguna dari database terlebih dahulu
-    const notesSnap = await get(ref(db, `notes/${auth.currentUser.uid}/${targetMonth}`));
-    const userNotes = notesSnap.exists() ? notesSnap.val() : {};
+    // 1. Ambil data nota dari Firebase
+    let userNotes = {};
+    try {
+        const notesSnap = await get(ref(db, `notes/${auth.currentUser.uid}/${targetMonth}`));
+        if (notesSnap.exists()) {
+            userNotes = notesSnap.val();
+        }
+    } catch (e) {
+        console.error("Gagal ambil nota:", e);
+    }
 
     let html = `<div class="bg-white p-5 rounded-[2.5rem] mb-6 shadow-sm border border-slate-100">
         <select id="month-select" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-[12px] font-black uppercase outline-none focus:ring-2 focus:ring-yellow-400">
@@ -306,31 +318,33 @@ window.saveNote = async (month, day) => {
         </select></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
     
     const daysInMonth = new Date(2026, parseInt(targetMonth) + 1, 0).getDate();
+    
     for(let i=1; i<=daysInMonth; i++){
         let d = new Date(2026, targetMonth, i);
         let r = getDuty(d, userData.platoon);
         const adakahHariIni = (i === skrg.getDate() && targetMonth == skrg.getMonth());
-        const notaSediaAda = userNotes[i] || "";
+        const notaSediaAda = userNotes[i] || ""; // Papar nota jika ada
         
         html += `<div class="relative p-6 rounded-[2rem] border flex flex-col transition-all ${r.off ? 'bg-slate-50' : 'bg-white shadow-sm'} ${adakahHariIni ? 'ring-4 ring-yellow-400 z-10 scale-[1.02] shadow-xl' : 'border-slate-100'}">
-            <div class="flex justify-between items-start mb-2">
+            <div class="flex justify-between items-start">
                 <div>
                     <p class="text-[10px] font-black ${adakahHariIni ? 'text-black' : 'text-slate-400'} uppercase">${d.toLocaleDateString('ms-MY',{weekday:'short', day:'2-digit'})}</p>
                     <p class="text-sm ${adakahHariIni ? 'font-black text-black' : 'font-extrabold text-slate-700'} uppercase">${r.off ? 'OFF' : r.shift}</p>
-                    <p class="text-[9px] font-black ${r.off ? 'hidden' : 'text-yellow-500'} uppercase tracking-tighter">${r.off ? '' : r.loc}</p>
+                    <p class="text-[9px] font-black ${r.off ? 'hidden' : 'text-yellow-500'} uppercase mt-1 tracking-tighter">${r.off ? '' : r.loc}</p>
                 </div>
                 ${adakahHariIni ? `<span class="bg-black text-yellow-400 text-[8px] font-black px-3 py-1 rounded-full uppercase">HARI INI</span>` : ''}
             </div>
             
-            <div class="mt-4 pt-4 border-t border-slate-100">
-                <textarea id="note-${i}" placeholder="Tambah nota..." class="w-full bg-slate-50/50 p-3 rounded-xl text-[10px] font-bold border-none focus:ring-1 focus:ring-yellow-400 outline-none resize-none" rows="2">${notaSediaAda}</textarea>
-                <button onclick="saveNote(${targetMonth}, ${i})" class="mt-2 text-[8px] font-black bg-slate-200 hover:bg-black hover:text-yellow-400 text-slate-500 py-1.5 px-3 rounded-lg uppercase transition-all tracking-widest">Simpan Nota</button>
+            <div class="mt-4 pt-4 border-t border-slate-50">
+                <textarea id="note-${i}" placeholder="Nota peribadi..." class="w-full bg-slate-50 p-3 rounded-xl text-[10px] font-bold border-none focus:ring-1 focus:ring-yellow-400 outline-none resize-none" rows="2">${notaSediaAda}</textarea>
+                <button onclick="saveNote(${targetMonth}, ${i})" class="mt-2 w-full text-[8px] font-black bg-slate-100 hover:bg-black hover:text-yellow-400 text-slate-500 py-2 rounded-lg uppercase transition-all tracking-widest">Simpan Nota</button>
             </div>
         </div>`;
     }
     cont.innerHTML = html + '</div>';
     document.getElementById('month-select').onchange = (e) => showPage('jadual-induk', e.target.value);
 }
+
             closeMenu();
                             }
                             async function showAdminPage() {
