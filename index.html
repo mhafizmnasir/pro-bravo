@@ -203,6 +203,31 @@ window.closeNoteModal = () => {
     document.getElementById('note-modal').classList.add('hidden');
 };
 
+                    
+// Tambah ini satu kali sahaja di dalam <script type="module">
+// Ia akan tunggu sehingga butang 'Simpan' wujud dalam DOM
+document.addEventListener('click', async (e) => {
+    if (e.target && e.target.id === 'modal-save-btn') {
+        const text = document.getElementById('modal-textarea').value;
+        const day = window.currentEditDay;
+        const month = window.currentEditMonth;
+        
+        if (day && auth.currentUser) {
+            try {
+                await set(ref(db, `notes/${auth.currentUser.uid}/${month}/${day}`), text);
+                document.getElementById('note-modal').classList.add('hidden');
+                showPage('jadual-induk', month); // Refresh skrin
+            } catch (err) {
+                alert("Gagal simpan nota!");
+            }
+        }
+    }
+    
+    // Fungsi untuk butang Batal
+    if (e.target && e.target.getAttribute('onclick') === 'closeNoteModal()') {
+         document.getElementById('note-modal').classList.add('hidden');
+    }
+});
 
                     
 
@@ -329,7 +354,7 @@ window.closeNoteModal = () => {
         </select></div><div class="grid grid-cols-2 gap-4">`;
     
     const daysInMonth = new Date(2026, parseInt(targetMonth) + 1, 0).getDate();
-                        for(let i=1; i<=daysInMonth; i++){
+                            for(let i=1; i<=daysInMonth; i++){
         let d = new Date(2026, targetMonth, i);
         let r = getDuty(d, userData.platoon);
         const adakahHariIni = (i === skrg.getDate() && targetMonth == skrg.getMonth());
@@ -340,8 +365,14 @@ window.closeNoteModal = () => {
         html += `<div class="relative p-6 rounded-[2rem] border flex flex-col justify-center min-h-[140px] transition-all ${r.off ? 'bg-slate-50 opacity-80' : 'bg-white shadow-sm'} ${adakahHariIni ? 'ring-4 ring-yellow-400 z-10 scale-[1.05] shadow-xl' : 'border-slate-100'}">
             
             <button type="button" 
-                onclick="bukaNota(${targetMonth}, ${i})"
-                class="absolute top-3 right-3 p-3 rounded-full ${adaNota ? 'bg-yellow-400 text-black shadow-md' : 'text-slate-300'} z-30 touch-manipulation">
+                onclick="const m = document.getElementById('note-modal'); 
+                         document.getElementById('modal-date-title').innerText = 'NOTA: ${i} HB';
+                         document.getElementById('modal-textarea').value = this.getAttribute('data-note');
+                         window.currentEditDay = ${i};
+                         window.currentEditMonth = ${targetMonth};
+                         m.classList.remove('hidden');"
+                data-note="${notaSediaAda.replace(/"/g, '&quot;')}"
+                class="absolute top-3 right-3 p-3 rounded-full ${adaNota ? 'bg-yellow-400 text-black' : 'bg-slate-100 text-slate-300'} z-30 touch-manipulation shadow-sm active:scale-95">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
                 </svg>
@@ -358,6 +389,8 @@ window.closeNoteModal = () => {
                 <p class="text-[9px] font-bold text-slate-600 italic break-words leading-tight">${notaSediaAda}</p>
             </div>` : ''}
         </div>`;
+    }
+
     }
 
 
