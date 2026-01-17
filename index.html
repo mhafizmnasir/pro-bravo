@@ -319,7 +319,7 @@ window.closeNoteModal = () => {
         </select></div><div class="grid grid-cols-2 gap-4">`;
     
     const daysInMonth = new Date(2026, parseInt(targetMonth) + 1, 0).getDate();
-            for(let i=1; i<=daysInMonth; i++){
+                for(let i=1; i<=daysInMonth; i++){
         let d = new Date(2026, targetMonth, i);
         let r = getDuty(d, userData.platoon);
         const adakahHariIni = (i === skrg.getDate() && targetMonth == skrg.getMonth());
@@ -327,24 +327,18 @@ window.closeNoteModal = () => {
         const notaSediaAda = userNotes[i] || "";
         const adaNota = notaSediaAda.trim() !== "";
 
-        // Rawatan teks nota supaya tidak merosakkan HTML/JS
-        const safeNote = notaSediaAda
-            .replace(/\\/g, '\\\\')
-            .replace(/'/g, "\\'")
-            .replace(/"/g, '&quot;')
-            .replace(/\n/g, '\\n');
-
-        html += `<div class="relative p-6 rounded-[2rem] border flex flex-col justify-center min-h-[140px] transition-all ${r.off ? 'bg-slate-50 opacity-80' : 'bg-white shadow-sm'} ${adakahHariIni ? 'ring-4 ring-yellow-400 z-10 scale-[1.05] shadow-xl' : 'border-slate-100'}">
+        html += `<div class="relative p-6 rounded-[2rem] border flex flex-col justify-center min-h-[140px] transition-all ${r.off ? 'bg-slate-50 opacity-80' : 'bg-white shadow-sm'} ${adakahHariIni ? 'ring-4 ring-yellow-400 z-[30] scale-[1.05] shadow-xl' : 'border-slate-100 z-[10]'}">
             
-            <button type="button" 
-                onclick="openNoteModal(${targetMonth}, ${i}, '${safeNote}')" 
-                class="absolute top-3 right-3 p-3 rounded-full ${adaNota ? 'bg-yellow-400 text-black' : 'text-slate-300 hover:text-black hover:bg-slate-100'} transition-all z-20 cursor-pointer">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-                </svg>
-            </button>
+            <div onclick="openNoteModal(${targetMonth}, ${i}, \`${notaSediaAda.replace(/`/g, '\\`').replace(/\$/g, '\\$')}\`)" 
+                 class="absolute top-2 right-2 p-4 z-[50] cursor-pointer group">
+                <div class="p-2 rounded-full ${adaNota ? 'bg-yellow-400 text-black' : 'bg-slate-100 text-slate-400'} shadow-sm">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                    </svg>
+                </div>
+            </div>
 
-            ${adakahHariIni ? `<span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-black text-yellow-400 text-[8px] font-black px-3 py-1 rounded-full uppercase">HARI INI</span>` : ''}
+            ${adakahHariIni ? `<span class="absolute -top-3 left-1/2 -translate-x-1/2 bg-black text-yellow-400 text-[8px] font-black px-3 py-1 rounded-full uppercase z-[40]">HARI INI</span>` : ''}
             
             <p class="text-[10px] font-black ${adakahHariIni ? 'text-black' : 'text-slate-400'} mb-1 uppercase">${d.toLocaleDateString('ms-MY',{weekday:'short', day:'2-digit'})}</p>
             <p class="text-sm ${adakahHariIni ? 'font-black text-black' : 'font-extrabold text-slate-700'} uppercase">${r.off ? 'OFF' : r.shift}</p>
@@ -356,6 +350,7 @@ window.closeNoteModal = () => {
             </div>` : ''}
         </div>`;
     }
+
 
 
                 
