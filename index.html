@@ -267,16 +267,25 @@
             else if (p === 'jadual-induk') {
     const months = ["JANUARI", "FEBRUARI", "MAC", "APRIL", "MEI", "JUN", "JULAI", "OGOS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DISEMBER"];
     const skrg = new Date();
-    let html = `<div class="bg-white p-5 rounded-[2.5rem] mb-6 shadow-sm border border-slate-100">
-        <select id="month-select" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-[12px] font-black uppercase outline-none focus:ring-2 focus:ring-yellow-400">
-            ${months.map((m, i) => `<option value="${i}" ${i == targetMonth ? 'selected' : ''}>${m} 2026</option>`).join('')}
-        </select></div><div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
+    
+    // Pastikan bahagian pengurusan nota ini ada
+    let savedNotes = {};
+    try {
+        const notesSnap = await get(ref(db, `notes/${auth.currentUser.uid}/${targetMonth}`));
+        if (notesSnap.exists()) savedNotes = notesSnap.val();
+    } catch (e) {
+        console.error("Gagal ambil nota:", e);
+    }
+
+    let html = `
+        <div class="bg-white p-5 rounded-[2.5rem] mb-6 shadow-sm border border-slate-100">
+            <select id="month-select" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-[12px] font-black uppercase outline-none focus:ring-2 focus:ring-yellow-400">
+                ${months.map((m, i) => `<option value="${i}" ${i == targetMonth ? 'selected' : ''}>${m} 2026</option>`).join('')}
+            </select>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">`;
     
     const daysInMonth = new Date(2026, parseInt(targetMonth) + 1, 0).getDate();
-    
-    // Ambil data nota dari Firebase
-    const notesSnap = await get(ref(db, `notes/${auth.currentUser.uid}/${targetMonth}`));
-    const savedNotes = notesSnap.exists() ? notesSnap.val() : {};
 
     for(let i=1; i<=daysInMonth; i++){
         let d = new Date(2026, targetMonth, i);
@@ -292,7 +301,7 @@
                     <p class="text-sm font-black uppercase">${r.off ? 'OFF' : r.shift}</p>
                     <p class="text-[9px] font-black ${r.off ? 'hidden' : 'text-yellow-500'} uppercase mt-1">${r.off ? '' : r.loc}</p>
                 </div>
-                <button onclick="bukaNota(${i}, ${targetMonth}, '${notaSediaAda}')" class="p-2 bg-slate-100 hover:bg-yellow-400 rounded-xl transition-colors">
+                <button onclick="bukaNota(${i}, ${targetMonth}, '${notaSediaAda.replace(/'/g, "\\'")}')" class="p-2 bg-slate-100 hover:bg-yellow-400 rounded-xl transition-colors">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                 </button>
             </div>
@@ -300,8 +309,14 @@
         </div>`;
     }
     cont.innerHTML = html + '</div>';
-    document.getElementById('month-select').onchange = (e) => showPage('jadual-induk', e.target.value);
+    
+    // Pastikan event listener dipasang semula
+    const selectBulan = document.getElementById('month-select');
+    if(selectBulan) {
+        selectBulan.onchange = (e) => showPage('jadual-induk', e.target.value);
+    }
 }
+
 
             closeMenu();
                             }
