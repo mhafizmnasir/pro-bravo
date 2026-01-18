@@ -123,6 +123,7 @@
                 <div class="space-y-4 font-black text-[13px] uppercase tracking-widest text-slate-400">
                     <button id="nav-welcome" class="flex items-center gap-4 w-full text-left p-5 hover:bg-yellow-50 rounded-2xl transition-all text-black border-l-4 border-yellow-400">Utama</button>
                     <button id="nav-calendar" class="flex items-center gap-4 w-full text-left p-5 hover:bg-yellow-50 rounded-2xl transition-all text-black border-l-4 border-yellow-400">Kalendar Syif</button>
+                    <button id="nav-settings" class="flex items-center gap-4 w-full text-left p-5 hover:bg-yellow-50 rounded-2xl transition-all text-black border-l-4 border-yellow-400">Tetapan</button>
                     <button id="admin-nav" class="hidden flex items-center justify-between w-full p-5 bg-black text-yellow-400 rounded-2xl mt-10">
                         <span>Admin Panel</span>
                         <span id="pending-count" class="hidden bg-yellow-400 text-black text-[10px] px-2 py-1 rounded-full">0</span>
@@ -397,6 +398,64 @@
 
 
 
+else if (p === 'settings') {
+    cont.innerHTML = `
+        <div class="space-y-6 animate-fade-in">
+            <h2 class="text-2xl font-black text-black uppercase italic tracking-tighter">Tetapan Profil</h2>
+            
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-4">
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Nama Penuh</label>
+                    <input type="text" id="set-fullname" value="${userData.fullName}" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400">
+                </div>
+
+                <div>
+                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Platun Semasa</label>
+                    <select id="set-platoon" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-[12px] font-bold outline-none focus:ring-2 focus:ring-yellow-400">
+                        ${Array.from({length: 25}, (_, i) => `<option value="${i+1}" ${userData.platoon == i+1 ? 'selected' : ''}>PLATUN ${i+1}</option>`).join('')}
+                    </select>
+                </div>
+
+                <button id="btn-update-profile" class="w-full bg-black text-yellow-400 font-black py-5 rounded-2xl mt-4 uppercase text-[11px] tracking-widest shadow-xl active:scale-95 transition-all">
+                    Simpan Perubahan
+                </button>
+            </div>
+            
+            <p class="text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest">Versi Aplikasi 1.0.0</p>
+        </div>
+    `;
+
+    // Logik apabila butang Simpan ditekan
+    document.getElementById('btn-update-profile').onclick = async () => {
+        const newName = document.getElementById('set-fullname').value.trim().toUpperCase();
+        const newPlatoon = parseInt(document.getElementById('set-platoon').value);
+
+        try {
+            // Kemaskini data di Firebase
+            await update(ref(db, 'users/' + auth.currentUser.uid), {
+                fullName: newName,
+                platoon: newPlatoon
+            });
+            
+            // Kemaskini data lokal supaya paparan berubah serta-merta
+            userData.fullName = newName;
+            userData.platoon = newPlatoon;
+            
+            alert("Profil berjaya dikemaskini!");
+            showPage('welcome'); // Kembali ke halaman utama
+        } catch (e) {
+            alert("Ralat: " + e.message);
+        }
+    };
+}
+
+
+
+
+
+                
+
+
     cont.innerHTML = html + '</div>';
     document.getElementById('month-select').onchange = (e) => showPage('jadual-induk', e.target.value);
 }
@@ -439,6 +498,7 @@
 
         document.getElementById('nav-welcome').onclick = () => { showPage('welcome'); closeMenu(); };
         document.getElementById('nav-calendar').onclick = () => { showPage('jadual-induk'); closeMenu(); };
+        document.getElementById('nav-settings').onclick = () => { showPage('settings'); closeMenu(); };
         document.getElementById('admin-nav').onclick = () => { showAdminPage(); closeMenu(); };
         document.getElementById('btn-logout').onclick = () => { if(confirm("Log keluar?")) signOut(auth); };
 
@@ -603,8 +663,7 @@ document.getElementById('toggle-password-btn').onclick = function() {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
         `;
     }
-};
-                    
+};                   
 
 // Event Listeners
 document.getElementById('auth-toggle-btn').onclick = () => {
