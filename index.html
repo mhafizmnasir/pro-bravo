@@ -310,7 +310,7 @@
     
     const daysInMonth = new Date(2026, parseInt(targetMonth) + 1, 0).getDate();
     
-    for(let i=1; i<=daysInMonth; i++){
+        for(let i=1; i<=daysInMonth; i++){
         let d = new Date(2026, targetMonth, i);
         let r = getDuty(d, userData.platoon);
         const adakahHariIni = (i === skrg.getDate() && targetMonth == skrg.getMonth());
@@ -322,7 +322,15 @@
                 
                 <div class="flex justify-between items-start mb-1">
                     <p class="text-[10px] font-black ${adakahHariIni ? 'text-black' : 'text-slate-400'} uppercase">${d.toLocaleDateString('ms-MY',{weekday:'short', day:'2-digit'})}</p>
-                    ${teksNota ? '<span class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>' : ''}
+                    
+                    <div class="p-1">
+                        ${teksNota 
+                            ? '<span class="flex h-2 w-2 bg-yellow-400 rounded-full animate-pulse"></span>' 
+                            : `<svg class="w-3 h-3 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
+                               </svg>`
+                        }
+                    </div>
                 </div>
                 
                 <p class="text-[12px] font-black ${adakahHariIni ? 'text-black' : 'text-slate-700'} uppercase">${r.off ? 'OFF' : r.shift}</p>
@@ -334,6 +342,7 @@
                 </div>` : ''}
             </div>`;
     }
+
     cont.innerHTML = html + '</div>';
     document.getElementById('month-select').onchange = (e) => showPage('jadual-induk', e.target.value);
 }
