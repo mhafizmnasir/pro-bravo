@@ -20,6 +20,12 @@
 
         .mobile-menu { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .mobile-menu.closed { transform: translateX(-100%); }
+
+        /* Tambah ini di dalam tag <style> */
+.note-preview {
+    pointer-events: none; /* Supaya klik tembus ke kotak bapa */
+}
+        
     </style>
 </head>
 <body class="min-h-screen text-slate-900">
@@ -311,37 +317,38 @@
     const daysInMonth = new Date(2026, parseInt(targetMonth) + 1, 0).getDate();
     
         for(let i=1; i<=daysInMonth; i++){
-        let d = new Date(2026, targetMonth, i);
-        let r = getDuty(d, userData.platoon);
-        const adakahHariIni = (i === skrg.getDate() && targetMonth == skrg.getMonth());
-        const teksNota = userNotes[i] || "";
-        
-        html += `
-            <div onclick="bukaModal(${i}, ${targetMonth}, '${teksNota}')" 
-                 class="relative p-5 rounded-[2rem] border flex flex-col min-h-[130px] active:scale-95 transition-all cursor-pointer ${r.off ? 'bg-slate-50' : 'bg-white shadow-sm'} ${adakahHariIni ? 'ring-4 ring-yellow-400 z-10 scale-[1.02]' : 'border-slate-100'}">
+    let d = new Date(2026, targetMonth, i);
+    let r = getDuty(d, userData.platoon);
+    const adakahHariIni = (i === skrg.getDate() && targetMonth == skrg.getMonth());
+    const teksNota = userNotes[i] || "";
+    
+    html += `
+        <div onclick="bukaModal(${i}, ${targetMonth}, \`${teksNota.replace(/"/g, '&quot;')}\`)" 
+             class="relative p-5 rounded-[2rem] border flex flex-col min-h-[130px] active:scale-95 transition-all cursor-pointer overflow-hidden ${r.off ? 'bg-slate-50' : 'bg-white shadow-sm'} ${adakahHariIni ? 'ring-4 ring-yellow-400 z-10 scale-[1.02]' : 'border-slate-100'}">
+            
+            <div class="flex justify-between items-start mb-1 relative z-10">
+                <p class="text-[10px] font-black ${adakahHariIni ? 'text-black' : 'text-slate-400'} uppercase">${d.toLocaleDateString('ms-MY',{weekday:'short', day:'2-digit'})}</p>
                 
-                <div class="flex justify-between items-start mb-1">
-                    <p class="text-[10px] font-black ${adakahHariIni ? 'text-black' : 'text-slate-400'} uppercase">${d.toLocaleDateString('ms-MY',{weekday:'short', day:'2-digit'})}</p>
-                    
-                    <div class="p-1">
-                        ${teksNota 
-                            ? '<span class="flex h-2 w-2 bg-yellow-400 rounded-full animate-pulse"></span>' 
-                            : `<svg class="w-3 h-3 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-                               </svg>`
-                        }
-                    </div>
+                <div class="p-1">
+                    ${teksNota 
+                        ? '<span class="flex h-2 w-2 bg-yellow-400 rounded-full animate-pulse"></span>' 
+                        : `<svg class="w-3 h-3 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>`
+                    }
                 </div>
-                
+            </div>
+            
+            <div class="relative z-10">
                 <p class="text-[12px] font-black ${adakahHariIni ? 'text-black' : 'text-slate-700'} uppercase">${r.off ? 'OFF' : r.shift}</p>
                 <p class="text-[9px] font-black text-yellow-500 uppercase tracking-tighter">${r.off ? '' : r.loc}</p>
-                
-                ${teksNota ? `
-                <div class="mt-2 pt-2 border-t border-dashed border-slate-100">
-                    <p class="text-[9px] font-bold text-slate-400 italic line-clamp-1">${teksNota}</p>
-                </div>` : ''}
-            </div>`;
-    }
+            </div>
+            
+            ${teksNota ? `
+            <div class="mt-2 pt-2 border-t border-dashed border-slate-100 note-preview relative z-10">
+                <p class="text-[9px] font-bold text-slate-400 italic line-clamp-2 leading-tight">${teksNota}</p>
+            </div>` : ''}
+        </div>`;
+}
+
 
     cont.innerHTML = html + '</div>';
     document.getElementById('month-select').onchange = (e) => showPage('jadual-induk', e.target.value);
