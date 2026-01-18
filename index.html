@@ -417,11 +417,15 @@
                             async function showAdminPage() {
     const cont = document.getElementById('dynamic-content');
     
-    // Layout Dashboard Admin
     cont.innerHTML = `
         <div class="space-y-8">
             <div id="admin-stats" class="grid grid-cols-2 gap-4"></div>
             
+            <div class="px-2">
+                <input type="text" id="admin-search" onkeyup="tapisAhli()" placeholder="CARI NAMA AHLI..." 
+                    class="w-full p-5 bg-white border border-slate-100 rounded-[2rem] text-[12px] font-black outline-none focus:ring-2 focus:ring-yellow-400 shadow-sm uppercase tracking-widest">
+            </div>
+
             <div id="adm-list-pending" class="space-y-4">
                 <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest px-6">Menunggu Kelulusan</h3>
             </div>
@@ -457,17 +461,16 @@
                 </div>`;
         } else if (user.status === 'approved' && user.role !== 'admin') {
             totalApproved++;
+            // Tambah class 'user-card' dan data-name untuk fungsi carian
             approvedList.innerHTML += `
-                <div class="p-5 bg-slate-50 rounded-[2rem] flex justify-between items-center border border-white">
+                <div class="user-card p-5 bg-slate-50 rounded-[2rem] flex justify-between items-center border border-white" data-name="${user.fullName.toUpperCase()}">
                     <div>
                         <p class="text-[12px] font-black uppercase text-slate-700">${user.fullName}</p>
                         <p class="text-[9px] font-bold text-slate-400 uppercase text-left">Platun ${user.platoon}</p>
                     </div>
-                    <div class="flex gap-2">
-                         <button onclick="padamUser('${userId}')" class="p-3 bg-red-100 text-red-500 rounded-xl active:scale-95 transition-all">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                        </button>
-                    </div>
+                    <button onclick="padamUser('${userId}')" class="p-3 bg-red-100 text-red-500 rounded-xl active:scale-95 transition-all">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
                 </div>`;
         }
     });
@@ -488,6 +491,11 @@
 
 
 
+
+                    
+
+
+
                     window.updateStatus = async function(uid, status) {
     await update(ref(db, 'users/' + uid), { status: status });
     showAdminPage();
@@ -500,8 +508,19 @@ window.padamUser = async function(uid) {
     }
 };
 
+                    window.tapisAhli = function() {
+    const input = document.getElementById('admin-search').value.toUpperCase();
+    const cards = document.getElementsByClassName('user-card');
 
-                    
+    for (let i = 0; i < cards.length; i++) {
+        const name = cards[i].getAttribute('data-name');
+        if (name.includes(input)) {
+            cards[i].style.display = "";
+        } else {
+            cards[i].style.display = "none";
+        }
+    }
+};
 
 window.luluskanUser = async function(uid) {
     if(confirm("Luluskan pengguna ini?")) {
