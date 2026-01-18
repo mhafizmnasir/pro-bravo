@@ -197,7 +197,7 @@
             let row = ((START_ROW[platoon] + Math.floor(diffDays/4) - 1) % 24) + 1;
             return { off: false, shift: ["PETANG", "PAGI", "MALAM"][cyclePos], loc: JADUAL_2[row][cyclePos] };
         }
-
+                    
         onAuthStateChanged(auth, async (user) => {
     const loading = document.getElementById('loading-overlay');
     
@@ -444,8 +444,12 @@
                 clockEl.innerHTML = `<span class="text-black font-black">${hari}</span> <span class="text-yellow-500 mx-1">|</span> <span class="text-slate-400">${tarikh}</span> <span class="text-yellow-500 mx-1">|</span> <span class="text-black font-black">${masa}</span>`;
             }
         }, 1000);
-                            // Pastikan let authMode = 'login'; sudah ada di bahagian atas skrip
-document.getElementById('btn-action').onclick = async () => {
+
+
+
+
+                    
+                            document.getElementById('btn-action').onclick = async () => {
     const email = document.getElementById('email').value.trim();
     const pass = document.getElementById('password').value;
     const forgotEmail = document.getElementById('forgot-email').value.trim();
@@ -481,10 +485,52 @@ document.getElementById('btn-action').onclick = async () => {
             toggleAuthMode('login');
         }
     } catch(e) {
-        console.error(e);
-        alert("Ralat: " + e.message);
+        console.error("Auth Error Code:", e.code); // Untuk rujukan teknikal anda di console
+        
+        let mesejRalat = "Berlaku ralat. Sila cuba lagi.";
+
+        // Pengendalian Ralat Mengikut Kod Firebase
+        switch (e.code) {
+            // Ralat Login
+            case 'auth/user-not-found':
+                mesejRalat = "Akaun tidak dijumpai. Sila daftar terlebih dahulu.";
+                break;
+            case 'auth/wrong-password':
+                mesejRalat = "Kata laluan tidak sah. Sila cuba lagi.";
+                break;
+            case 'auth/invalid-credential':
+                mesejRalat = "Emel atau kata laluan salah.";
+                break;
+                
+            // Ralat Pendaftaran
+            case 'auth/email-already-in-use':
+                mesejRalat = "Emel ini sudah berdaftar. Sila gunakan emel lain.";
+                break;
+            case 'auth/weak-password':
+                mesejRalat = "Kata laluan terlalu lemah (minima 6 aksara).";
+                break;
+                
+            // Ralat Umum
+            case 'auth/invalid-email':
+                mesejRalat = "Format emel tidak sah.";
+                break;
+            case 'auth/too-many-requests':
+                mesejRalat = "Terlalu banyak cubaan gagal. Sila cuba sebentar lagi.";
+                break;
+            case 'auth/network-request-failed':
+                mesejRalat = "Tiada sambungan internet. Sila semak rangkaian anda.";
+                break;
+            default:
+                mesejRalat = "Ralat: " + e.message;
+        }
+
+        alert(mesejRalat);
     }
 };
+
+
+
+                    
 
 function toggleAuthMode(target) {
     authMode = target;
@@ -597,10 +643,11 @@ document.getElementById('auth-toggle-btn').onclick = () => {
                     await set(ref(db, path), notaBaru.trim());
                 }
                 showPage('jadual-induk', bulan);
-            } catch (e) {
-                console.error(e);
-                alert("Ralat: " + e.message);
-            }
+                } catch(e) {
+        // ... (kod switch case anda) ...
+        showToast(mesejRalat); // <--- SEKARANG IA LEBIH CANTIK!
+    }
+
         };
         // TAMBAHKAN KOD DI ATAS INI
 
@@ -655,7 +702,30 @@ document.getElementById('note-modal').onclick = (e) => {
 
 
 
+
+
+window.showToast = function(msg) {
+    const toast = document.getElementById('toast');
+    document.getElementById('toast-msg').innerText = msg;
+    toast.classList.remove('opacity-0', 'pointer-events-none');
+    toast.classList.add('opacity-100');
+    
+    setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0', 'pointer-events-none');
+    }, 3000);
+};
+
+                    
+
                     
     </script>
+
+<div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-black text-white px-6 py-4 rounded-2xl text-[12px] font-bold shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-[200]">
+    <span id="toast-msg"></span>
+</div>
+
+
+    
 </body>
 </html>
