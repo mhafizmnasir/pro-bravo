@@ -199,42 +199,64 @@
     const loading = document.getElementById('loading-overlay');
     
     if (user) {
-        // AMBIL DATA JADUAL DAHULU SEBELUM PAPAR DASHBOARD
-        await fetchSettings();
-        
-        const snap = await get(ref(db, 'users/' + user.uid));
-        if (snap.exists() && snap.val().status === "approved") {
-            userData = snap.val();
-            document.getElementById('auth-section').classList.add('hidden');
-            document.getElementById('main-dashboard').classList.remove('hidden');
+        try {
+            // 1. Ambil data JADUAL_2 & CONFIG dari Firebase dahulu
+            await fetchSettings();
             
-            if(userData.role === 'admin') {
-                document.getElementById('admin-nav').classList.remove('hidden');
-                monitorPendingUsers();
+            // 2. Ambil data profil pengguna
+            const snap = await get(ref(db, 'users/' + user.uid));
+            
+            if (snap.exists()) {
+                userData = snap.val();
+                
+                // Semak jika akaun telah diluluskan
+                if (userData.status === "approved") {
+                    document.getElementById('auth-section').classList.add('hidden');
+                    document.getElementById('main-dashboard').classList.remove('hidden');
+                    
+                    // Jika admin, paparkan menu admin dan monitor pendaftaran baru
+                    if(userData.role === 'admin') {
+                        document.getElementById('admin-nav').classList.remove('hidden');
+                        monitorPendingUsers();
+                    } else {
+                        document.getElementById('admin-nav').classList.add('hidden');
+                    }
+                    
+                    // Paparkan halaman utama
+                    showPage('welcome');
+                } else {
+                    // Jika belum approved, paksa logout dan beri amaran
+                    alert("Akaun anda (" + userData.nama + ") masih menunggu kelulusan Admin.");
+                    await signOut(auth);
+                }
+            } else {
+                // Jika data user tiada dalam database
+                alert("Data profil tidak dijumpai. Sila daftar semula.");
+                await signOut(auth);
             }
-            showPage('welcome');
-        } else {
-            alert("Akaun belum diluluskan Admin.");
-            signOut(auth);
+        } catch (error) {
+            console.error("Ralat Auth State:", error);
+            showToast("Ralat sambungan database.");
         }
     } else {
+        // Logik apabila pengguna Logout
         document.getElementById('auth-section').classList.remove('hidden');
         document.getElementById('main-dashboard').classList.add('hidden');
-        document.getElementById('admin-nav').classList.add('hidden'); // Sembunyikan admin nav jika logout
+        document.getElementById('admin-nav').classList.add('hidden');
+        document.getElementById('dynamic-content').innerHTML = ''; // Bersihkan skrin
+        userData = null;
     }
-
-    // --- PERUBAHAN DI SINI ---
+    
+    // Hilangkan loading skrin dengan kesan fade-out
     if (loading) {
-        // Tambah class fade-out untuk memulakan transition CSS
         loading.classList.add('fade-out');
-        
-        // Selepas tamat animasi (0.6s), kita set display none 
-        // supaya ia tidak menghalang klik pada butang di bawahnya
+        // Buang elemen dari DOM selepas animasi tamat (0.6s)
         setTimeout(() => {
             loading.style.display = 'none';
         }, 600);
     }
 });
+
 
 
         function monitorPendingUsers() {
