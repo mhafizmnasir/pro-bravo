@@ -420,6 +420,7 @@
                         </select>
                     </div>
                     <button id="btn-update-profile" class="w-full bg-black text-yellow-400 font-black py-5 rounded-2xl mt-4 uppercase text-[11px] tracking-widest shadow-xl active:scale-95 transition-all">Simpan Perubahan</button>
+                    <button id="btn-reset-password" class="w-full bg-slate-100 text-slate-600 font-black py-4 rounded-2xl mt-4 uppercase text-[10px] tracking-widest active:scale-95 transition-all">Tukar Kata Laluan (Melalui Emel)</button>
                 </div>
             </div>`;
 
@@ -739,6 +740,19 @@ document.getElementById('note-modal').onclick = (e) => {
 };
 
 
+document.getElementById('btn-reset-password').onclick = async () => {
+    try {
+        // Ambil emel pengguna yang sedang log masuk
+        const userEmail = auth.currentUser.email;
+        
+        // Fungsi Firebase untuk hantar emel reset
+        await sendPasswordResetEmail(auth, userEmail);
+        
+        alert("Pautan tukar kata laluan telah dihantar ke emel: " + userEmail);
+    } catch (e) {
+        alert("Ralat: " + e.message);
+    }
+};
 
 
 
