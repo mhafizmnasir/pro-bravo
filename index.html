@@ -394,75 +394,46 @@
                 </div>` : ''}
             </div>`;
     }
-
-
-
-
-else if (p === 'settings') {
-    cont.innerHTML = `
-        <div class="space-y-6 animate-fade-in">
-            <h2 class="text-2xl font-black text-black uppercase italic tracking-tighter">Tetapan Profil</h2>
-            
-            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-4">
-                <div>
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Nama Penuh</label>
-                    <input type="text" id="set-fullname" value="${userData.fullName}" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400">
-                </div>
-
-                <div>
-                    <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Platun Semasa</label>
-                    <select id="set-platoon" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-[12px] font-bold outline-none focus:ring-2 focus:ring-yellow-400">
-                        ${Array.from({length: 25}, (_, i) => `<option value="${i+1}" ${userData.platoon == i+1 ? 'selected' : ''}>PLATUN ${i+1}</option>`).join('')}
-                    </select>
-                </div>
-
-                <button id="btn-update-profile" class="w-full bg-black text-yellow-400 font-black py-5 rounded-2xl mt-4 uppercase text-[11px] tracking-widest shadow-xl active:scale-95 transition-all">
-                    Simpan Perubahan
-                </button>
-            </div>
-            
-            <p class="text-center text-[10px] text-slate-400 font-bold uppercase tracking-widest">Versi Aplikasi 1.0.0</p>
-        </div>
-    `;
-
-    // Logik apabila butang Simpan ditekan
-    document.getElementById('btn-update-profile').onclick = async () => {
-        const newName = document.getElementById('set-fullname').value.trim().toUpperCase();
-        const newPlatoon = parseInt(document.getElementById('set-platoon').value);
-
-        try {
-            // Kemaskini data di Firebase
-            await update(ref(db, 'users/' + auth.currentUser.uid), {
-                fullName: newName,
-                platoon: newPlatoon
-            });
-            
-            // Kemaskini data lokal supaya paparan berubah serta-merta
-            userData.fullName = newName;
-            userData.platoon = newPlatoon;
-            
-            alert("Profil berjaya dikemaskini!");
-            showPage('welcome'); // Kembali ke halaman utama
-        } catch (e) {
-            alert("Ralat: " + e.message);
-        }
-    };
-}
-
-
-
-
-
-                
-
-
     cont.innerHTML = html + '</div>';
     document.getElementById('month-select').onchange = (e) => showPage('jadual-induk', e.target.value);
 }
 
 
 
+    else if (p === 'jadual-induk') {
+        // ... kod jadual sedia ada ...
+    }
+    // MASUKKAN DI SINI
+    else if (p === 'settings') {
+        cont.innerHTML = `
+            <div class="space-y-6">
+                <h2 class="text-2xl font-black text-black uppercase italic tracking-tighter">Tetapan Profil</h2>
+                <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 space-y-4">
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Nama Penuh</label>
+                        <input type="text" id="set-fullname" value="${userData.fullName}" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-2">Platun Semasa</label>
+                        <select id="set-platoon" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-[12px] font-bold outline-none focus:ring-2 focus:ring-yellow-400">
+                            ${Array.from({length: 25}, (_, i) => `<option value="${i+1}" ${userData.platoon == i+1 ? 'selected' : ''}>PLATUN ${i+1}</option>`).join('')}
+                        </select>
+                    </div>
+                    <button id="btn-update-profile" class="w-full bg-black text-yellow-400 font-black py-5 rounded-2xl mt-4 uppercase text-[11px] tracking-widest shadow-xl active:scale-95 transition-all">Simpan Perubahan</button>
+                </div>
+            </div>`;
 
+        document.getElementById('btn-update-profile').onclick = async () => {
+            const newName = document.getElementById('set-fullname').value.trim().toUpperCase();
+            const newPlatoon = parseInt(document.getElementById('set-platoon').value);
+            await update(ref(db, 'users/' + auth.currentUser.uid), { fullName: newName, platoon: newPlatoon });
+            userData.fullName = newName;
+            userData.platoon = newPlatoon;
+            alert("Profil berjaya dikemaskini!");
+            showPage('welcome');
+        };
+    }
+                                
 
 
 
