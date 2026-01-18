@@ -103,6 +103,34 @@
 
         <main class="max-w-4xl mx-auto p-6 md:p-12">
             <div id="dynamic-content" class="space-y-8"></div>
+
+
+
+
+
+            <div id="note-modal" class="fixed inset-0 bg-black/60 z-[100] hidden backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl transform transition-all">
+        <div class="bg-black p-6 flex justify-between items-center">
+            <h3 id="modal-title" class="text-yellow-400 font-black uppercase text-[12px] tracking-widest">Nota Peribadi</h3>
+            <button onclick="tutupModal()" class="text-white/50 hover:text-white">✕</button>
+        </div>
+        <div class="p-8">
+            <textarea id="note-input" rows="4" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-[13px] font-bold outline-none focus:ring-2 focus:ring-yellow-400 placeholder:text-slate-300" placeholder="Tulis sesuatu di sini..."></textarea>
+            <div class="grid grid-cols-2 gap-3 mt-6">
+                <button id="btn-delete-note" class="bg-red-50 text-red-500 font-black py-4 rounded-2xl uppercase text-[10px] tracking-widest">Hapus</button>
+                <button id="btn-save-note" class="bg-black text-yellow-400 font-black py-4 rounded-2xl uppercase text-[10px] tracking-widest">Simpan</button>
+            </div>
+        </div>
+    </div>
+            </div>
+
+
+
+
+
+
+
+            
         </main>
             </div>
                 <script type="module">
@@ -268,7 +296,7 @@
     const months = ["JANUARI", "FEBRUARI", "MAC", "APRIL", "MEI", "JUN", "JULAI", "OGOS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DISEMBER"];
     const skrg = new Date();
     
-    // Ambil nota pengguna dari Firebase
+    // Ambil nota dari Firebase
     const notesSnap = await get(ref(db, `notes/${auth.currentUser.uid}/${targetMonth}`));
     const userNotes = notesSnap.exists() ? notesSnap.val() : {};
 
@@ -286,22 +314,23 @@
         let d = new Date(2026, targetMonth, i);
         let r = getDuty(d, userData.platoon);
         const adakahHariIni = (i === skrg.getDate() && targetMonth == skrg.getMonth());
-        const notaWujud = userNotes[i] ? true : false;
+        const teksNota = userNotes[i] || "";
         
         html += `
-            <div class="relative p-5 rounded-[2rem] border flex flex-col min-h-[140px] transition-all ${r.off ? 'bg-slate-50 opacity-70' : 'bg-white shadow-sm'} ${adakahHariIni ? 'ring-4 ring-yellow-400 z-10 scale-[1.02] shadow-xl' : 'border-slate-100'}">
-                <div class="flex justify-between items-start mb-2">
+            <div onclick="bukaModal(${i}, ${targetMonth}, '${teksNota}')" 
+                 class="relative p-5 rounded-[2rem] border flex flex-col min-h-[130px] active:scale-95 transition-all cursor-pointer ${r.off ? 'bg-slate-50' : 'bg-white shadow-sm'} ${adakahHariIni ? 'ring-4 ring-yellow-400 z-10 scale-[1.02]' : 'border-slate-100'}">
+                
+                <div class="flex justify-between items-start mb-1">
                     <p class="text-[10px] font-black ${adakahHariIni ? 'text-black' : 'text-slate-400'} uppercase">${d.toLocaleDateString('ms-MY',{weekday:'short', day:'2-digit'})}</p>
-                    <button onclick="urusanNota(${i}, ${targetMonth}, '${userNotes[i] || ''}')" class="p-2 ${notaWujud ? 'bg-yellow-400 text-black' : 'bg-slate-100 text-slate-400'} rounded-full transition-colors">
-                        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
-                    </button>
+                    ${teksNota ? '<span class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></span>' : ''}
                 </div>
                 
-                <p class="text-[12px] ${adakahHariIni ? 'font-black text-black' : 'font-extrabold text-slate-700'} uppercase">${r.off ? 'OFF' : r.shift}</p>
-                <p class="text-[9px] font-black ${r.off ? 'hidden' : 'text-yellow-500'} uppercase mt-1 tracking-tighter">${r.off ? '' : r.loc}</p>
+                <p class="text-[12px] font-black ${adakahHariIni ? 'text-black' : 'text-slate-700'} uppercase">${r.off ? 'OFF' : r.shift}</p>
+                <p class="text-[9px] font-black text-yellow-500 uppercase tracking-tighter">${r.off ? '' : r.loc}</p>
                 
-                ${notaWujud ? `<div class="mt-3 p-2 bg-yellow-50 rounded-xl border-l-4 border-yellow-400">
-                    <p class="text-[9px] font-bold text-slate-600 line-clamp-2 italic">"${userNotes[i]}"</p>
+                ${teksNota ? `
+                <div class="mt-2 pt-2 border-t border-dashed border-slate-100">
+                    <p class="text-[9px] font-bold text-slate-400 italic line-clamp-1">${teksNota}</p>
                 </div>` : ''}
             </div>`;
     }
@@ -520,6 +549,58 @@ document.getElementById('auth-toggle-btn').onclick = () => {
         };
         // TAMBAHKAN KOD DI ATAS INI
 
+
+
+
+                    
+// Variable global untuk simpan data sementara semasa modal buka
+let currentEditingData = null;
+
+window.bukaModal = function(hari, bulan, teks) {
+    currentEditingData = { hari, bulan };
+    const modal = document.getElementById('note-modal');
+    const input = document.getElementById('note-input');
+    const title = document.getElementById('modal-title');
+    
+    title.innerText = `NOTA: ${hari}/${parseInt(bulan) + 1}`;
+    input.value = teks;
+    modal.classList.remove('hidden');
+    input.focus();
+};
+
+window.tutupModal = function() {
+    document.getElementById('note-modal').classList.add('hidden');
+};
+
+// Logik Simpan Nota
+document.getElementById('btn-save-note').onclick = async () => {
+    const teks = document.getElementById('note-input').value.trim();
+    if (!currentEditingData) return;
+
+    const path = `notes/${auth.currentUser.uid}/${currentEditingData.bulan}/${currentEditingData.hari}`;
+    await set(ref(db, path), teks || null); // Simpan nota atau hapus jika kosong
+    tutupModal();
+    showPage('jadual-induk', currentEditingData.bulan);
+};
+
+// Logik Hapus Nota
+document.getElementById('btn-delete-note').onclick = async () => {
+    if (!currentEditingData || !confirm("Hapus nota ini?")) return;
+    
+    const path = `notes/${auth.currentUser.uid}/${currentEditingData.bulan}/${currentEditingData.hari}`;
+    await set(ref(db, path), null);
+    tutupModal();
+    showPage('jadual-induk', currentEditingData.bulan);
+};
+
+// Tutup modal jika klik di luar kotak putih
+document.getElementById('note-modal').onclick = (e) => {
+    if (e.target.id === 'note-modal') tutupModal();
+};
+
+
+
+                    
     </script>
 </body>
 </html>
