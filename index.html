@@ -410,24 +410,82 @@
                                 
             closeMenu();
                             }
+
+
+
+                    
                             async function showAdminPage() {
-            const cont = document.getElementById('dynamic-content');
-            cont.innerHTML = `<div class="space-y-6"><div id="adm-list" class="space-y-4"><h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest px-6">Kelulusan Pengguna Baru</h3></div></div>`;
-            const usersSnap = await get(ref(db, 'users'));
-            const list = document.getElementById('adm-list');
-            usersSnap.forEach(c => {
-                if(c.val().status === 'pending') {
-                    const div = document.createElement('div');
-                    div.className = "p-6 bg-white rounded-[2.5rem] flex justify-between items-center border border-slate-100 shadow-sm";
-                    div.innerHTML = `<div><p class="text-[13px] font-black uppercase text-black">${c.val().fullName}</p><p class="text-[10px] font-bold text-yellow-600 uppercase">Platun ${c.val().platoon}</p></div>`;
-                    const btn = document.createElement('button');
-                    btn.className = "bg-black text-yellow-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase shadow-lg";
-                    btn.innerText = "Luluskan";
-                    btn.onclick = () => update(ref(db, 'users/' + c.key), { status: 'approved' }).then(() => showAdminPage());
-                    div.appendChild(btn); list.appendChild(div);
-                }
-            });
-                            }
+    const cont = document.getElementById('dynamic-content');
+    
+    // Paparkan skeleton/loading dahulu
+    cont.innerHTML = `
+        <div class="space-y-8">
+            <div id="admin-stats" class="grid grid-cols-2 gap-4"></div>
+            <div id="adm-list" class="space-y-4">
+                <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest px-6">Kelulusan Pengguna Baru</h3>
+            </div>
+        </div>`;
+
+    const usersSnap = await get(ref(db, 'users'));
+    const list = document.getElementById('adm-list');
+    const statsCont = document.getElementById('admin-stats');
+
+    let totalApproved = 0;
+    let totalPending = 0;
+    let pendingHTML = "";
+
+    usersSnap.forEach(c => {
+        const user = c.val();
+        if (user.status === 'approved') {
+            totalApproved++;
+        } else if (user.status === 'pending') {
+            totalPending++;
+            // Bina senarai menunggu
+            pendingHTML += `
+                <div class="p-6 bg-white rounded-[2.5rem] flex justify-between items-center border border-slate-100 shadow-sm">
+                    <div>
+                        <p class="text-[13px] font-black uppercase text-black">${user.fullName}</p>
+                        <p class="text-[10px] font-bold text-yellow-600 uppercase">Platun ${user.platoon}</p>
+                    </div>
+                    <button onclick="luluskanUser('${c.key}')" class="bg-black text-yellow-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all">
+                        Luluskan
+                    </button>
+                </div>`;
+        }
+    });
+
+    // 1. Paparkan Statistik (UI dikekalkan mengikut tema Bravorian)
+    statsCont.innerHTML = `
+        <div class="bg-black p-6 rounded-[2.5rem] shadow-xl border border-slate-800">
+            <p class="text-[9px] font-black text-yellow-400 uppercase tracking-widest mb-1">Ahli Aktif</p>
+            <p class="text-3xl font-black text-white italic tracking-tighter">${totalApproved}</p>
+        </div>
+        <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100">
+            <p class="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Menunggu</p>
+            <p class="text-3xl font-black text-black italic tracking-tighter">${totalPending}</p>
+        </div>
+    `;
+
+    // 2. Paparkan Senarai Menunggu
+    if (pendingHTML === "") {
+        list.innerHTML += `<p class="text-[10px] font-bold text-slate-300 uppercase text-center py-10">Tiada permohonan baru</p>`;
+    } else {
+        list.innerHTML += pendingHTML;
+    }
+}
+
+window.luluskanUser = async function(uid) {
+    if(confirm("Luluskan pengguna ini?")) {
+        await update(ref(db, 'users/' + uid), { status: 'approved' });
+        showAdminPage(); // Refresh paparan admin
+    }
+}
+
+
+
+
+                    
+                    
                             const sidebar = document.getElementById('mobile-sidebar');
         const container = document.getElementById('sidebar-container');
         function openMenu() { sidebar.classList.remove('hidden'); setTimeout(() => container.classList.remove('closed'), 10); }
