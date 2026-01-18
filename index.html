@@ -180,20 +180,65 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
-
+                    
+        // --- 1. PEMBOLEHUBAH GLOBAL BARU ---
         let userData = null;
         let authMode = 'login';
-                            function getDuty(date, platoon) {
-            let baseDate = new Date(2026, 0, 3); 
+        let JADUAL_2 = null;
+        let START_ROW = null;
+        let CONFIG_BASE_DATE = "2026-01-03"; // Nilai asal (fallback)
+
+        // --- 2. FUNGSI UNTUK AMBIL DATA DARI FIREBASE ---
+        async function fetchSettings() {
+            try {
+                const snap = await get(ref(db, 'settings'));
+                if (snap.exists()) {
+                    const data = snap.val();
+                    JADUAL_2 = data.jadual_2;
+                    START_ROW = data.start_row;
+                    // Pastikan di Firebase ada node: settings -> config -> base_date
+                    if (data.config && data.config.base_date) {
+                        CONFIG_BASE_DATE = data.config.base_date;
+                    }
+                    console.log("Tetapan berjaya dimuat turun dari Firebase");
+                } else {
+                    console.error("Node 'settings' tidak dijumpai!");
+                }
+            } catch (e) {
+                console.error("Ralat fetchSettings:", e);
+                throw e; // Supaya ditangkap oleh onAuthStateChanged
+            }
+        }
+
+        // --- 3. LOGIK JADUAL YANG TELAH DIKEMASKINI ---
+        function getDuty(date, platoon) {
+            // Jika data belum siap dimuat turun, jangan teruskan logik
+            if (!JADUAL_2 || !START_ROW) return { off: true };
+
+            // Guna CONFIG_BASE_DATE dinamik dari Firebase
+            let baseDate = new Date(CONFIG_BASE_DATE); 
             let targetDate = new Date(date); 
             targetDate.setHours(0,0,0,0);
+            
             let diffDays = Math.floor((targetDate - baseDate) / 86400000);
             if (diffDays < 0) return { off: true };
+            
             let cyclePos = diffDays % 4; 
             if (cyclePos === 3) return { off: true };
+            
+            // Logik baris jadual (1-24)
             let row = ((START_ROW[platoon] + Math.floor(diffDays/4) - 1) % 24) + 1;
-            return { off: false, shift: ["PETANG", "PAGI", "MALAM"][cyclePos], loc: JADUAL_2[row][cyclePos] };
+            
+            return { 
+                off: false, 
+                shift: ["PETANG", "PAGI", "MALAM"][cyclePos], 
+                loc: JADUAL_2[row][cyclePos] 
+            };
         }
+                    
+        onAuthStateChanged(auth, async (user) => {
+            // ... (Gunakan kod onAuthStateChanged yang saya berikan sebelum ini) ...
+
                     
         onAuthStateChanged(auth, async (user) => {
     const loading = document.getElementById('loading-overlay');
