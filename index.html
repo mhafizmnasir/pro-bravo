@@ -181,9 +181,6 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        const JADUAL_2 = { 1: ["ENTRY MC", "ENTRY KA", "ENTRY BAS"], 2: ["EXIT KB", "EXIT SBY#2", "EXIT MA"], 3: ["ENTRY KC", "ENTRY BDL/Autogate", "ENTRY SBY#1"], 4: ["EXIT LORI", "EXIT BAS", "EXIT KD"], 5: ["ENTRY MC", "ENTRY SBY#3", "ENTRY KB"], 6: ["EXIT MA", "EXIT SBY#1", "EXIT KC"], 7: ["ENTRY SBY#2", "ENTRY BAS", "ENTRY KD"], 8: ["EXIT BAS", "EXIT KA", "EXIT SBY#3"], 9: ["ENTRY KA", "ENTRY BAS", "ENTRY MC"], 10: ["EXIT SBY#2", "EXIT MA", "EXIT KB"], 11: ["ENTRY SBY#1", "ENTRY KC", "ENTRY BDL/Autogate"], 12: ["EXIT KD", "EXIT LORI", "EXIT BAS"], 13: ["ENTRY SBY#3", "ENTRY KB", "ENTRY MC"], 14: ["EXIT KC", "EXIT MA", "EXIT SBY#1"], 15: ["ENTRY KD", "ENTRY SBY#2", "ENTRY BAS"], 16: ["EXIT SBY#3", "EXIT BAS", "EXIT KA"], 17: ["ENTRY BAS", "ENTRY MC", "ENTRY KA"], 18: ["EXIT MA", "EXIT KB", "EXIT SBY#2"], 19: ["ENTRY BDL/Autogate", "ENTRY SBY#1", "ENTRY KC"], 20: ["EXIT BAS", "EXIT KD", "EXIT LORI"], 21: ["ENTRY KB", "ENTRY MC", "ENTRY SBY#3"], 22: ["EXIT SBY#1", "EXIT KC", "EXIT MA"], 23: ["ENTRY BAS", "ENTRY KD", "ENTRY SBY#2"], 24: ["EXIT KA", "EXIT SBY#3", "EXIT BAS"] };
-        const START_ROW = { 1:1, 2:2, 3:1, 4:20, 5:13, 6:16, 7:17, 8:6, 9:3, 10:10, 11:7, 12:24, 13:15, 14:22, 15:5, 16:14, 17:19, 18:8, 19:9, 20:12, 21:21, 22:4, 23:11, 24:18, 25:23 };
-
         let userData = null;
         let authMode = 'login';
                             function getDuty(date, platoon) {
@@ -202,6 +199,9 @@
     const loading = document.getElementById('loading-overlay');
     
     if (user) {
+        // AMBIL DATA JADUAL DAHULU SEBELUM PAPAR DASHBOARD
+        await fetchSettings();
+        
         const snap = await get(ref(db, 'users/' + user.uid));
         if (snap.exists() && snap.val().status === "approved") {
             userData = snap.val();
