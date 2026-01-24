@@ -373,13 +373,13 @@ const CUTI_JOHOR = {
     
     const daysInMonth = new Date(2026, parseInt(targetMonth) + 1, 0).getDate();
     
-                for(let i=1; i<=daysInMonth; i++){
+               for(let i=1; i<=daysInMonth; i++){
     let d = new Date(2026, targetMonth, i);
     let r = getDuty(d, userData.platoon);
     const adakahHariIni = (i === skrg.getDate() && targetMonth == skrg.getMonth());
     const teksNota = userNotes[i] || "";
     
-    // LOGIK BARU: Semak cuti umum
+    // 1. Semak cuti umum
     const kunciCuti = `${i}-${targetMonth}`;
     const namaCuti = CUTI_JOHOR[kunciCuti] || "";
 
@@ -396,6 +396,7 @@ const CUTI_JOHOR = {
             <div class="flex justify-between items-start mb-1 relative z-10">
                 <div>
                     <p class="text-[10px] font-black ${adakahHariIni ? 'text-black' : 'text-slate-400'} uppercase">${d.toLocaleDateString('ms-MY',{weekday:'short', day:'2-digit'})}</p>
+                    
                     ${namaCuti ? `<p class="text-[7px] font-extrabold text-red-500 uppercase leading-tight mt-0.5">${namaCuti}</p>` : ''}
                 </div>
                 
