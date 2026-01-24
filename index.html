@@ -185,20 +185,27 @@
         const START_ROW = { 1:1, 2:2, 3:1, 4:20, 5:13, 6:16, 7:17, 8:6, 9:3, 10:10, 11:7, 12:24, 13:15, 14:22, 15:5, 16:14, 17:19, 18:8, 19:9, 20:12, 21:21, 22:4, 23:11, 24:18, 25:23 };
       
                     
-                    // Senarai Cuti Umum Johor 2026 (Contoh)
-const CUTI_JOHOR = {
-    "1-0": "Tahun Baru", // 1 Jan
-    "29-0": "Tahun Baru Cina", // 29 Jan
-    "30-0": "Tahun Baru Cina (Hari Ke-2)",
-    "20-2": "Awal Ramadan*", // 20 Mac (Tertakluk perubahan)
-    "23-3": "Hari Keputeraan Sultan Johor",
-    "31-3": "Hari Raya Aidilfitri*",
-    "1-4": "Hari Raya Aidilfitri (Hari Ke-2)*",
-    "1-5": "Hari Pekerja",
-    "27-5": "Hari Raya Haji*",
-    "16-6": "Hari Malaysia & Maulidur Rasul", // Jatuh hari sama/dekat
-    "31-8": "Hari Kebangsaan",
-    "25-12": "Hari Krismas"
+                   const CUTI_JOHOR = {
+    "1-0": "Tahun Baru",
+    "1-1": "Hari Thaipusam",
+    "2-1": "Cuti Thaipusam",
+    "17-1": "Tahun Baru Cina",
+    "18-1": "Tahun Baru Cina (Hari Ke-2)",
+    "19-1": "Awal Ramadan*", // 19 Feb 2026
+    "21-2": "Hari Raya Aidilfitri*", // 21 Mac 2026
+    "22-2": "Hari Raya Aidilfitri (Hari Ke-2)*",
+    "23-2": "Hari Keputeraan Sultan Johor",
+    "1-4": "Hari Pekerja",
+    "27-4": "Hari Raya Haji*", // 27 Mei 2026
+    "31-4": "Hari Wesak",
+    "1-5": "Hari Keputeraan YDP Agong",
+    "17-5": "Awal Muharram",
+    "21-6": "Hari Hol Almarhum Sultan Iskandar",
+    "25-7": "Maulidur Rasul",
+    "31-7": "Hari Kebangsaan",
+    "16-8": "Hari Malaysia",
+    "8-10": "Hari Deepavali",
+    "25-11": "Hari Krismas"
 };
 
                     
@@ -379,7 +386,7 @@ const CUTI_JOHOR = {
     const adakahHariIni = (i === skrg.getDate() && targetMonth == skrg.getMonth());
     const teksNota = userNotes[i] || "";
     
-    // 1. Semak cuti umum
+    // Semak cuti umum menggunakan kunci hari-bulan
     const kunciCuti = `${i}-${targetMonth}`;
     const namaCuti = CUTI_JOHOR[kunciCuti] || "";
 
