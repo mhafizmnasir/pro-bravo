@@ -183,7 +183,25 @@
 
         const JADUAL_2 = { 1: ["ENTRY MC", "ENTRY KA", "ENTRY BAS"], 2: ["EXIT KB", "EXIT SBY#2", "EXIT MA"], 3: ["ENTRY KC", "ENTRY BDL/Autogate", "ENTRY SBY#1"], 4: ["EXIT LORI", "EXIT BAS", "EXIT KD"], 5: ["ENTRY MC", "ENTRY SBY#3", "ENTRY KB"], 6: ["EXIT MA", "EXIT SBY#1", "EXIT KC"], 7: ["ENTRY SBY#2", "ENTRY BAS", "ENTRY KD"], 8: ["EXIT BAS", "EXIT KA", "EXIT SBY#3"], 9: ["ENTRY KA", "ENTRY BAS", "ENTRY MC"], 10: ["EXIT SBY#2", "EXIT MA", "EXIT KB"], 11: ["ENTRY SBY#1", "ENTRY KC", "ENTRY BDL/Autogate"], 12: ["EXIT KD", "EXIT LORI", "EXIT BAS"], 13: ["ENTRY SBY#3", "ENTRY KB", "ENTRY MC"], 14: ["EXIT KC", "EXIT MA", "EXIT SBY#1"], 15: ["ENTRY KD", "ENTRY SBY#2", "ENTRY BAS"], 16: ["EXIT SBY#3", "EXIT BAS", "EXIT KA"], 17: ["ENTRY BAS", "ENTRY MC", "ENTRY KA"], 18: ["EXIT MA", "EXIT KB", "EXIT SBY#2"], 19: ["ENTRY BDL/Autogate", "ENTRY SBY#1", "ENTRY KC"], 20: ["EXIT BAS", "EXIT KD", "EXIT LORI"], 21: ["ENTRY KB", "ENTRY MC", "ENTRY SBY#3"], 22: ["EXIT SBY#1", "EXIT KC", "EXIT MA"], 23: ["ENTRY BAS", "ENTRY KD", "ENTRY SBY#2"], 24: ["EXIT KA", "EXIT SBY#3", "EXIT BAS"] };
         const START_ROW = { 1:1, 2:2, 3:1, 4:20, 5:13, 6:16, 7:17, 8:6, 9:3, 10:10, 11:7, 12:24, 13:15, 14:22, 15:5, 16:14, 17:19, 18:8, 19:9, 20:12, 21:21, 22:4, 23:11, 24:18, 25:23 };
+      
+                    
+                    // Senarai Cuti Umum Johor 2026 (Contoh)
+const CUTI_JOHOR = {
+    "1-0": "Tahun Baru", // 1 Jan
+    "29-0": "Tahun Baru Cina", // 29 Jan
+    "30-0": "Tahun Baru Cina (Hari Ke-2)",
+    "20-2": "Awal Ramadan*", // 20 Mac (Tertakluk perubahan)
+    "23-3": "Hari Keputeraan Sultan Johor",
+    "31-3": "Hari Raya Aidilfitri*",
+    "1-4": "Hari Raya Aidilfitri (Hari Ke-2)*",
+    "1-5": "Hari Pekerja",
+    "27-5": "Hari Raya Haji*",
+    "16-6": "Hari Malaysia & Maulidur Rasul", // Jatuh hari sama/dekat
+    "31-8": "Hari Kebangsaan",
+    "25-12": "Hari Krismas"
+};
 
+                    
         let userData = null;
         let authMode = 'login';
                             function getDuty(date, platoon) {
@@ -356,43 +374,50 @@
     const daysInMonth = new Date(2026, parseInt(targetMonth) + 1, 0).getDate();
     
                 for(let i=1; i<=daysInMonth; i++){
-        let d = new Date(2026, targetMonth, i);
-        let r = getDuty(d, userData.platoon);
-        const adakahHariIni = (i === skrg.getDate() && targetMonth == skrg.getMonth());
-        const teksNota = userNotes[i] || "";
-        
-        html += `
-            <div onclick="bukaModal(${i}, ${targetMonth}, \`${teksNota.replace(/"/g, '&quot;')}\`)" 
-                 class="relative p-5 rounded-[2rem] border flex flex-col min-h-[130px] active:scale-95 transition-all cursor-pointer overflow-hidden ${r.off ? 'bg-slate-50' : 'bg-white shadow-sm'} ${adakahHariIni ? 'ring-4 ring-yellow-400 z-10 scale-[1.02]' : 'border-slate-100'}">
-                
-                ${adakahHariIni ? `
-                    <div class="absolute top-0 left-1/2 -translate-x-1/2 bg-yellow-400 px-3 py-1 rounded-b-xl z-20 animate-bounce">
-                        <p class="text-[7px] font-black text-black leading-none">HARI INI</p>
-                    </div>
-                ` : ''}
+    let d = new Date(2026, targetMonth, i);
+    let r = getDuty(d, userData.platoon);
+    const adakahHariIni = (i === skrg.getDate() && targetMonth == skrg.getMonth());
+    const teksNota = userNotes[i] || "";
+    
+    // LOGIK BARU: Semak cuti umum
+    const kunciCuti = `${i}-${targetMonth}`;
+    const namaCuti = CUTI_JOHOR[kunciCuti] || "";
 
-                <div class="flex justify-between items-start mb-1 relative z-10">
+    html += `
+        <div onclick="bukaModal(${i}, ${targetMonth}, \`${teksNota.replace(/"/g, '&quot;')}\`)" 
+             class="relative p-5 rounded-[2rem] border flex flex-col min-h-[130px] active:scale-95 transition-all cursor-pointer overflow-hidden ${r.off ? 'bg-slate-50' : 'bg-white shadow-sm'} ${adakahHariIni ? 'ring-4 ring-yellow-400 z-10 scale-[1.02]' : 'border-slate-100'}">
+            
+            ${adakahHariIni ? `
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 bg-yellow-400 px-3 py-1 rounded-b-xl z-20 animate-bounce">
+                    <p class="text-[7px] font-black text-black leading-none">HARI INI</p>
+                </div>
+            ` : ''}
+
+            <div class="flex justify-between items-start mb-1 relative z-10">
+                <div>
                     <p class="text-[10px] font-black ${adakahHariIni ? 'text-black' : 'text-slate-400'} uppercase">${d.toLocaleDateString('ms-MY',{weekday:'short', day:'2-digit'})}</p>
-                    
-                    <div class="p-1">
-                        ${teksNota 
-                            ? '<span class="flex h-2 w-2 bg-yellow-400 rounded-full animate-pulse"></span>' 
-                            : `<svg class="w-3 h-3 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>`
-                        }
-                    </div>
+                    ${namaCuti ? `<p class="text-[7px] font-extrabold text-red-500 uppercase leading-tight mt-0.5">${namaCuti}</p>` : ''}
                 </div>
                 
-                <div class="relative z-10">
-                    <p class="text-[12px] font-black ${adakahHariIni ? 'text-black' : 'text-slate-700'} uppercase">${r.off ? 'OFF' : r.shift}</p>
-                    <p class="text-[9px] font-black text-yellow-500 uppercase tracking-tighter">${r.off ? '' : r.loc}</p>
+                <div class="p-1">
+                    ${teksNota 
+                        ? '<span class="flex h-2 w-2 bg-yellow-400 rounded-full animate-pulse"></span>' 
+                        : `<svg class="w-3 h-3 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>`
+                    }
                 </div>
-                
-                ${teksNota ? `
-                <div class="mt-2 pt-2 border-t border-dashed border-slate-100 note-preview relative z-10">
-                    <p class="text-[9px] font-bold text-slate-400 italic line-clamp-2 leading-tight">${teksNota}</p>
-                </div>` : ''}
-            </div>`;
-    }
+            </div>
+            
+            <div class="relative z-10 mt-auto">
+                <p class="text-[12px] font-black ${adakahHariIni ? 'text-black' : 'text-slate-700'} uppercase">${r.off ? 'OFF' : r.shift}</p>
+                <p class="text-[9px] font-black text-yellow-500 uppercase tracking-tighter">${r.off ? '' : r.loc}</p>
+            </div>
+            
+            ${teksNota ? `
+            <div class="mt-2 pt-2 border-t border-dashed border-slate-100 note-preview relative z-10">
+                <p class="text-[9px] font-bold text-slate-400 italic line-clamp-2 leading-tight">${teksNota}</p>
+            </div>` : ''}
+        </div>`;
+}
 
 
 
