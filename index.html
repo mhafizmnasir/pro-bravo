@@ -616,12 +616,6 @@ document.getElementById('forgot-toggle-btn').onclick = () => {
     toggleAuthMode('forgot');
 };
 
-// Tambah event listener untuk butang lupa kata laluan
-document.getElementById('forgot-toggle-btn').onclick = () => {
-    if (authMode !== 'forgot') toggleAuthMode('forgot');
-    else toggleAuthMode('login');
-};
-
 document.getElementById('auth-toggle-btn').onclick = () => {
     if (authMode === 'login') toggleAuthMode('register');
     else toggleAuthMode('login');
