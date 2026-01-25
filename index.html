@@ -528,7 +528,7 @@ function monitorPendingUsers() {
                     btn.innerText = "Luluskan";
                     btn.onclick = async () => {
                         await update(ref(db, 'users/' + uid), { status: 'approved' });
-                        window.showToast("PENGGUNA DILULUSKAN");
+                        if(typeof window.showToast === 'function') window.showToast("PENGGUNA DILULUSKAN");
                     };
                     div.appendChild(btn);
                     container.appendChild(div);
