@@ -196,19 +196,29 @@
     // Fungsi untuk ambil data jadual dari Firebase
    async function fetchSystemData() {
         try {
+            console.log("Sedang mencuba memuat turun data...");
             const snap = await get(ref(db, 'system_data'));
+            
             if (snap.exists()) {
                 const data = snap.val();
-                JADUAL_2 = data.jadual_2;
-                START_ROW = data.start_row;
-                console.log("Data sistem berjaya dimuat turun");
-                return true; // Beritahu sistem data dah sedia
+                
+                // Pastikan JADUAL_2 dan START_ROW diambil dengan betul
+                if (data.jadual_2 && data.start_row) {
+                    JADUAL_2 = data.jadual_2;
+                    START_ROW = data.start_row;
+                    console.log("Data JADUAL_2:", JADUAL_2);
+                    console.log("Data START_ROW:", START_ROW);
+                    return true;
+                } else {
+                    console.error("Struktur dalam system_data tidak lengkap (jadual_2 atau start_row hilang)");
+                    return false;
+                }
             } else {
-                console.error("Data 'system_data' tidak dijumpai");
+                console.error("Laluan 'system_data' tidak dijumpai dalam Database.");
                 return false;
             }
         } catch (error) {
-            console.error("Ralat:", error);
+            console.error("Ralat Teknikal Firebase:", error);
             return false;
         }
     }
