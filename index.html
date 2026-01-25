@@ -222,11 +222,16 @@
         return { off: false, shift: ["PETANG", "PAGI", "MALAM"][cyclePos], loc: JADUAL_2[row][cyclePos] };
     }
     // Authentication State
-    onAuthStateChanged(auth, async (user) => {
-        const loading = document.getElementById('loading-overlay');
+    // 1. Cari bahagian ini dalam fail anda
+onAuthStateChanged(auth, async (user) => {
+    const loading = document.getElementById('loading-overlay');
+    
+    try {
+        // --- KOD ASAL ANDA DI DALAM TRY ---
         if (user) {
             const dataReady = await fetchSystemData();
             const snap = await get(ref(db, 'users/' + user.uid));
+            
             if (snap.exists() && snap.val().status === "approved") {
                 userData = snap.val();
                 document.getElementById('auth-section').classList.add('hidden');
@@ -239,18 +244,29 @@
                 if (dataReady) showPage('welcome');
             } else {
                 alert("Akaun belum diluluskan Admin.");
-                signOut(auth);
+                await signOut(auth);
             }
         } else {
             document.getElementById('auth-section').classList.remove('hidden');
             document.getElementById('main-dashboard').classList.add('hidden');
             document.getElementById('admin-nav').classList.add('hidden');
         }
+    } catch (error) {
+        console.error("Auth Error:", error);
+    } 
+    // 2. MASUKKAN BLOK FINALLY DI SINI (SEBELUM PENUTUP FUNGSI)
+    finally {
         if (loading) {
+            // Menambah class fade-out untuk kesan smooth
             loading.classList.add('fade-out');
-            setTimeout(() => { loading.style.display = 'none'; }, 600);
+            
+            // Menghilangkan terus elemen selepas animasi tamat (0.6 saat)
+            setTimeout(() => { 
+                loading.style.display = 'none'; 
+            }, 600);
         }
-    });
+    }
+});
             async function showPage(p, targetMonth = new Date().getMonth()) {
             const cont = document.getElementById('dynamic-content');
                                 
