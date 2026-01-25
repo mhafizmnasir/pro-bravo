@@ -168,167 +168,129 @@
         </main>
             </div>
                 <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-        import { getDatabase, ref, get, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getDatabase, ref, get, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-        const firebaseConfig = {
-  apiKey: "AIzaSyAcJ6nJ0sRcDb_cYG3RkMwBOZ_-1Hqz3XY",
-  authDomain: "pro-bravo.firebaseapp.com",
-  databaseURL: "https://pro-bravo-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "pro-bravo",
-  storageBucket: "pro-bravo.firebasestorage.app",
-  messagingSenderId: "540317526892",
-  appId: "1:540317526892:web:83309074248663d9806149",
-  measurementId: "G-NLBKFXPZDJ"
+    const firebaseConfig = {
+        apiKey: "AIzaSyAcJ6nJ0sRcDb_cYG3RkMwBOZ_-1Hqz3XY",
+        authDomain: "pro-bravo.firebaseapp.com",
+        databaseURL: "https://pro-bravo-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "pro-bravo",
+        storageBucket: "pro-bravo.firebasestorage.app",
+        messagingSenderId: "540317526892",
+        appId: "1:540317526892:web:83309074248663d9806149",
+        measurementId: "G-NLBKFXPZDJ"
+    };
 
-        };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
 
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
+    // Variable global untuk simpan data dari Firebase
+    let JADUAL_2 = {};
+    let START_ROW = {};
+    let userData = null;
+    let authMode = 'login';
 
-        const JADUAL_2 = { 1: ["ENTRY MC", "ENTRY KA", "ENTRY BAS"], 2: ["EXIT KB", "EXIT SBY#2", "EXIT MA"], 3: ["ENTRY KC", "ENTRY BDL/Autogate", "ENTRY SBY#1"], 4: ["EXIT LORI", "EXIT BAS", "EXIT KD"], 5: ["ENTRY MC", "ENTRY SBY#3", "ENTRY KB"], 6: ["EXIT MA", "EXIT SBY#1", "EXIT KC"], 7: ["ENTRY SBY#2", "ENTRY BAS", "ENTRY KD"], 8: ["EXIT BAS", "EXIT KA", "EXIT SBY#3"], 9: ["ENTRY KA", "ENTRY BAS", "ENTRY MC"], 10: ["EXIT SBY#2", "EXIT MA", "EXIT KB"], 11: ["ENTRY SBY#1", "ENTRY KC", "ENTRY BDL/Autogate"], 12: ["EXIT KD", "EXIT LORI", "EXIT BAS"], 13: ["ENTRY SBY#3", "ENTRY KB", "ENTRY MC"], 14: ["EXIT KC", "EXIT MA", "EXIT SBY#1"], 15: ["ENTRY KD", "ENTRY SBY#2", "ENTRY BAS"], 16: ["EXIT SBY#3", "EXIT BAS", "EXIT KA"], 17: ["ENTRY BAS", "ENTRY MC", "ENTRY KA"], 18: ["EXIT MA", "EXIT KB", "EXIT SBY#2"], 19: ["ENTRY BDL/Autogate", "ENTRY SBY#1", "ENTRY KC"], 20: ["EXIT BAS", "EXIT KD", "EXIT LORI"], 21: ["ENTRY KB", "ENTRY MC", "ENTRY SBY#3"], 22: ["EXIT SBY#1", "EXIT KC", "EXIT MA"], 23: ["ENTRY BAS", "ENTRY KD", "ENTRY SBY#2"], 24: ["EXIT KA", "EXIT SBY#3", "EXIT BAS"] };
-        const START_ROW = { 1:1, 2:2, 3:1, 4:20, 5:13, 6:16, 7:17, 8:6, 9:3, 10:10, 11:7, 12:24, 13:15, 14:22, 15:5, 16:14, 17:19, 18:8, 19:9, 20:12, 21:21, 22:4, 23:11, 24:18, 25:23 };
-      
-                    
-                   const CUTI_JOHOR = {
-    "1-0": "Cuti Sekolah",
-    "2-0": "Cuti Sekolah",
-    "3-0": "Cuti Sekolah",
-    "4-0": "Cuti Sekolah",
-    "5-0": "Cuti Sekolah",
-    "6-0": "Cuti Sekolah",
-    "7-0": "Cuti Sekolah",
-    "8-0": "Cuti Sekolah",
-    "9-0": "Cuti Sekolah",
-    "10-0": "Cuti Sekolah",
-    "11-0": "Cuti Sekolah",
-    "1-1": "Thaipusam",
-    "17-1": "Tahun Baru Cina",
-    "18-1": "Tahun Baru Cina (Hari Ke-2)",
-    "20-1": "Awal Ramadan*",
-    "21-2": "Hari Raya Aidilfitri* & Cuti Sekolah", 
-    "22-2": "Hari Raya Aidilfitri (Hari Ke-2)* & Cuti Sekolah",
-    "23-2": "Cuti Sekolah",   
-    "24-2": "Hari Keputeraan Sultan Johor & Cuti Sekolah", 
-    "25-2": "Cuti Sekolah", 
-    "26-2": "Cuti Sekolah", 
-    "27-2": "Cuti Sekolah",
-    "28-2": "Cuti Sekolah", 
-    "29-2": "Cuti Sekolah", 
-    "1-4": "Hari Pekerja",
-    "23-4": "Cuti Sekolah",
-    "24-4": "Cuti Sekolah",
-    "25-4": "Cuti Sekolah",
-    "26-4": "Cuti Sekolah",
-    "27-4": "Hari Raya Haji* & Cuti Sekolah",
-    "28-4": "Cuti Sekolah",
-    "29-4": "Cuti Sekolah",
-    "30-4": "Cuti Sekolah",
-    "31-4": "Hari Wesak & Cuti Sekolah",
-    "1-5": "Hari Keputeraan YDP Agong & Cuti Sekolah",
-    "2-5": "Cuti Sekolah",
-    "3-5": "Cuti Sekolah",
-    "4-5": "Cuti Sekolah",
-    "5-5": "Cuti Sekolah",
-    "6-5": "Cuti Sekolah",
-    "7-5": "Cuti Sekolah",
-    "17-5": "Awal Muharram",
-    "22-6": "Hari Hol Almarhum Sultan Iskandar",
-    "25-7": "Maulidur Rasul",
-    "29-7": "Cuti Sekolah",
-    "30-7": "Cuti Sekolah",
-    "31-7": "Hari Kebangsaan & Cuti Sekolah",
-    "1-8": "Cuti Sekolah",
-    "2-8": "Cuti Sekolah",
-    "3-8": "Cuti Sekolah",
-    "4-8": "Cuti Sekolah",
-    "5-8": "Cuti Sekolah",
-    "6-8": "Cuti Sekolah",
-    "16-8": "Hari Malaysia",
-    "8-10": "Hari Deepavali",
-    "5-11": "Cuti Sekolah",
-    "6-11": "Cuti Sekolah",
-    "7-11": "Cuti Sekolah",
-    "8-11": "Cuti Sekolah",
-    "9-11": "Cuti Sekolah",
-    "10-11": "Cuti Sekolah",
-    "11-11": "Cuti Sekolah",
-    "12-11": "Cuti Sekolah",
-    "13-11": "Cuti Sekolah",
-    "14-11": "Cuti Sekolah",
-    "15-11": "Cuti Sekolah",
-    "16-11": "Cuti Sekolah",
-    "17-11": "Cuti Sekolah",
-    "18-11": "Cuti Sekolah",
-    "19-11": "Cuti Sekolah",
-    "20-11": "Cuti Sekolah",
-    "21-11": "Cuti Sekolah",
-    "22-11": "Cuti Sekolah",
-    "23-11": "Cuti Sekolah",
-    "24-11": "Cuti Sekolah",
-    "25-11": "Hari Krismas & Cuti Sekolah",
-    "26-11": "Cuti Sekolah",
-    "27-11": "Cuti Sekolah",
-    "28-11": "Cuti Sekolah",
-    "29-11": "Cuti Sekolah",
-    "30-11": "Cuti Sekolah",
-    "31-11": "Cuti Sekolah",
-};
-
-                    
-        let userData = null;
-        let authMode = 'login';
-                            function getDuty(date, platoon) {
-            let baseDate = new Date(2026, 0, 3); 
-            let targetDate = new Date(date); 
-            targetDate.setHours(0,0,0,0);
-            let diffDays = Math.floor((targetDate - baseDate) / 86400000);
-            if (diffDays < 0) return { off: true };
-            let cyclePos = diffDays % 4; 
-            if (cyclePos === 3) return { off: true };
-            let row = ((START_ROW[platoon] + Math.floor(diffDays/4) - 1) % 24) + 1;
-            return { off: false, shift: ["PETANG", "PAGI", "MALAM"][cyclePos], loc: JADUAL_2[row][cyclePos] };
-        }
-                    
-        onAuthStateChanged(auth, async (user) => {
-    const loading = document.getElementById('loading-overlay');
-    
-    if (user) {
-        const snap = await get(ref(db, 'users/' + user.uid));
-        if (snap.exists() && snap.val().status === "approved") {
-            userData = snap.val();
-            document.getElementById('auth-section').classList.add('hidden');
-            document.getElementById('main-dashboard').classList.remove('hidden');
-            
-            if(userData.role === 'admin') {
-                document.getElementById('admin-nav').classList.remove('hidden');
-                monitorPendingUsers();
+    // Fungsi untuk ambil data jadual dari Firebase
+    async function fetchSystemData() {
+        try {
+            const snap = await get(ref(db, 'system_data'));
+            if (snap.exists()) {
+                const data = snap.val();
+                JADUAL_2 = data.jadual_2;
+                START_ROW = data.start_row;
+                console.log("Data sistem berjaya dimuat turun");
+            } else {
+                console.error("Data 'system_data' tidak dijumpai di Firebase");
             }
-            showPage('welcome');
-        } else {
-            alert("Akaun belum diluluskan Admin.");
-            signOut(auth);
+        } catch (error) {
+            console.error("Ralat memuat turun data sistem:", error);
         }
-    } else {
-        document.getElementById('auth-section').classList.remove('hidden');
-        document.getElementById('main-dashboard').classList.add('hidden');
-        document.getElementById('admin-nav').classList.add('hidden'); // Sembunyikan admin nav jika logout
     }
 
-    // --- PERUBAHAN DI SINI ---
-    if (loading) {
-        // Tambah class fade-out untuk memulakan transition CSS
-        loading.classList.add('fade-out');
+    const CUTI_JOHOR = {
+        "1-0": "Cuti Sekolah", "2-0": "Cuti Sekolah", "3-0": "Cuti Sekolah", "4-0": "Cuti Sekolah", "5-0": "Cuti Sekolah",
+        "6-0": "Cuti Sekolah", "7-0": "Cuti Sekolah", "8-0": "Cuti Sekolah", "9-0": "Cuti Sekolah", "10-0": "Cuti Sekolah",
+        "11-0": "Cuti Sekolah", "1-1": "Thaipusam", "17-1": "Tahun Baru Cina", "18-1": "Tahun Baru Cina (Hari Ke-2)",
+        "20-1": "Awal Ramadan*", "21-2": "Hari Raya Aidilfitri* & Cuti Sekolah", "22-2": "Hari Raya Aidilfitri (Hari Ke-2)* & Cuti Sekolah",
+        "23-2": "Cuti Sekolah", "24-2": "Hari Keputeraan Sultan Johor & Cuti Sekolah", "25-2": "Cuti Sekolah", 
+        "26-2": "Cuti Sekolah", "27-2": "Cuti Sekolah", "28-2": "Cuti Sekolah", "29-2": "Cuti Sekolah", "1-4": "Hari Pekerja",
+        "23-4": "Cuti Sekolah", "24-4": "Cuti Sekolah", "25-4": "Cuti Sekolah", "26-4": "Cuti Sekolah", 
+        "27-4": "Hari Raya Haji* & Cuti Sekolah", "28-4": "Cuti Sekolah", "29-4": "Cuti Sekolah", "30-4": "Cuti Sekolah",
+        "31-4": "Hari Wesak & Cuti Sekolah", "1-5": "Hari Keputeraan YDP Agong & Cuti Sekolah", "2-5": "Cuti Sekolah",
+        "3-5": "Cuti Sekolah", "4-5": "Cuti Sekolah", "5-5": "Cuti Sekolah", "6-5": "Cuti Sekolah", "7-5": "Cuti Sekolah",
+        "17-5": "Awal Muharram", "22-6": "Hari Hol Almarhum Sultan Iskandar", "25-7": "Maulidur Rasul", "29-7": "Cuti Sekolah",
+        "30-7": "Cuti Sekolah", "31-7": "Hari Kebangsaan & Cuti Sekolah", "1-8": "Cuti Sekolah", "2-8": "Cuti Sekolah",
+        "3-8": "Cuti Sekolah", "4-8": "Cuti Sekolah", "5-8": "Cuti Sekolah", "6-8": "Cuti Sekolah", "16-8": "Hari Malaysia",
+        "8-10": "Hari Deepavali", "5-11": "Cuti Sekolah", "6-11": "Cuti Sekolah", "7-11": "Cuti Sekolah", "8-11": "Cuti Sekolah",
+        "9-11": "Cuti Sekolah", "10-11": "Cuti Sekolah", "11-11": "Cuti Sekolah", "12-11": "Cuti Sekolah", "13-11": "Cuti Sekolah",
+        "14-11": "Cuti Sekolah", "15-11": "Cuti Sekolah", "16-11": "Cuti Sekolah", "17-11": "Cuti Sekolah", "18-11": "Cuti Sekolah",
+        "19-11": "Cuti Sekolah", "20-11": "Cuti Sekolah", "21-11": "Cuti Sekolah", "22-11": "Cuti Sekolah", "23-11": "Cuti Sekolah",
+        "24-11": "Cuti Sekolah", "25-11": "Hari Krismas & Cuti Sekolah", "26-11": "Cuti Sekolah", "27-11": "Cuti Sekolah",
+        "28-11": "Cuti Sekolah", "29-11": "Cuti Sekolah", "30-11": "Cuti Sekolah", "31-11": "Cuti Sekolah",
+    };
+
+    function getDuty(date, platoon) {
+        // Guard jika data belum dimuatkan dari Firebase
+        if (Object.keys(JADUAL_2).length === 0 || !START_ROW[platoon]) return { off: true };
+
+        let baseDate = new Date(2026, 0, 3); 
+        let targetDate = new Date(date); 
+        targetDate.setHours(0,0,0,0);
+        let diffDays = Math.floor((targetDate - baseDate) / 86400000);
         
-        // Selepas tamat animasi (0.6s), kita set display none 
-        // supaya ia tidak menghalang klik pada butang di bawahnya
-        setTimeout(() => {
-            loading.style.display = 'none';
-        }, 600);
+        if (diffDays < 0) return { off: true };
+        
+        let cyclePos = diffDays % 4; 
+        if (cyclePos === 3) return { off: true };
+        
+        let row = ((START_ROW[platoon] + Math.floor(diffDays/4) - 1) % 24) + 1;
+        return { 
+            off: false, 
+            shift: ["PETANG", "PAGI", "MALAM"][cyclePos], 
+            loc: JADUAL_2[row][cyclePos] 
+        };
     }
-});
+
+    onAuthStateChanged(auth, async (user) => {
+        const loading = document.getElementById('loading-overlay');
+        
+        if (user) {
+            // Muat turun data sistem (Jadual 2 & Start Row) dahulu
+            await fetchSystemData();
+            
+            const snap = await get(ref(db, 'users/' + user.uid));
+            if (snap.exists() && snap.val().status === "approved") {
+                userData = snap.val();
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('main-dashboard').classList.remove('hidden');
+                
+                if(userData.role === 'admin') {
+                    document.getElementById('admin-nav').classList.remove('hidden');
+                    monitorPendingUsers();
+                }
+                showPage('welcome');
+            } else {
+                alert("Akaun belum diluluskan Admin.");
+                signOut(auth);
+            }
+        } else {
+            document.getElementById('auth-section').classList.remove('hidden');
+            document.getElementById('main-dashboard').classList.add('hidden');
+            document.getElementById('admin-nav').classList.add('hidden');
+        }
+
+        if (loading) {
+            loading.classList.add('fade-out');
+            setTimeout(() => {
+                loading.style.display = 'none';
+            }, 600);
+        }
+    });
+
+    // Kekalkan fungsi monitorPendingUsers, showPage, showAdminPage, toggleAuthMode, dll. di bawah...
 
 
         function monitorPendingUsers() {
