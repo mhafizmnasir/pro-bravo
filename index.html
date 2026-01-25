@@ -311,16 +311,7 @@
     }
 
     // --- PERUBAHAN DI SINI ---
-    if (loading) {
-        // Tambah class fade-out untuk memulakan transition CSS
-        loading.classList.add('fade-out');
-        
-        // Selepas tamat animasi (0.6s), kita set display none 
-        // supaya ia tidak menghalang klik pada butang di bawahnya
-        setTimeout(() => {
-            loading.style.display = 'none';
-        }, 600);
-    }
+    
 });
 
 
@@ -333,7 +324,15 @@
                 else { b.classList.add('hidden'); }
             });
         }
-                            async function showPage(p, targetMonth = new Date().getMonth()) {
+                            async function showPage(p, targetMonthif (loading) {
+    loading.classList.add('fade-out');
+    setTimeout(() => {
+        loading.style.pointerEvents = 'none';
+        loading.style.display = 'none';
+    }, 600);
+}
+                    
+ = new Date().getMonth()) {
             const cont = document.getElementById('dynamic-content');
 
 
@@ -699,55 +698,41 @@ document.getElementById('toggle-password-btn').onclick = function() {
         `;
     }
 };
-                    
 
-// Event Listeners
-document.getElementById('auth-toggle-btn').onclick = () => {
-    if (authMode === 'login') toggleAuthMode('register');
-    else toggleAuthMode('login');
+        document.getElementById('auth-toggle-btn').onclick = () => {
+        toggleAuthMode(authMode === 'login' ? 'register' : 'login');
+};            
+        document.getElementById('forgot-toggle-btn').onclick = () => {
+        toggleAuthMode('forgot');
 };
-
-document.getElementById('forgot-toggle-btn').onclick = () => {
-    toggleAuthMode('forgot');
-};
-
-document.getElementById('auth-toggle-btn').onclick = () => {
-    if (authMode === 'login') toggleAuthMode('register');
-    else toggleAuthMode('login');
-};
-
-        document.getElementById('auth-toggle-btn').onclick = () => toggleAuthMode(authMode === 'login' ? 'register' : 'login');
-
         const sel = document.getElementById('reg-platoon');
         for(let i=1; i<=25; i++) {
             const o = document.createElement('option'); o.value = i; o.text = "PLATUN " + i; sel.appendChild(o);
         }
 
-                    // ... kod sedia ada anda (sel.appendChild(o) dsb)
+                    
+window.urusanNota = async function(hari, bulan, notaSediaAda) {
+    const notaBaru = prompt(`Nota untuk ${hari}/${parseInt(bulan) + 1}: (Kosongkan untuk hapus)`, notaSediaAda);
+    
+    if (notaBaru === null) return;
 
-        // TAMBAHKAN KOD DI BAWAH INI
-        window.urusanNota = async function(hari, bulan, notaSediaAda) {
-            const notaBaru = prompt(`Nota untuk ${hari}/${parseInt(bulan) + 1}: (Kosongkan untuk hapus)`, notaSediaAda);
-            
-            if (notaBaru === null) return;
-
-            const path = `notes/${auth.currentUser.uid}/${bulan}/${hari}`;
-            
-            try {
-                if (notaBaru.trim() === "") {
-                    await set(ref(db, path), null);
-                } else {
-                    await set(ref(db, path), notaBaru.trim());
-                }
-                showPage('jadual-induk', bulan);
-                } catch(e) {
-        // ... (kod switch case anda) ...
-        showToast(mesejRalat); // <--- SEKARANG IA LEBIH CANTIK!
+    const path = `notes/${auth.currentUser.uid}/${bulan}/${hari}`;
+    
+    try {
+        if (notaBaru.trim() === "") {
+            await set(ref(db, path), null);
+            showToast("Nota dihapuskan");
+        } else {
+            await set(ref(db, path), notaBaru.trim());
+            showToast("Nota disimpan");
+        }
+        showPage('jadual-induk', bulan);
+    } catch(e) {
+        // Tambah definisi mesejRalat di sini supaya showToast tidak error
+        let mesejRalat = "Gagal mengemaskini nota: " + e.message;
+        showToast(mesejRalat);
     }
-
-        };
-        // TAMBAHKAN KOD DI ATAS INI
-
+};
 
 
 
