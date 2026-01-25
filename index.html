@@ -511,23 +511,96 @@
             closeMenu();
                             }
                             async function showAdminPage() {
-            const cont = document.getElementById('dynamic-content');
-            cont.innerHTML = `<div class="space-y-6"><div id="adm-list" class="space-y-4"><h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest px-6">Kelulusan Pengguna Baru</h3></div></div>`;
-            const usersSnap = await get(ref(db, 'users'));
-            const list = document.getElementById('adm-list');
-            usersSnap.forEach(c => {
-                if(c.val().status === 'pending') {
-                    const div = document.createElement('div');
-                    div.className = "p-6 bg-white rounded-[2.5rem] flex justify-between items-center border border-slate-100 shadow-sm";
-                    div.innerHTML = `<div><p class="text-[13px] font-black uppercase text-black">${c.val().fullName}</p><p class="text-[10px] font-bold text-yellow-600 uppercase">Platun ${c.val().platoon}</p></div>`;
-                    const btn = document.createElement('button');
-                    btn.className = "bg-black text-yellow-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase shadow-lg";
-                    btn.innerText = "Luluskan";
-                    btn.onclick = () => update(ref(db, 'users/' + c.key), { status: 'approved' }).then(() => showAdminPage());
-                    div.appendChild(btn); list.appendChild(div);
-                }
-            });
-                            }
+    const cont = document.getElementById('dynamic-content');
+    
+    // Set struktur asas halaman Admin
+    cont.innerHTML = `
+        <div class="space-y-6">
+            <div class="flex items-center gap-3 px-2 mb-2">
+                <div class="p-2 bg-yellow-400 rounded-xl text-black">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-xl font-black text-black uppercase">Admin Panel</h2>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pengurusan Keahlian</p>
+                </div>
+            </div>
+
+            <div id="adm-list" class="space-y-4">
+                <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest px-6">Kelulusan Pengguna Baru</h3>
+                
+                <div id="pending-users-list" class="space-y-3">
+                    <div class="flex justify-center py-10">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Kita panggil monitorPendingUsers untuk melukis senarai secara real-time
+    monitorPendingUsers();
+}
+
+// Pastikan fungsi monitorPendingUsers anda dikemaskini seperti ini:
+function monitorPendingUsers() {
+    const container = document.getElementById('pending-users-list');
+    const badge = document.getElementById('pending-count');
+    
+    onValue(ref(db, 'users'), (snap) => {
+        if (!container) return; // Guard jika tidak berada di page admin
+        
+        container.innerHTML = '';
+        let count = 0;
+
+        snap.forEach(c => {
+            const user = c.val();
+            if(user.status === 'pending') {
+                count++;
+                const div = document.createElement('div');
+                div.className = "p-6 bg-white rounded-[2.5rem] flex justify-between items-center border border-slate-100 shadow-sm";
+                div.innerHTML = `
+                    <div>
+                        <p class="text-[13px] font-black uppercase text-black">${user.firstName} ${user.lastName}</p>
+                        <p class="text-[10px] font-bold text-yellow-600 uppercase tracking-tighter">Platun ${user.platoon} • ${user.email}</p>
+                    </div>
+                `;
+
+                const btn = document.createElement('button');
+                btn.className = "bg-black text-yellow-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-transform";
+                btn.innerText = "Luluskan";
+                btn.onclick = async () => {
+                    try {
+                        await update(ref(db, 'users/' + c.key), { status: 'approved' });
+                        window.showToast("PENGGUNA DILULUSKAN");
+                    } catch (e) {
+                        alert("Ralat: " + e.message);
+                    }
+                };
+
+                div.appendChild(btn);
+                container.appendChild(div);
+            }
+        });
+
+        // Kemaskini Badge Notification
+        if(badge) {
+            if(count > 0) {
+                badge.innerText = count;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+                container.innerHTML = `
+                    <div class="py-10 text-center">
+                        <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Tiada permohonan baru</p>
+                    </div>
+                `;
+            }
+        }
+    });
+}
                             const sidebar = document.getElementById('mobile-sidebar');
         const container = document.getElementById('sidebar-container');
         function openMenu() { sidebar.classList.remove('hidden'); setTimeout(() => container.classList.remove('closed'), 10); }
