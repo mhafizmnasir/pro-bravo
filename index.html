@@ -167,7 +167,7 @@
             
         </main>
             </div>
-                <script type="module">
+               <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getDatabase, ref, get, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
@@ -187,33 +187,11 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-    // Variable global untuk simpan data dari Firebase
+    // Variable global
     let JADUAL_2 = {};
     let START_ROW = {};
     let userData = null;
     let authMode = 'login';
-
-    async function fetchSystemData() {
-    try {
-        console.log("Memulakan capaian data...");
-        // Gunakan get(ref(db, 'system_data')) 
-        const snap = await get(ref(db, 'system_data'));
-        
-        if (snap.exists()) {
-            const data = snap.val();
-            JADUAL_2 = data.jadual_2;
-            START_ROW = data.start_row;
-            console.log("Data Berjaya!");
-            return true;
-        } else {
-            console.error("Data 'system_data' tiada di Firebase.");
-            return false;
-        }
-    } catch (error) {
-        console.error("Masih ralat permission:", error);
-        return false;
-    }
-}
 
     const CUTI_JOHOR = {
         "1-0": "Cuti Sekolah", "2-0": "Cuti Sekolah", "3-0": "Cuti Sekolah", "4-0": "Cuti Sekolah", "5-0": "Cuti Sekolah",
@@ -237,35 +215,101 @@
         "28-11": "Cuti Sekolah", "29-11": "Cuti Sekolah", "30-11": "Cuti Sekolah", "31-11": "Cuti Sekolah",
     };
 
-    function getDuty(date, platoon) {
-        // Guard jika data belum dimuatkan dari Firebase
-        if (Object.keys(JADUAL_2).length === 0 || !START_ROW[platoon]) return { off: true };
+    // Fungsi Ambil Data Sistem
+    async function fetchSystemData() {
+        try {
+            const snap = await get(ref(db, 'system_data'));
+            if (snap.exists()) {
+                const data = snap.val();
+                JADUAL_2 = data.jadual_2;
+                START_ROW = data.start_row;
+                return true;
+            }
+            return false;
+        } catch (e) {
+            console.error(e);
+            return false;
+        }
+    }
 
+    // Fungsi Monitor Pengguna (Lengkap dengan Paparan Senarai)
+    function monitorPendingUsers() {
+        onValue(ref(db, 'users'), (snap) => {
+            let count = 0;
+            const container = document.getElementById('pending-users-list');
+            if (container) container.innerHTML = ''; 
+
+            snap.forEach(child => {
+                const u = child.val();
+                const uid = child.key;
+                if (u.status === 'pending') {
+                    count++;
+                    if (container) {
+                        const div = document.createElement('div');
+                        div.className = "p-4 bg-white rounded-xl border border-gray-200 flex justify-between items-center mb-3 shadow-sm";
+                        div.innerHTML = `
+                            <div>
+                                <p class="font-bold text-gray-800">${u.firstName} ${u.lastName}</p>
+                                <p class="text-xs text-gray-500">${u.email}</p>
+                                <p class="text-xs font-semibold text-amber-600">Platun: ${u.platoon}</p>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="approveUser('${uid}')" class="bg-green-500 text-white px-3 py-2 rounded-lg text-xs font-bold shadow-sm">LULUS</button>
+                                <button onclick="rejectUser('${uid}')" class="bg-red-500 text-white px-3 py-2 rounded-lg text-xs font-bold shadow-sm">TOLAK</button>
+                            </div>
+                        `;
+                        container.appendChild(div);
+                    }
+                }
+            });
+
+            const badge = document.getElementById('pending-count');
+            if (badge) {
+                if (count > 0) {
+                    badge.innerText = count;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                    if (container) container.innerHTML = '<p class="text-center text-gray-400 py-6 text-sm italic">Tiada permohonan baru.</p>';
+                }
+            }
+        });
+    }
+
+    // Jadikan fungsi approve/reject global
+    window.approveUser = async (uid) => {
+        if(confirm("Luluskan pengguna ini?")) {
+            await update(ref(db, 'users/' + uid), { status: 'approved' });
+            window.showToast("Pengguna telah diluluskan!");
+        }
+    };
+
+    window.rejectUser = async (uid) => {
+        if(confirm("Tolak permohonan ini?")) {
+            await update(ref(db, 'users/' + uid), { status: 'rejected' });
+            window.showToast("Permohonan ditolak.");
+        }
+    };
+
+    // Logik Jadual
+    function getDuty(date, platoon) {
+        if (Object.keys(JADUAL_2).length === 0 || !START_ROW[platoon]) return { off: true };
         let baseDate = new Date(2026, 0, 3); 
         let targetDate = new Date(date); 
         targetDate.setHours(0,0,0,0);
         let diffDays = Math.floor((targetDate - baseDate) / 86400000);
-        
         if (diffDays < 0) return { off: true };
-        
         let cyclePos = diffDays % 4; 
         if (cyclePos === 3) return { off: true };
-        
         let row = ((START_ROW[platoon] + Math.floor(diffDays/4) - 1) % 24) + 1;
-        return { 
-            off: false, 
-            shift: ["PETANG", "PAGI", "MALAM"][cyclePos], 
-            loc: JADUAL_2[row][cyclePos] 
-        };
+        return { off: false, shift: ["PETANG", "PAGI", "MALAM"][cyclePos], loc: JADUAL_2[row][cyclePos] };
     }
 
-   onAuthStateChanged(auth, async (user) => {
+    // Authentication State
+    onAuthStateChanged(auth, async (user) => {
         const loading = document.getElementById('loading-overlay');
-        
         if (user) {
-            // Tunggu data sistem siap dimuat turun
             const dataReady = await fetchSystemData();
-            
             const snap = await get(ref(db, 'users/' + user.uid));
             if (snap.exists() && snap.val().status === "approved") {
                 userData = snap.val();
@@ -276,14 +320,7 @@
                     document.getElementById('admin-nav').classList.remove('hidden');
                     monitorPendingUsers();
                 }
-
-                // PENTING: Panggil showPage selepas dataReady untuk elakkan "OFF"
-                if (dataReady) {
-                    showPage('welcome'); 
-                } else {
-                    alert("Gagal memuatkan jadual. Sila refresh halaman.");
-                }
-
+                if (dataReady) showPage('welcome');
             } else {
                 alert("Akaun belum diluluskan Admin.");
                 signOut(auth);
@@ -293,23 +330,13 @@
             document.getElementById('main-dashboard').classList.add('hidden');
             document.getElementById('admin-nav').classList.add('hidden');
         }
-
         if (loading) {
             loading.classList.add('fade-out');
             setTimeout(() => { loading.style.display = 'none'; }, 600);
         }
     });
-    // Kekalkan fungsi monitorPendingUsers, showPage, showAdminPage, toggleAuthMode, dll. di bawah...
 
 
-        function monitorPendingUsers() {
-            onValue(ref(db, 'users'), (snap) => {
-                let count = 0;
-                snap.forEach(c => { if(c.val().status === 'pending') count++; });
-                const b = document.getElementById('pending-count');
-                if(count > 0) { b.innerText = count; b.classList.remove('hidden'); }
-                else { b.classList.add('hidden'); }
-            });
         }
                             async function showPage(p, targetMonth = new Date().getMonth()) {
             const cont = document.getElementById('dynamic-content');
