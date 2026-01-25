@@ -332,7 +332,19 @@
     }, 600);
 }
                     
- = new Date().getMonth()) {
+});
+                    
+                    
+ function monitorPendingUsers() {
+            onValue(ref(db, 'users'), (snap) => {
+                let count = 0;
+                snap.forEach(c => { if(c.val().status === 'pending') count++; });
+                const b = document.getElementById('pending-count');
+                if(count > 0) { b.innerText = count; b.classList.remove('hidden'); }
+                else { b.classList.add('hidden'); }
+            });
+        }
+                            async function showPage(p, targetMonth = new Date().getMonth()) {
             const cont = document.getElementById('dynamic-content');
 
 
