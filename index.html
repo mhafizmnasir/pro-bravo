@@ -478,25 +478,23 @@ function monitorPendingUsers() {
     });
 }
 
-                   document.getElementById('btn-action').onclick = async () => {
+                 document.getElementById('btn-action').onclick = async () => {
     const email = document.getElementById('email').value.trim();
     const pass = document.getElementById('password').value;
-
-    if (!email || !pass) {
-        alert("Sila isi emel dan kata laluan!");
-        return;
-    }
+    const forgotEmail = document.getElementById('forgot-email').value.trim();
 
     try {
-        if (authMode === 'login') {
-            await signInWithEmailAndPassword(auth, email, pass);
-            // Reaksi akan dikendalikan secara automatik oleh onAuthStateChanged
+        if (authMode === 'forgot') {
+            if (!forgotEmail) return alert("Sila masukkan emel anda!");
+            await sendPasswordResetEmail(auth, forgotEmail);
+            alert("Pautan tetapan semula kata laluan telah dihantar ke emel anda. Sila semak Inbox atau Spam.");
+            location.reload();
         } else if (authMode === 'register') {
             const fn = document.getElementById('reg-firstname').value.trim().toUpperCase();
             const ln = document.getElementById('reg-lastname').value.trim().toUpperCase();
             const plt = document.getElementById('reg-platoon').value;
 
-            if (!fn || !plt) return alert("Lengkapkan maklumat pendaftaran!");
+            if (!fn || !plt || !email || !pass) return alert("Lengkapkan maklumat pendaftaran!");
 
             const res = await createUserWithEmailAndPassword(auth, email, pass);
             await set(ref(db, 'users/' + res.user.uid), {
@@ -510,23 +508,51 @@ function monitorPendingUsers() {
             alert("Pendaftaran berjaya! Sila tunggu kelulusan admin.");
             await signOut(auth);
             location.reload(); 
+        } else {
+            if (!email || !pass) return alert("Sila isi emel dan kata laluan!");
+            await signInWithEmailAndPassword(auth, email, pass);
         }
     } catch (e) {
         console.error(e);
         alert("Ralat: " + e.message);
     }
 };
+                   
 document.getElementById('auth-toggle-btn').onclick = () => {
-    const isLogin = authMode === 'login';
-    authMode = isLogin ? 'register' : 'login';
+    const isLogin = authMode === 'login' || authMode === 'forgot';
     
-    document.getElementById('auth-title').innerText = isLogin ? 'DAFTAR' : 'BRAVORIAN';
-    document.getElementById('btn-action').innerText = isLogin ? 'Hantar Pendaftaran' : 'Log Masuk';
-    document.getElementById('auth-toggle-btn').innerText = isLogin ? 'Sudah Ada Akaun? Log Masuk' : 'Daftar Akaun Baru';
+    if (authMode === 'forgot') {
+        // Jika sedang di skrin lupa kata laluan, kembali ke login
+        authMode = 'login';
+        document.getElementById('auth-title').innerText = 'BRAVORIAN';
+        document.getElementById('btn-action').innerText = 'Log Masuk';
+        document.getElementById('auth-toggle-btn').innerText = 'Daftar Akaun Baru';
+        document.getElementById('forgot-fields').classList.add('hidden');
+        document.getElementById('login-fields').classList.remove('hidden');
+        document.getElementById('forgot-toggle-btn').classList.remove('hidden');
+    } else {
+        // Logik asal tukar Login <-> Daftar
+        authMode = isLogin ? 'register' : 'login';
+        document.getElementById('auth-title').innerText = isLogin ? 'DAFTAR' : 'BRAVORIAN';
+        document.getElementById('btn-action').innerText = isLogin ? 'Hantar Pendaftaran' : 'Log Masuk';
+        document.getElementById('auth-toggle-btn').innerText = isLogin ? 'Sudah Ada Akaun? Log Masuk' : 'Daftar Akaun Baru';
+        document.getElementById('register-fields').classList.toggle('hidden', !isLogin);
+        document.getElementById('forgot-toggle-btn').classList.toggle('hidden', isLogin);
+    }
+};
+
+// TAMBAH FUNGSI KLIK UNTUK BUTANG "Lupa Kata Laluan?"
+document.getElementById('forgot-toggle-btn').onclick = () => {
+    authMode = 'forgot';
+    document.getElementById('auth-title').innerText = 'PULIHKAN';
+    document.getElementById('btn-action').innerText = 'Hantar Emel Pautan';
+    document.getElementById('auth-toggle-btn').innerText = 'Kembali ke Log Masuk';
     
-    document.getElementById('register-fields').classList.toggle('hidden', !isLogin);
-    // Sembunyikan lupa kata laluan jika mod daftar
-    document.getElementById('forgot-toggle-btn').classList.toggle('hidden', isLogin);
+    document.getElementById('forgot-fields').classList.remove('hidden');
+    document.getElementById('login-fields').classList.add('hidden');
+    document.getElementById('register-fields').classList.add('hidden');
+    document.getElementById('forgot-toggle-btn').classList.add('hidden');
+};
 };
 
 const sidebar = document.getElementById('mobile-sidebar');
