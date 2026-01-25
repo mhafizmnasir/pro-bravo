@@ -513,7 +513,7 @@
                             async function showAdminPage() {
     const cont = document.getElementById('dynamic-content');
     
-    // Set struktur asas halaman Admin
+    // Lukis UI Kerangka Admin
     cont.innerHTML = `
         <div class="space-y-6">
             <div class="flex items-center gap-3 px-2 mb-2">
@@ -531,7 +531,7 @@
             <div id="adm-list" class="space-y-4">
                 <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest px-6">Kelulusan Pengguna Baru</h3>
                 
-                <div id="pending-users-list" class="space-y-3">
+                <div id="pending-users-list" class="space-y-1">
                     <div class="flex justify-center py-10">
                         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
                     </div>
@@ -540,66 +540,64 @@
         </div>
     `;
 
-    // Kita panggil monitorPendingUsers untuk melukis senarai secara real-time
+    // Jalankan monitor untuk isi data ke dalam 'pending-users-list'
     monitorPendingUsers();
 }
 
 // Pastikan fungsi monitorPendingUsers anda dikemaskini seperti ini:
 function monitorPendingUsers() {
-    const container = document.getElementById('pending-users-list');
-    const badge = document.getElementById('pending-count');
-    
     onValue(ref(db, 'users'), (snap) => {
-        if (!container) return; // Guard jika tidak berada di page admin
-        
-        container.innerHTML = '';
+        const container = document.getElementById('pending-users-list');
+        const badge = document.getElementById('pending-count');
         let count = 0;
 
-        snap.forEach(c => {
-            const user = c.val();
-            if(user.status === 'pending') {
+        // Reset container jika kita sedang berada di page Admin
+        if (container) container.innerHTML = '';
+
+        snap.forEach(child => {
+            const u = child.val();
+            const uid = child.key;
+
+            if (u.status === 'pending') {
                 count++;
-                const div = document.createElement('div');
-                div.className = "p-6 bg-white rounded-[2.5rem] flex justify-between items-center border border-slate-100 shadow-sm";
-                div.innerHTML = `
-                    <div>
-                        <p class="text-[13px] font-black uppercase text-black">${user.firstName} ${user.lastName}</p>
-                        <p class="text-[10px] font-bold text-yellow-600 uppercase tracking-tighter">Platun ${user.platoon} • ${user.email}</p>
-                    </div>
-                `;
+                if (container) {
+                    const div = document.createElement('div');
+                    div.className = "p-6 bg-white rounded-[2.5rem] flex justify-between items-center border border-slate-100 shadow-sm mb-3";
+                    div.innerHTML = `
+                        <div>
+                            <p class="text-[13px] font-black uppercase text-black">${u.firstName || u.fullName} ${u.lastName || ''}</p>
+                            <p class="text-[10px] font-bold text-yellow-600 uppercase tracking-tighter">Platun ${u.platoon} • ${u.email}</p>
+                        </div>
+                    `;
 
-                const btn = document.createElement('button');
-                btn.className = "bg-black text-yellow-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-transform";
-                btn.innerText = "Luluskan";
-                btn.onclick = async () => {
-                    try {
-                        await update(ref(db, 'users/' + c.key), { status: 'approved' });
-                        window.showToast("PENGGUNA DILULUSKAN");
-                    } catch (e) {
-                        alert("Ralat: " + e.message);
-                    }
-                };
+                    const btn = document.createElement('button');
+                    btn.className = "bg-black text-yellow-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all";
+                    btn.innerText = "Luluskan";
+                    btn.onclick = async () => {
+                        await update(ref(db, 'users/' + uid), { status: 'approved' });
+                        if(window.showToast) window.showToast("PENGGUNA DILULUSKAN");
+                    };
 
-                div.appendChild(btn);
-                container.appendChild(div);
+                    div.appendChild(btn);
+                    container.appendChild(div);
+                }
             }
         });
 
-        // Kemaskini Badge Notification
-        if(badge) {
-            if(count > 0) {
+        // Kemaskini Lencana (Badge) pada Menu
+        if (badge) {
+            if (count > 0) {
                 badge.innerText = count;
                 badge.classList.remove('hidden');
             } else {
                 badge.classList.add('hidden');
-                container.innerHTML = `
-                    <div class="py-10 text-center">
-                        <p class="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Tiada permohonan baru</p>
-                    </div>
-                `;
+                if (container) {
+                    container.innerHTML = `<div class="py-10 text-center"><p class="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Tiada permohonan baru</p></div>`;
+                }
             }
         }
     });
+}
                             const sidebar = document.getElementById('mobile-sidebar');
         const container = document.getElementById('sidebar-container');
         function openMenu() { sidebar.classList.remove('hidden'); setTimeout(() => container.classList.remove('closed'), 10); }
