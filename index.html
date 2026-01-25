@@ -11,14 +11,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-    
     body { 
         font-family: 'Plus Jakarta Sans', sans-serif; 
         -webkit-tap-highlight-color: transparent;
         background-color: #f8fafc;
     }
-
-    /* Pengurusan Loading Overlay (Fade Out) */
     #loading-overlay {
         position: fixed;
         inset: 0;
@@ -33,28 +30,20 @@
         opacity: 1;
         visibility: visible;
     }
-
-    /* Class yang dipanggil oleh JS selepas login/auth selesai */
     #loading-overlay.fade-out {
         opacity: 0;
         visibility: hidden;
     }
-
-    /* Warna Tema Logo */
     .bg-bravorian-gold { background-color: #facc15; }
     .text-bravorian-gold { color: #facc15; }
     .border-bravorian-black { border-color: #000000; }
     .bg-bravorian-black { background-color: #000000; }
-
     .mobile-menu { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
     .mobile-menu.closed { transform: translateX(-100%); }
-
-    /* Gaya Nota */
     .note-preview {
-        pointer-events: none; /* Supaya klik tembus ke kotak bapa (grid) */
+        pointer-events: none;
     }
 </style>
-
 </head>
 <body class="min-h-screen text-slate-900">
     <div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center">
@@ -137,11 +126,6 @@
 
         <main class="max-w-4xl mx-auto p-6 md:p-12">
             <div id="dynamic-content" class="space-y-8"></div>
-
-
-
-
-
             <div id="note-modal" class="fixed inset-0 bg-black/60 z-[100] hidden backdrop-blur-sm flex items-center justify-center p-6">
     <div class="bg-white w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl transform transition-all">
         <div class="bg-black p-6 flex justify-between items-center">
@@ -180,7 +164,6 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
-// --- LOGIK BUTANG LOG MASUK / DAFTAR ---
     document.getElementById('btn-action').onclick = async () => {
         const email = document.getElementById('email').value.trim();
         const pass = document.getElementById('password').value;
@@ -213,7 +196,6 @@
         }
     };
 
-    // --- LOGIK TUKAR MOD (LOGIN <-> DAFTAR) ---
     document.getElementById('auth-toggle-btn').onclick = () => {
         const isLogin = authMode === 'login';
         authMode = isLogin ? 'register' : 'login';
@@ -227,7 +209,6 @@
         document.getElementById('forgot-toggle-btn').classList.toggle('hidden', isLogin);
     };
                    
-    // Variable global
     let JADUAL_2 = {};
     let START_ROW = {};
     let userData = null;
@@ -271,7 +252,6 @@
         }
     }  
 
-    // Logik Jadual
     function getDuty(date, platoon) {
         if (Object.keys(JADUAL_2).length === 0 || !START_ROW[platoon]) return { off: true };
         let baseDate = new Date(2026, 0, 3); 
@@ -458,10 +438,6 @@
             </div>` : ''}
         </div>`;
 }
-
-
-
-
     cont.innerHTML = html + '</div>';
     document.getElementById('month-select').onchange = (e) => showPage('jadual-induk', e.target.value);
 }                      
@@ -470,7 +446,6 @@
                             async function showAdminPage() {
     const cont = document.getElementById('dynamic-content');
     
-    // Lukis UI Kerangka Admin
     cont.innerHTML = `
         <div class="space-y-6">
             <div class="flex items-center gap-3 px-2 mb-2">
@@ -496,8 +471,6 @@
             </div>
         </div>
     `;
-
-    // Jalankan monitor untuk isi data ke dalam 'pending-users-list'
     monitorPendingUsers();
 }
 
@@ -586,8 +559,6 @@ function monitorPendingUsers() {
         alert("Ralat: " + e.message);
     }
 };
-
-// Kod untuk tukar mod Login/Daftar (Juga hilang dalam kod anda)
 document.getElementById('auth-toggle-btn').onclick = () => {
     const isLogin = authMode === 'login';
     authMode = isLogin ? 'register' : 'login';
@@ -601,7 +572,6 @@ document.getElementById('auth-toggle-btn').onclick = () => {
     document.getElementById('forgot-toggle-btn').classList.toggle('hidden', isLogin);
 };
 
-// 2. KAWALAN SIDEBAR & CLOCK
 const sidebar = document.getElementById('mobile-sidebar');
 const containerMenu = document.getElementById('sidebar-container');
 
@@ -628,7 +598,6 @@ setInterval(() => {
     }
 }, 1000);
 
-// 3. LOGIK MODAL NOTA
 let currentEditingData = null;
 
 window.bukaModal = function(hari, bulan, teks) {
@@ -676,7 +645,6 @@ window.showToast = function(msg) {
     }, 3000);
 };
 
-// 5. INISIALISASI DROPDOWN PLATUN
 const sel = document.getElementById('reg-platoon');
 if(sel && sel.options.length <= 1) {
     for(let i=1; i<=25; i++) {
