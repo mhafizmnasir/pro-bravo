@@ -1,6 +1,6 @@
 {
-  "name": "MyWebSite",
-  "short_name": "MySite",
+  "name": "Bravorian",
+  "short_name": "Bravorian",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
