@@ -194,7 +194,7 @@
     let authMode = 'login';
 
     // Fungsi untuk ambil data jadual dari Firebase
-    async function fetchSystemData() {
+   async function fetchSystemData() {
         try {
             const snap = await get(ref(db, 'system_data'));
             if (snap.exists()) {
@@ -202,11 +202,14 @@
                 JADUAL_2 = data.jadual_2;
                 START_ROW = data.start_row;
                 console.log("Data sistem berjaya dimuat turun");
+                return true; // Beritahu sistem data dah sedia
             } else {
-                console.error("Data 'system_data' tidak dijumpai di Firebase");
+                console.error("Data 'system_data' tidak dijumpai");
+                return false;
             }
         } catch (error) {
-            console.error("Ralat memuat turun data sistem:", error);
+            console.error("Ralat:", error);
+            return false;
         }
     }
 
@@ -254,12 +257,12 @@
         };
     }
 
-    onAuthStateChanged(auth, async (user) => {
+   onAuthStateChanged(auth, async (user) => {
         const loading = document.getElementById('loading-overlay');
         
         if (user) {
-            // Muat turun data sistem (Jadual 2 & Start Row) dahulu
-            await fetchSystemData();
+            // Tunggu data sistem siap dimuat turun
+            const dataReady = await fetchSystemData();
             
             const snap = await get(ref(db, 'users/' + user.uid));
             if (snap.exists() && snap.val().status === "approved") {
@@ -271,7 +274,14 @@
                     document.getElementById('admin-nav').classList.remove('hidden');
                     monitorPendingUsers();
                 }
-                showPage('welcome');
+
+                // PENTING: Panggil showPage selepas dataReady untuk elakkan "OFF"
+                if (dataReady) {
+                    showPage('welcome'); 
+                } else {
+                    alert("Gagal memuatkan jadual. Sila refresh halaman.");
+                }
+
             } else {
                 alert("Akaun belum diluluskan Admin.");
                 signOut(auth);
@@ -284,12 +294,9 @@
 
         if (loading) {
             loading.classList.add('fade-out');
-            setTimeout(() => {
-                loading.style.display = 'none';
-            }, 600);
+            setTimeout(() => { loading.style.display = 'none'; }, 600);
         }
     });
-
     // Kekalkan fungsi monitorPendingUsers, showPage, showAdminPage, toggleAuthMode, dll. di bawah...
 
 
