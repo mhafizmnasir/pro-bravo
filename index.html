@@ -532,6 +532,59 @@ function monitorPendingUsers() {
     });
 }
 
+                   document.getElementById('btn-action').onclick = async () => {
+    const email = document.getElementById('email').value.trim();
+    const pass = document.getElementById('password').value;
+
+    if (!email || !pass) {
+        alert("Sila isi emel dan kata laluan!");
+        return;
+    }
+
+    try {
+        if (authMode === 'login') {
+            await signInWithEmailAndPassword(auth, email, pass);
+            // Reaksi akan dikendalikan secara automatik oleh onAuthStateChanged
+        } else if (authMode === 'register') {
+            const fn = document.getElementById('reg-firstname').value.trim().toUpperCase();
+            const ln = document.getElementById('reg-lastname').value.trim().toUpperCase();
+            const plt = document.getElementById('reg-platoon').value;
+
+            if (!fn || !plt) return alert("Lengkapkan maklumat pendaftaran!");
+
+            const res = await createUserWithEmailAndPassword(auth, email, pass);
+            await set(ref(db, 'users/' + res.user.uid), {
+                firstName: fn,
+                lastName: ln,
+                fullName: fn + " " + ln,
+                platoon: parseInt(plt),
+                role: "user",
+                status: "pending"
+            });
+            alert("Pendaftaran berjaya! Sila tunggu kelulusan admin.");
+            await signOut(auth);
+            location.reload(); 
+        }
+    } catch (e) {
+        console.error(e);
+        alert("Ralat: " + e.message);
+    }
+};
+
+// Kod untuk tukar mod Login/Daftar (Juga hilang dalam kod anda)
+document.getElementById('auth-toggle-btn').onclick = () => {
+    const isLogin = authMode === 'login';
+    authMode = isLogin ? 'register' : 'login';
+    
+    document.getElementById('auth-title').innerText = isLogin ? 'DAFTAR' : 'BRAVORIAN';
+    document.getElementById('btn-action').innerText = isLogin ? 'Hantar Pendaftaran' : 'Log Masuk';
+    document.getElementById('auth-toggle-btn').innerText = isLogin ? 'Sudah Ada Akaun? Log Masuk' : 'Daftar Akaun Baru';
+    
+    document.getElementById('register-fields').classList.toggle('hidden', !isLogin);
+    // Sembunyikan lupa kata laluan jika mod daftar
+    document.getElementById('forgot-toggle-btn').classList.toggle('hidden', isLogin);
+};
+
 // 2. KAWALAN SIDEBAR & CLOCK
 const sidebar = document.getElementById('mobile-sidebar');
 const containerMenu = document.getElementById('sidebar-container');
