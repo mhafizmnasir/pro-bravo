@@ -193,35 +193,27 @@
     let userData = null;
     let authMode = 'login';
 
-    // Fungsi untuk ambil data jadual dari Firebase
-   async function fetchSystemData() {
-        try {
-            console.log("Sedang mencuba memuat turun data...");
-            const snap = await get(ref(db, 'system_data'));
-            
-            if (snap.exists()) {
-                const data = snap.val();
-                
-                // Pastikan JADUAL_2 dan START_ROW diambil dengan betul
-                if (data.jadual_2 && data.start_row) {
-                    JADUAL_2 = data.jadual_2;
-                    START_ROW = data.start_row;
-                    console.log("Data JADUAL_2:", JADUAL_2);
-                    console.log("Data START_ROW:", START_ROW);
-                    return true;
-                } else {
-                    console.error("Struktur dalam system_data tidak lengkap (jadual_2 atau start_row hilang)");
-                    return false;
-                }
-            } else {
-                console.error("Laluan 'system_data' tidak dijumpai dalam Database.");
-                return false;
-            }
-        } catch (error) {
-            console.error("Ralat Teknikal Firebase:", error);
+    async function fetchSystemData() {
+    try {
+        console.log("Memulakan capaian data...");
+        // Gunakan get(ref(db, 'system_data')) 
+        const snap = await get(ref(db, 'system_data'));
+        
+        if (snap.exists()) {
+            const data = snap.val();
+            JADUAL_2 = data.jadual_2;
+            START_ROW = data.start_row;
+            console.log("Data Berjaya!");
+            return true;
+        } else {
+            console.error("Data 'system_data' tiada di Firebase.");
             return false;
         }
+    } catch (error) {
+        console.error("Masih ralat permission:", error);
+        return false;
     }
+}
 
     const CUTI_JOHOR = {
         "1-0": "Cuti Sekolah", "2-0": "Cuti Sekolah", "3-0": "Cuti Sekolah", "4-0": "Cuti Sekolah", "5-0": "Cuti Sekolah",
