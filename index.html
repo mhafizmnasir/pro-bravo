@@ -544,20 +544,17 @@
     monitorPendingUsers();
 }
 
-// Pastikan fungsi monitorPendingUsers anda dikemaskini seperti ini:
 function monitorPendingUsers() {
     onValue(ref(db, 'users'), (snap) => {
         const container = document.getElementById('pending-users-list');
         const badge = document.getElementById('pending-count');
         let count = 0;
 
-        // Reset container jika kita sedang berada di page Admin
         if (container) container.innerHTML = '';
 
         snap.forEach(child => {
             const u = child.val();
             const uid = child.key;
-
             if (u.status === 'pending') {
                 count++;
                 if (container) {
@@ -569,265 +566,59 @@ function monitorPendingUsers() {
                             <p class="text-[10px] font-bold text-yellow-600 uppercase tracking-tighter">Platun ${u.platoon} • ${u.email}</p>
                         </div>
                     `;
-
                     const btn = document.createElement('button');
                     btn.className = "bg-black text-yellow-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all";
                     btn.innerText = "Luluskan";
                     btn.onclick = async () => {
                         await update(ref(db, 'users/' + uid), { status: 'approved' });
-                        if(window.showToast) window.showToast("PENGGUNA DILULUSKAN");
+                        window.showToast("PENGGUNA DILULUSKAN");
                     };
-
                     div.appendChild(btn);
                     container.appendChild(div);
                 }
             }
         });
 
-        // Kemaskini Lencana (Badge) pada Menu
         if (badge) {
             if (count > 0) {
                 badge.innerText = count;
                 badge.classList.remove('hidden');
             } else {
                 badge.classList.add('hidden');
-                if (container) {
-                    container.innerHTML = `<div class="py-10 text-center"><p class="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Tiada permohonan baru</p></div>`;
-                }
+                if (container) container.innerHTML = `<div class="py-10 text-center"><p class="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Tiada permohonan baru</p></div>`;
             }
         }
     });
 }
-                            const sidebar = document.getElementById('mobile-sidebar');
-        const container = document.getElementById('sidebar-container');
-        function openMenu() { sidebar.classList.remove('hidden'); setTimeout(() => container.classList.remove('closed'), 10); }
-        function closeMenu() { container.classList.add('closed'); setTimeout(() => sidebar.classList.add('hidden'), 300); }
 
-        document.getElementById('menu-open').onclick = openMenu;
-        document.getElementById('menu-close').onclick = closeMenu;
-        sidebar.onclick = (e) => { if (e.target === sidebar) closeMenu(); };
+// 2. KAWALAN SIDEBAR & CLOCK
+const sidebar = document.getElementById('mobile-sidebar');
+const containerMenu = document.getElementById('sidebar-container');
 
-        document.getElementById('nav-welcome').onclick = () => { showPage('welcome'); closeMenu(); };
-        document.getElementById('nav-calendar').onclick = () => { showPage('jadual-induk'); closeMenu(); };
-        document.getElementById('admin-nav').onclick = () => { showAdminPage(); closeMenu(); };
-        document.getElementById('btn-logout').onclick = () => { if(confirm("Log keluar?")) signOut(auth); };
+function openMenu() { sidebar.classList.remove('hidden'); setTimeout(() => containerMenu.classList.remove('closed'), 10); }
+function closeMenu() { containerMenu.classList.add('closed'); setTimeout(() => sidebar.classList.add('hidden'), 300); }
 
-        setInterval(() => {
-            const clockEl = document.getElementById('live-clock');
-            if(clockEl) {
-                const now = new Date();
-                const hari = now.toLocaleDateString('ms-MY', { weekday: 'long' }).toUpperCase();
-                const tarikh = now.toLocaleDateString('ms-MY', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
-                const masa = now.toLocaleTimeString('ms-MY', { hour12: false });
-                clockEl.innerHTML = `<span class="text-black font-black">${hari}</span> <span class="text-yellow-500 mx-1">|</span> <span class="text-slate-400">${tarikh}</span> <span class="text-yellow-500 mx-1">|</span> <span class="text-black font-black">${masa}</span>`;
-            }
-        }, 1000);
+document.getElementById('menu-open').onclick = openMenu;
+document.getElementById('menu-close').onclick = closeMenu;
+sidebar.onclick = (e) => { if (e.target === sidebar) closeMenu(); };
 
+document.getElementById('nav-welcome').onclick = () => { showPage('welcome'); closeMenu(); };
+document.getElementById('nav-calendar').onclick = () => { showPage('jadual-induk'); closeMenu(); };
+document.getElementById('admin-nav').onclick = () => { showAdminPage(); closeMenu(); };
+document.getElementById('btn-logout').onclick = () => { if(confirm("Log keluar?")) signOut(auth); };
 
-
-
-                    
-                            document.getElementById('btn-action').onclick = async () => {
-    const email = document.getElementById('email').value.trim();
-    const pass = document.getElementById('password').value;
-    const forgotEmail = document.getElementById('forgot-email').value.trim();
-
-    try {
-        if (authMode === 'login') {
-            if(!email || !pass) return alert("Sila isi emel dan kata laluan!");
-            await signInWithEmailAndPassword(auth, email, pass);
-        } 
-        else if (authMode === 'register') {
-            const fn = document.getElementById('reg-firstname').value.trim().toUpperCase();
-            const ln = document.getElementById('reg-lastname').value.trim().toUpperCase();
-            const plt = document.getElementById('reg-platoon').value;
-            if(!fn || !ln || !plt || !email || !pass) return alert("Lengkapkan maklumat pendaftaran!");
-            
-            const res = await createUserWithEmailAndPassword(auth, email, pass);
-            await set(ref(db, 'users/' + res.user.uid), { 
-                firstName: fn, 
-                lastName: ln, 
-                fullName: fn + " " + ln, 
-                platoon: parseInt(plt), 
-                role: "user", 
-                status: "pending" 
-            });
-            alert("Pendaftaran Berjaya! Sila hubungi Admin untuk kelulusan."); 
-            signOut(auth); 
-            toggleAuthMode('login');
-        }
-        else if (authMode === 'forgot') {
-            if(!forgotEmail) return alert("Sila masukkan emel berdaftar!");
-            await sendPasswordResetEmail(auth, forgotEmail);
-            alert("Pautan tetapan semula telah dihantar ke emel anda.");
-            toggleAuthMode('login');
-        }
-    } catch(e) {
-        console.error("Auth Error Code:", e.code); // Untuk rujukan teknikal anda di console
-        
-        let mesejRalat = "Berlaku ralat. Sila cuba lagi.";
-
-        // Pengendalian Ralat Mengikut Kod Firebase
-        switch (e.code) {
-            // Ralat Login
-            case 'auth/user-not-found':
-                mesejRalat = "Akaun tidak dijumpai. Sila daftar terlebih dahulu.";
-                break;
-            case 'auth/wrong-password':
-                mesejRalat = "Kata laluan tidak sah. Sila cuba lagi.";
-                break;
-            case 'auth/invalid-credential':
-                mesejRalat = "Emel atau kata laluan salah.";
-                break;
-                
-            // Ralat Pendaftaran
-            case 'auth/email-already-in-use':
-                mesejRalat = "Emel ini sudah berdaftar. Sila gunakan emel lain.";
-                break;
-            case 'auth/weak-password':
-                mesejRalat = "Kata laluan terlalu lemah (minima 6 aksara).";
-                break;
-                
-            // Ralat Umum
-            case 'auth/invalid-email':
-                mesejRalat = "Format emel tidak sah.";
-                break;
-            case 'auth/too-many-requests':
-                mesejRalat = "Terlalu banyak cubaan gagal. Sila cuba sebentar lagi.";
-                break;
-            case 'auth/network-request-failed':
-                mesejRalat = "Tiada sambungan internet. Sila semak rangkaian anda.";
-                break;
-            default:
-                mesejRalat = "Ralat: " + e.message;
-        }
-
-        alert(mesejRalat);
+setInterval(() => {
+    const clockEl = document.getElementById('live-clock');
+    if(clockEl) {
+        const now = new Date();
+        const hari = now.toLocaleDateString('ms-MY', { weekday: 'long' }).toUpperCase();
+        const tarikh = now.toLocaleDateString('ms-MY', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
+        const masa = now.toLocaleTimeString('ms-MY', { hour12: false });
+        clockEl.innerHTML = `<span class="text-black font-black">${hari}</span> <span class="text-yellow-500 mx-1">|</span> <span class="text-slate-400">${tarikh}</span> <span class="text-yellow-500 mx-1">|</span> <span class="text-black font-black">${masa}</span>`;
     }
-};
+}, 1000);
 
-
-
-                    
-
-function toggleAuthMode(target) {
-    authMode = target;
-    const isLogin = target === 'login';
-    const isReg = target === 'register';
-    const isForgot = target === 'forgot';
-
-    // 1. Kawalan Paparan Input
-    // login-fields (emel & password) perlu ADA untuk login dan register, tapi HIDE untuk forgot
-    document.getElementById('login-fields').classList.toggle('hidden', isForgot);
-    
-    // register-fields (nama & platun) hanya ADA untuk register
-    document.getElementById('register-fields').classList.toggle('hidden', !isReg);
-    
-    // forgot-fields (emel khas reset) hanya ADA untuk forgot
-    document.getElementById('forgot-fields').classList.toggle('hidden', !isForgot);
-
-    // 2. Kawalan Butang "Lupa Kata Laluan?"
-    const forgotBtn = document.getElementById('forgot-toggle-btn');
-    if (isLogin) {
-        forgotBtn.classList.remove('hidden');
-    } else {
-        forgotBtn.classList.add('hidden');
-    }
-
-    // 3. Kemas Kini Teks Tajuk & Butang
-    const title = document.getElementById('auth-title');
-    const btnAction = document.getElementById('btn-action');
-    const toggleBtn = document.getElementById('auth-toggle-btn');
-
-    if (isLogin) {
-        title.innerText = 'BRAVORIAN';
-        btnAction.innerText = 'Log Masuk';
-        toggleBtn.innerText = 'Daftar Akaun Baru';
-    } else if (isReg) {
-        title.innerText = 'DAFTAR';
-        btnAction.innerText = 'Hantar Pendaftaran';
-        toggleBtn.innerText = 'Sudah Ada Akaun? Log Masuk';
-    } else if (isForgot) {
-        title.innerText = 'RESET';
-        btnAction.innerText = 'Hantar Emel';
-        toggleBtn.innerText = 'Kembali Ke Log Masuk';
-    }
-}
-
-document.getElementById('toggle-password-btn').onclick = function() {
-    const passwordInput = document.getElementById('password');
-    const eyeIcon = document.getElementById('eye-icon');
-    const eyePath = document.getElementById('eye-path');
-
-    if (passwordInput.type === 'password') {
-        passwordInput.type = 'text';
-        // Tukar ikon kepada mata tertutup (slash)
-        eyeIcon.innerHTML = `
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"></path>
-        `;
-    } else {
-        passwordInput.type = 'password';
-        // Kembali kepada ikon mata terbuka
-        eyeIcon.innerHTML = `
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-        `;
-    }
-};
-                    
-
-// Event Listeners
-document.getElementById('auth-toggle-btn').onclick = () => {
-    if (authMode === 'login') toggleAuthMode('register');
-    else toggleAuthMode('login');
-};
-
-document.getElementById('forgot-toggle-btn').onclick = () => {
-    toggleAuthMode('forgot');
-};
-
-document.getElementById('auth-toggle-btn').onclick = () => {
-    if (authMode === 'login') toggleAuthMode('register');
-    else toggleAuthMode('login');
-};
-
-        document.getElementById('auth-toggle-btn').onclick = () => toggleAuthMode(authMode === 'login' ? 'register' : 'login');
-
-        const sel = document.getElementById('reg-platoon');
-        for(let i=1; i<=25; i++) {
-            const o = document.createElement('option'); o.value = i; o.text = "PLATUN " + i; sel.appendChild(o);
-        }
-
-                    // ... kod sedia ada anda (sel.appendChild(o) dsb)
-
-        // TAMBAHKAN KOD DI BAWAH INI
-        window.urusanNota = async function(hari, bulan, notaSediaAda) {
-            const notaBaru = prompt(`Nota untuk ${hari}/${parseInt(bulan) + 1}: (Kosongkan untuk hapus)`, notaSediaAda);
-            
-            if (notaBaru === null) return;
-
-            const path = `notes/${auth.currentUser.uid}/${bulan}/${hari}`;
-            
-            try {
-                if (notaBaru.trim() === "") {
-                    await set(ref(db, path), null);
-                } else {
-                    await set(ref(db, path), notaBaru.trim());
-                }
-                showPage('jadual-induk', bulan);
-                } catch(e) {
-        // ... (kod switch case anda) ...
-        showToast(mesejRalat); // <--- SEKARANG IA LEBIH CANTIK!
-    }
-
-        };
-        // TAMBAHKAN KOD DI ATAS INI
-
-
-
-
-                    
-// Variable global untuk simpan data sementara semasa modal buka
+// 3. LOGIK MODAL NOTA
 let currentEditingData = null;
 
 window.bukaModal = function(hari, bulan, teks) {
@@ -835,7 +626,6 @@ window.bukaModal = function(hari, bulan, teks) {
     const modal = document.getElementById('note-modal');
     const input = document.getElementById('note-input');
     const title = document.getElementById('modal-title');
-    
     title.innerText = `NOTA: ${hari}/${parseInt(bulan) + 1}`;
     input.value = teks;
     modal.classList.remove('hidden');
@@ -846,51 +636,43 @@ window.tutupModal = function() {
     document.getElementById('note-modal').classList.add('hidden');
 };
 
-// Logik Simpan Nota
 document.getElementById('btn-save-note').onclick = async () => {
     const teks = document.getElementById('note-input').value.trim();
     if (!currentEditingData) return;
-
     const path = `notes/${auth.currentUser.uid}/${currentEditingData.bulan}/${currentEditingData.hari}`;
-    await set(ref(db, path), teks || null); // Simpan nota atau hapus jika kosong
+    await set(ref(db, path), teks || null);
     tutupModal();
     showPage('jadual-induk', currentEditingData.bulan);
 };
 
-// Logik Hapus Nota
 document.getElementById('btn-delete-note').onclick = async () => {
     if (!currentEditingData || !confirm("Hapus nota ini?")) return;
-    
     const path = `notes/${auth.currentUser.uid}/${currentEditingData.bulan}/${currentEditingData.hari}`;
     await set(ref(db, path), null);
     tutupModal();
     showPage('jadual-induk', currentEditingData.bulan);
 };
 
-// Tutup modal jika klik di luar kotak putih
-document.getElementById('note-modal').onclick = (e) => {
-    if (e.target.id === 'note-modal') tutupModal();
-};
-
-
-
-
-
+// 4. TOAST NOTIFICATION
 window.showToast = function(msg) {
     const toast = document.getElementById('toast');
-    document.getElementById('toast-msg').innerText = msg;
+    const msgEl = document.getElementById('toast-msg');
+    if(msgEl) msgEl.innerText = msg;
     toast.classList.remove('opacity-0', 'pointer-events-none');
     toast.classList.add('opacity-100');
-    
     setTimeout(() => {
         toast.classList.remove('opacity-100');
         toast.classList.add('opacity-0', 'pointer-events-none');
     }, 3000);
 };
 
-                    
-
-                    
+// 5. INISIALISASI DROPDOWN PLATUN
+const sel = document.getElementById('reg-platoon');
+if(sel && sel.options.length <= 1) {
+    for(let i=1; i<=25; i++) {
+        const o = document.createElement('option'); o.value = i; o.text = "PLATUN " + i; sel.appendChild(o);
+    }
+}                   
     </script>
 
 <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-black text-white px-6 py-4 rounded-2xl text-[12px] font-bold shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-[200]">
