@@ -157,14 +157,7 @@
         </div>
     </div>
             </div>
-
-
-
-
-
-
-
-            
+           
         </main>
             </div>
                <script type="module">
@@ -261,7 +254,6 @@
         "24-11": "Cuti Sekolah", "25-11": "Hari Krismas & Cuti Sekolah", "26-11": "Cuti Sekolah", "27-11": "Cuti Sekolah",
         "28-11": "Cuti Sekolah", "29-11": "Cuti Sekolah", "30-11": "Cuti Sekolah", "31-11": "Cuti Sekolah",
     };
-
     // Fungsi Ambil Data Sistem
     async function fetchSystemData() {
         try {
@@ -292,7 +284,6 @@
         let row = ((START_ROW[platoon] + Math.floor(diffDays/4) - 1) % 24) + 1;
         return { off: false, shift: ["PETANG", "PAGI", "MALAM"][cyclePos], loc: JADUAL_2[row][cyclePos] };
     }
-
     // Authentication State
     onAuthStateChanged(auth, async (user) => {
         const loading = document.getElementById('loading-overlay');
@@ -323,15 +314,8 @@
             setTimeout(() => { loading.style.display = 'none'; }, 600);
         }
     });
-
-
-        
-                            async function showPage(p, targetMonth = new Date().getMonth()) {
+            async function showPage(p, targetMonth = new Date().getMonth()) {
             const cont = document.getElementById('dynamic-content');
-
-
-
-
                                 
             if (p === 'welcome') {
     // 1. Dapatkan data untuk HARI INI
@@ -408,16 +392,9 @@
                 ${htmlList}
             </div>
         </div>`;
-}
-
+}         
                 
-            
-            
-            
-            
-            
-            
-            else if (p === 'jadual-induk') {
+    else if (p === 'jadual-induk') {
     const months = ["JANUARI", "FEBRUARI", "MAC", "APRIL", "MEI", "JUN", "JULAI", "OGOS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DISEMBER"];
     const skrg = new Date();
     
@@ -487,15 +464,7 @@
 
     cont.innerHTML = html + '</div>';
     document.getElementById('month-select').onchange = (e) => showPage('jadual-induk', e.target.value);
-}
-
-
-
-
-
-
-
-                                
+}                      
             closeMenu();
                             }
                             async function showAdminPage() {
@@ -719,8 +688,5 @@ if(sel && sel.options.length <= 1) {
 <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-black text-white px-6 py-4 rounded-2xl text-[12px] font-bold shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-[200]">
     <span id="toast-msg"></span>
 </div>
-
-
-    
 </body>
 </html>
