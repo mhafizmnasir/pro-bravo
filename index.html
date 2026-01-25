@@ -187,6 +187,53 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
 
+// --- LOGIK BUTANG LOG MASUK / DAFTAR ---
+    document.getElementById('btn-action').onclick = async () => {
+        const email = document.getElementById('email').value.trim();
+        const pass = document.getElementById('password').value;
+
+        if (authMode === 'register') {
+            const fn = document.getElementById('reg-firstname').value.trim().toUpperCase();
+            const ln = document.getElementById('reg-lastname').value.trim().toUpperCase();
+            const plt = document.getElementById('reg-platoon').value;
+
+            if(!fn || !plt || !email || !pass) return alert("Sila lengkapkan semua maklumat!");
+
+            try {
+                const res = await createUserWithEmailAndPassword(auth, email, pass);
+                await set(ref(db, 'users/' + res.user.uid), {
+                    firstName: fn,
+                    lastName: ln,
+                    fullName: fn + " " + ln,
+                    platoon: parseInt(plt),
+                    role: "user",
+                    status: "pending" 
+                });
+                alert("Pendaftaran Berjaya! Sila hubungi Admin untuk kelulusan.");
+                await signOut(auth);
+                location.reload();
+            } catch(e) { alert("Ralat Daftar: " + e.message); }
+        } else {
+            // Logik Log Masuk
+            if(!email || !pass) return alert("Isi emel dan kata laluan!");
+            signInWithEmailAndPassword(auth, email, pass).catch(e => alert("Ralat Login: " + e.message));
+        }
+    };
+
+    // --- LOGIK TUKAR MOD (LOGIN <-> DAFTAR) ---
+    document.getElementById('auth-toggle-btn').onclick = () => {
+        const isLogin = authMode === 'login';
+        authMode = isLogin ? 'register' : 'login';
+        
+        document.getElementById('auth-title').innerText = isLogin ? 'DAFTAR' : 'BRAVORIAN';
+        document.getElementById('btn-action').innerText = isLogin ? 'Hantar Pendaftaran' : 'Log Masuk';
+        document.getElementById('auth-toggle-btn').innerText = isLogin ? 'Sudah Ada Akaun? Log Masuk' : 'Daftar Akaun Baru';
+        
+        document.getElementById('register-fields').classList.toggle('hidden', !isLogin);
+        document.getElementById('login-fields').classList.toggle('hidden', false); // Sentiasa tunjuk emel/pass
+        document.getElementById('forgot-toggle-btn').classList.toggle('hidden', isLogin);
+    };
+                   
     // Variable global
     let JADUAL_2 = {};
     let START_ROW = {};
