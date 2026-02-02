@@ -8,18 +8,8 @@
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-<script type="text/javascript">
-   (function(){
-      emailjs.init("l_rhu0wpusKr-VVGT"); // Ganti dengan Public Key anda
-   })();
-</script>
-
-    
-    <style>
+    <script src="https://cdn.tailwindcss.com"></script>    
+    <style>          
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
     body { 
         font-family: 'Plus Jakarta Sans', sans-serif; 
@@ -522,6 +512,7 @@ function monitorPendingUsers() {
         snap.forEach(child => {
             const u = child.val();
             const uid = child.key;
+            
             if (u.status === 'pending') {
                 count++;
                 if (container) {
@@ -533,41 +524,31 @@ function monitorPendingUsers() {
                             <p class="text-[10px] font-bold text-yellow-600 uppercase tracking-tighter">Platun ${u.platoon} • ${u.email}</p>
                         </div>
                     `;
+                    
                     const btn = document.createElement('button');
                     btn.className = "bg-black text-yellow-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all";
                     btn.innerText = "Luluskan";
                     
+                    // --- KEMASKINI SEMULA: LOGIK ASAL ---
                     btn.onclick = async () => {
-    // Gunakan nama pemohon dalam alert pengesahan
-    const namaPemohon = u.firstName || u.fullName || "Pengguna";
-    const emelPemohon = u.email; // Pastikan emel diambil dari data user dalam loop
+                        if(!confirm(`Luluskan permohonan ${u.firstName || u.fullName}?`)) return;
 
-    if(!confirm(`Luluskan permohonan ${namaPemohon}?`)) return;
+                        try {
+                            // 1. Hanya kemaskini status di Firebase Database
+                            await update(ref(db, 'users/' + uid), { 
+                                status: 'approved' 
+                            });
 
-    try {
-        // 1. Kemaskini status di Firebase
-        await update(ref(db, 'users/' + uid), { status: 'approved' });
+                            // 2. Beri maklum balas visual melalui Toast sedia ada
+                            if(typeof window.showToast === 'function') {
+                                window.showToast("PENGGUNA DILULUSKAN");
+                            }
 
-        // 2. Hantar Notifikasi Emel kepada PEMOHON
-const emailParams = {
-    to_email: u.email,    // Pastikan ejaan 'to_email' (bukan to_emall)
-    to_name: namaPemohon
-};
-
-emailjs.send('service_6luey6m', 'template_vh606sx', emailParams)
-            .then(() => {
-                console.log("Emel dihantar ke: " + emelPemohon);
-                if(typeof window.showToast === 'function') window.showToast("DILULUSKAN & EMEL DIHANTAR");
-            })
-            .catch((err) => {
-                console.error("EmailJS Error:", err);
-                if(typeof window.showToast === 'function') window.showToast("DILULUSKAN (EMEL GAGAL)");
-            });
-
-    } catch (e) {
-        alert("Ralat: " + e.message);
-    }
-};
+                        } catch (e) {
+                            console.error("Database Update Error:", e);
+                            alert("Ralat sistem: " + e.message);
+                        }
+                    };
 
                     div.appendChild(btn);
                     container.appendChild(div);
@@ -575,19 +556,20 @@ emailjs.send('service_6luey6m', 'template_vh606sx', emailParams)
             }
         });
 
-        // Paparkan jumlah permohonan pada badge
+        // Paparkan jumlah permohonan pada lencana (badge)
         if (badge) {
             if (count > 0) {
                 badge.innerText = count;
                 badge.classList.remove('hidden');
             } else {
                 badge.classList.add('hidden');
-                if (container) container.innerHTML = `<div class="py-10 text-center"><p class="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Tiada permohonan baru</p></div>`;
+                if (container) {
+                    container.innerHTML = `<div class="py-10 text-center"><p class="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Tiada permohonan baru</p></div>`;
+                }
             }
         }
     });
-} // Penutup fungsi monitorPendingUsers yang betul
-
+}
                  document.getElementById('btn-action').onclick = async () => {
     const email = document.getElementById('email').value.trim();
     const pass = document.getElementById('password').value;
