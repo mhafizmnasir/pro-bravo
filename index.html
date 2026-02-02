@@ -172,7 +172,9 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, EmailAuthProvider, reauthenticateWithCredential, updatePassword as firebaseUpdatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getDatabase, ref, get, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
+                   // Tambah baris ini di bawah import firebase-auth atau firebase-database
+    import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
+                   
     const firebaseConfig = {
         apiKey: "AIzaSyAcJ6nJ0sRcDb_cYG3RkMwBOZ_-1Hqz3XY",
         authDomain: "pro-bravo.firebaseapp.com",
@@ -187,6 +189,8 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
+    const messaging = getMessaging(app);
+
                   
     let JADUAL_2 = {};
     let START_ROW = {};
@@ -260,6 +264,7 @@ onAuthStateChanged(auth, async (user) => {
                 if(userData.role === 'admin') {
                     document.getElementById('admin-nav').classList.remove('hidden');
                     monitorPendingUsers();
+                    requestPermission();
                 }
                 if (dataReady) showPage('welcome');
             } else {
@@ -921,6 +926,38 @@ window.togglePass = (id, btn) => {
     btn.classList.toggle('text-yellow-500', isPass);
     btn.classList.toggle('text-slate-400', !isPass);
 };
+
+
+
+
+
+async function requestPermission() {
+    try {
+        console.log("Meminta kebenaran notifikasi...");
+        const permission = await Notification.requestPermission();
+        
+        if (permission === 'granted') {
+            const token = await getToken(messaging, { 
+                vapidKey: 'BC113-LtfQ5XxfvW6yUIr47zO3Gt1NSazDBTGVu4LRJ32lBotKV_4Y4XMM5c9L1q4FWpimLo18TYlYVTDsLy8Zs' 
+            });
+            
+            if (token && auth.currentUser) {
+                // Simpan token ke dalam profil user di database
+                await update(ref(db, 'users/' + auth.currentUser.uid), {
+                    fcmToken: token
+                });
+                console.log("Token FCM berjaya disimpan.");
+            }
+        } else {
+            console.log("Kebenaran notifikasi ditolak oleh pengguna.");
+        }
+    } catch (error) {
+        console.error("Ralat semasa meminta kebenaran:", error);
+    }
+}
+                   
+
+
                    
                
 </script>
