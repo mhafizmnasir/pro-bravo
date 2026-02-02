@@ -172,10 +172,10 @@
         </main>
             </div>
                <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, EmailAuthProvider, reauthenticateWithCredential, updatePassword as firebaseUpdatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-   
-    const firebaseConfig = {
+                    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+                    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, EmailAuthProvider, reauthenticateWithCredential, updatePassword as firebaseUpdatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";   
+                    import { getDatabase, ref, get, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+                   const firebaseConfig = {
         apiKey: "AIzaSyAcJ6nJ0sRcDb_cYG3RkMwBOZ_-1Hqz3XY",
         authDomain: "pro-bravo.firebaseapp.com",
         databaseURL: "https://pro-bravo-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -462,36 +462,32 @@ else if (p === 'settings') {
                 </select>
                 <button onclick="updateUserPlatoon()" class="w-full bg-black text-yellow-400 text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Kemaskini Platun</button>
             </div>
+
+            
             
             <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 mt-6">
-    <div class="flex items-center gap-3 mb-6">
-        <div class="p-2 bg-red-100 text-red-600 rounded-lg">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-        </div>
-        <p class="text-[11px] font-black text-black uppercase tracking-widest">Kemaskini Kata Laluan</p>
-    </div>
-    <div class="space-y-3">
-        <div class="relative">
-            <input type="password" id="old-pass" placeholder="KATA LALUAN SEMASA" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
-            <button type="button" onclick="togglePassView('old-pass', this)" class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path class="eye-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-            </button>
-        </div>
-        <div class="relative">
-            <input type="password" id="new-pass" placeholder="KATA LALUAN BARU" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
-            <button type="button" onclick="togglePassView('new-pass', this)" class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path class="eye-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-            </button>
-        </div>
-        <div class="relative">
-            <input type="password" id="confirm-pass" placeholder="SAHKAN KATA LALUAN BARU" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
-            <button type="button" onclick="togglePassView('confirm-pass', this)" class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path class="eye-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
-            </button>
-        </div>
-        <button onclick="updatePassword()" class="w-full bg-black text-yellow-400 text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Kemaskini Kata Laluan</button>
-    </div>
-</div>
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-2 bg-red-100 text-red-600 rounded-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    </div>
+                    <p class="text-[11px] font-black text-black uppercase tracking-widest">Kemaskini Kata Laluan</p>
+                </div>
+                <div class="space-y-3">
+                    <div class="relative">
+                        <input type="password" id="old-pass" placeholder="KATA LALUAN SEMASA" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
+                        <button type="button" onclick="togglePassView('old-pass', this)" class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path class="eye-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg></button>
+                    </div>
+                    <div class="relative">
+                        <input type="password" id="new-pass" placeholder="KATA LALUAN BARU" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
+                        <button type="button" onclick="togglePassView('new-pass', this)" class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path class="eye-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg></button>
+                    </div>
+                    <div class="relative">
+                        <input type="password" id="confirm-pass" placeholder="SAHKAN KATA LALUAN BARU" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
+                        <button type="button" onclick="togglePassView('confirm-pass', this)" class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path class="eye-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg></button>
+                    </div>
+                    <button onclick="updatePassword()" class="w-full bg-black text-yellow-400 text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Kemaskini Kata Laluan</button>
+                </div>
+            </div>
         </div>
     `;
 }
@@ -902,7 +898,7 @@ window.updatePassword = async () => {
 
 
 
-                   window.togglePassView = function(inputId, btn) {
+               window.togglePassView = function(inputId, btn) {
     const input = document.getElementById(inputId);
     const path = btn.querySelector('.eye-path');
     if (input.type === 'password') {
@@ -922,26 +918,18 @@ window.updatePassword = async () => {
     const confirmPass = document.getElementById('confirm-pass').value;
     const user = auth.currentUser;
 
-    if (!oldPass || !newPass || !confirmPass) {
-        alert("Sila lengkapkan semua ruangan.");
-        return;
-    }
-    if (newPass !== confirmPass) {
-        alert("Kata laluan baru tidak sepadan.");
-        return;
-    }
+    if (!oldPass || !newPass || !confirmPass) return alert("Sila lengkapkan semua ruangan.");
+    if (newPass !== confirmPass) return alert("Pengesahan kata laluan tidak sepadan.");
 
     try {
         const credential = EmailAuthProvider.credential(user.email, oldPass);
         await reauthenticateWithCredential(user, credential);
         await firebaseUpdatePassword(user, newPass);
-        
         window.showToast("KATA LALUAN BERJAYA DIKEMASKINI");
         document.getElementById('old-pass').value = '';
         document.getElementById('new-pass').value = '';
         document.getElementById('confirm-pass').value = '';
     } catch (e) {
-        console.error(e);
         alert("Ralat: " + e.message);
     }
 };
