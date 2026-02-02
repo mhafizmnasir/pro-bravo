@@ -173,8 +173,7 @@
             </div>
                <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-    import { getDatabase, ref, get, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, EmailAuthProvider, reauthenticateWithCredential, updatePassword as firebaseUpdatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";    import { getDatabase, ref, get, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAcJ6nJ0sRcDb_cYG3RkMwBOZ_-1Hqz3XY",
@@ -840,29 +839,28 @@ window.updatePassword = async () => {
         alert("Sila lengkapkan semua ruangan kata laluan.");
         return;
     }
-
     if (newPass !== confirmPass) {
         alert("Kata laluan baru dan pengesahan tidak sepadan.");
         return;
     }
-
     if (newPass.length < 6) {
         alert("Kata laluan baru mestilah sekurang-kurangnya 6 aksara.");
         return;
     }
 
     try {
-        // Guna fungsi yang diimport di atas
         const credential = EmailAuthProvider.credential(user.email, oldPass);
+        // Proses sahkan semula user
         await reauthenticateWithCredential(user, credential);
-        await updatePassword(user, newPass);
+        // Proses kemaskini password
+        await firebaseUpdatePassword(user, newPass);
         
         window.showToast("KATA LALUAN BERJAYA DIKEMASKINI");
         
+        // Kosongkan input
         document.getElementById('old-pass').value = '';
         document.getElementById('new-pass').value = '';
         document.getElementById('confirm-pass').value = '';
-        
     } catch (e) {
         console.error(e);
         if (e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password') {
@@ -873,18 +871,16 @@ window.updatePassword = async () => {
     }
 };
 
-                   window.togglePassView = function(inputId, btn) {
+                window.togglePassView = function(inputId, btn) {
     const input = document.getElementById(inputId);
-    const path = btn.querySelector('.eye-icon-path');
+    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+    input.setAttribute('type', type);
     
-    if (input.type === 'password') {
-        input.type = 'text';
-        // Ikon Mata Terbuka (Aktif)
-        path.setAttribute('d', 'M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21');
+    // Tukar warna ikon sebagai petunjuk aktif
+    if(type === 'text') {
+        btn.classList.add('text-yellow-500');
     } else {
-        input.type = 'password';
-        // Ikon Mata Asal (Tertutup)
-        path.setAttribute('d', 'M15 12a3 3 0 11-6 0 3 3 0 016 0z');
+        btn.classList.remove('text-yellow-500');
     }
 };
 
