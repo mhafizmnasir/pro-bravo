@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
      <title>BRAVORIAN - BSI</title>
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
-<link rel="manifest" href="site.webmanifest">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
     <script src="https://cdn.tailwindcss.com"></script>    
     <style>          
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
@@ -167,9 +167,7 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getDatabase(app);
-
-    
-                   
+                  
     let JADUAL_2 = {};
     let START_ROW = {};
     let userData = null;
@@ -196,7 +194,7 @@
         "24-11": "Cuti Sekolah", "25-11": "Hari Krismas & Cuti Sekolah", "26-11": "Cuti Sekolah", "27-11": "Cuti Sekolah",
         "28-11": "Cuti Sekolah", "29-11": "Cuti Sekolah", "30-11": "Cuti Sekolah", "31-11": "Cuti Sekolah",
     };
-    // Fungsi Ambil Data Sistem
+
     async function fetchSystemData() {
         try {
             const snap = await get(ref(db, 'system_data'));
@@ -225,13 +223,11 @@
         let row = ((START_ROW[platoon] + Math.floor(diffDays/4) - 1) % 24) + 1;
         return { off: false, shift: ["PETANG", "PAGI", "MALAM"][cyclePos], loc: JADUAL_2[row][cyclePos] };
     }
-    // Authentication State
-    // 1. Cari bahagian ini dalam fail anda
+
 onAuthStateChanged(auth, async (user) => {
     const loading = document.getElementById('loading-overlay');
     
     try {
-        // --- KOD ASAL ANDA DI DALAM TRY ---
         if (user) {
             const dataReady = await fetchSystemData();
             const snap = await get(ref(db, 'users/' + user.uid));
@@ -258,15 +254,12 @@ onAuthStateChanged(auth, async (user) => {
     } catch (error) {
         console.error("Auth Error:", error);
     } 
-    // 2. MASUKKAN BLOK FINALLY DI SINI (SEBELUM PENUTUP FUNGSI)
+
     finally {
         if (loading) {
-            // Menambah class fade-out untuk kesan smooth
             loading.classList.add('fade-out');
-            
-            // Menghilangkan terus elemen selepas animasi tamat (0.6 saat)
             setTimeout(() => { 
-                loading.style.display = 'none'; 
+            loading.style.display = 'none'; 
             }, 600);
         }
     }
@@ -275,11 +268,8 @@ onAuthStateChanged(auth, async (user) => {
             const cont = document.getElementById('dynamic-content');
                                 
             if (p === 'welcome') {
-    // 1. Dapatkan data untuk HARI INI
     const tkhHariIni = new Date();
     const dtyHariIni = getDuty(tkhHariIni, userData.platoon);
-    
-    // HTML untuk paparan HARI INI (Warna disamakan dengan Jadual Akan Datang)
     const htmlHariIni = `
         <div class="bg-white rounded-[3rem] border border-slate-100 shadow-xl w-full max-w-md overflow-hidden mb-6">
             <div class="bg-black py-4">
@@ -302,7 +292,6 @@ onAuthStateChanged(auth, async (user) => {
             </div>
         </div>`;
 
-    // 2. Logik JADUAL AKAN DATANG (Kekal asal)
     let htmlList = '';
     for (let i = 1; i <= 3; i++) {
         const tkh = new Date();
@@ -326,8 +315,6 @@ onAuthStateChanged(auth, async (user) => {
                 </div>
             </div>`;
     }
-
-    // 3. Paparan Utama
     cont.innerHTML = `
         <div class="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
             <div class="w-24 h-24 bg-black rounded-[2.5rem] flex items-center justify-center mb-8 shadow-2xl relative">
@@ -350,7 +337,7 @@ onAuthStateChanged(auth, async (user) => {
             </div>
         </div>`;
 }         
-                
+        
     else if (p === 'jadual-induk') {
     const months = ["JANUARI", "FEBRUARI", "MAC", "APRIL", "MEI", "JUN", "JULAI", "OGOS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DISEMBER"];
     const skrg = new Date();
@@ -374,8 +361,6 @@ onAuthStateChanged(auth, async (user) => {
     let r = getDuty(d, userData.platoon);
     const adakahHariIni = (i === skrg.getDate() && targetMonth == skrg.getMonth());
     const teksNota = userNotes[i] || "";
-    
-    // Semak cuti umum menggunakan kunci hari-bulan
     const kunciCuti = `${i}-${targetMonth}`;
     const namaCuti = CUTI_JOHOR[kunciCuti] || "";
 
@@ -419,10 +404,6 @@ onAuthStateChanged(auth, async (user) => {
     document.getElementById('month-select').onchange = (e) => showPage('jadual-induk', e.target.value);
 }                      
 
-
-
-
-
 else if (p === 'settings') {
     cont.innerHTML = `
         <div class="space-y-6 animate-fadeIn pb-10">
@@ -462,13 +443,7 @@ else if (p === 'settings') {
         </div>
     `;
 }
-
-
-
-
-
-                
-            closeMenu();
+              closeMenu();
                             }
                             async function showAdminPage() {
     const cont = document.getElementById('dynamic-content');
@@ -556,7 +531,6 @@ function monitorPendingUsers() {
             }
         });
 
-        // Paparkan jumlah permohonan pada lencana (badge)
         if (badge) {
             if (count > 0) {
                 badge.innerText = count;
@@ -633,8 +607,7 @@ document.getElementById('auth-toggle-btn').onclick = () => {
     }
 };
 
-// TAMBAH FUNGSI KLIK UNTUK BUTANG "Lupa Kata Laluan?"
-document.getElementById('forgot-toggle-btn').onclick = () => {
+    document.getElementById('forgot-toggle-btn').onclick = () => {
     authMode = 'forgot';
     document.getElementById('auth-title').innerText = 'LUPA KATA LALUAN';
     document.getElementById('btn-action').innerText = 'Hantar Emel Pautan';
@@ -748,16 +721,10 @@ if (togglePasswordBtn) {
     });
 }
 
-
-
-
-
-// Navigasi Menu Tetapan
 if(document.getElementById('nav-settings')) {
     document.getElementById('nav-settings').onclick = () => { showPage('settings'); closeMenu(); };
 }
 
-// 1. Logik Kemaskini Nama
 window.updateProfileName = async () => {
     const fn = document.getElementById('set-fn').value.trim().toUpperCase();
     const ln = document.getElementById('set-ln').value.trim().toUpperCase();
@@ -786,8 +753,7 @@ window.updateProfileName = async () => {
     }
 };
 
-// 2. Logik Kemaskini Platun
-window.updateUserPlatoon = async () => {
+    window.updateUserPlatoon = async () => {
     const newPlt = document.getElementById('set-platoon').value;
     
     if(confirm(`Adakah anda pasti mahu menukar ke PLATUN ${newPlt}? Jadual kerja anda akan berubah mengikut platun baru.`)) {
@@ -806,14 +772,8 @@ window.updateUserPlatoon = async () => {
         }
     }
 };
-
-
-
-
-                   
-                   
-                   
-    </script>
+               
+</script>
 
 <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-black text-white px-6 py-4 rounded-2xl text-[12px] font-bold shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-[200]">
     <span id="toast-msg"></span>
