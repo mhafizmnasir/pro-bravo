@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+     <title>BRAVORIAN - BSI</title>
+    <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="manifest" href="site.webmanifest">
+    <script src="https://cdn.tailwindcss.com"></script>    
+    <style>          
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+    body { 
+        font-family: 'Plus Jakarta Sans', sans-serif; 
+        -webkit-tap-highlight-color: transparent;
+        background-color: #f8fafc;
+    }
+    #loading-overlay {
+        position: fixed;
+        inset: 0;
+        background-color: white;
+        z-index: 999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        /* Tambah transition supaya nampak 'smooth' */
+        transition: opacity 0.6s ease, visibility 0.6s ease;
+        opacity: 1;
+        visibility: visible;
+    }
+    #loading-overlay.fade-out {
+        opacity: 0;
+        visibility: hidden;
+    }
+    .bg-bravorian-gold { background-color: #facc15; }
+    .text-bravorian-gold { color: #facc15; }
+    .border-bravorian-black { border-color: #000000; }
+    .bg-bravorian-black { background-color: #000000; }
+    .mobile-menu { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+    .mobile-menu.closed { transform: translateX(-100%); }
+    .note-preview {
+        pointer-events: none;
+    }
+</style>
+</head>
+<body class="min-h-screen text-slate-900">
+    <div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center">
+        <div class="w-12 h-12 border-4 border-yellow-400 border-t-black rounded-full animate-spin"></div>
+    </div>
+        <div id="auth-section" class="hidden flex items-center justify-center min-h-screen p-6">
+    <div class="bg-white p-10 rounded-[3rem] shadow-2xl w-full max-w-md border border-slate-100 text-center relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-2 bg-bravorian-gold"></div>
+        
+        <h1 id="auth-title" class="text-4xl font-black text-black uppercase italic mb-2 tracking-tighter">BRAVORIAN</h1>
+        <p id="auth-subtitle" class="text-[11px] font-bold text-slate-400 uppercase mb-10 tracking-[0.4em]">B.S.I JOHOR BAHRU</p>
+        
+        <div id="register-fields" class="hidden space-y-4 mb-4 text-left">
+    <div class="flex gap-3">
+        <input type="text" id="reg-firstname" placeholder="FIRST NAME" class="w-1/2 p-5 bg-slate-50 border-none rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400">
+        <input type="text" id="reg-lastname" placeholder="LAST NAME" class="w-1/2 p-5 bg-slate-50 border-none rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400">
+    </div>
+    <select id="reg-platoon" class="w-full p-5 bg-slate-50 border-none rounded-2xl text-[12px] font-bold outline-none focus:ring-2 focus:ring-yellow-400 uppercase"></select>
+</div>
+
+<div id="login-fields" class="space-y-4">
+    <input type="email" id="email" placeholder="EMEL" class="w-full p-5 bg-slate-50 border-none rounded-2xl text-[12px] font-bold outline-none focus:ring-2 focus:ring-yellow-400">
+    
+    <div class="relative">
+        <input type="password" id="password" placeholder="KATA LALUAN" class="w-full p-5 bg-slate-50 border-none rounded-2xl text-[12px] font-bold outline-none focus:ring-2 focus:ring-yellow-400">
+        <button type="button" id="toggle-password-btn" class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-black">
+            <svg id="eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path id="eye-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+            </svg>
+        </button>
+    </div>
+</div>
+
+        <div id="forgot-fields" class="hidden space-y-4 mb-4">
+            <p class="text-[10px] text-slate-500 font-bold uppercase mb-4 text-center">Sila masukkan emel anda untuk menerima pautan tetapan semula kata laluan.</p>
+            <input type="email" id="forgot-email" placeholder="EMEL BERDAFTAR" class="w-full p-5 bg-slate-50 border-none rounded-2xl text-[12px] font-bold outline-none focus:ring-2 focus:ring-yellow-400">
+        </div>
+
+        <button id="btn-action" class="w-full bg-black text-yellow-400 font-black py-5 rounded-2xl mt-8 uppercase text-[12px] tracking-widest shadow-xl active:scale-95 transition-all">Log Masuk</button>
+        
+        <div class="mt-8 flex flex-col gap-4">
+    <button id="auth-toggle-btn" class="text-[10px] text-black font-black uppercase tracking-widest border-b-2 border-yellow-400 inline-block pb-1 w-max mx-auto">Daftar Akaun Baru</button>
+    
+    <button id="forgot-toggle-btn" class="text-[10px] text-slate-400 font-bold uppercase tracking-widest hover:text-black transition-colors">Lupa Kata Laluan?</button>
+</div>
+    </div>
+</div>
+
+            <div id="main-dashboard" class="hidden">
+        <nav class="bg-white/90 backdrop-blur-lg border-b border-slate-100 p-5 sticky top-0 z-50 flex justify-between items-center px-8">
+            <div class="flex items-center gap-4">
+                <button id="menu-open" class="p-3 text-black bg-yellow-400 rounded-2xl shadow-sm">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                </button>
+                <div class="flex flex-col leading-none">
+                    <span class="font-black text-black italic uppercase tracking-tighter text-lg">Bravorian</span>
+                    <span id="live-clock" class="text-[9px] font-bold text-slate-400 mt-1 uppercase">00:00:00</span>
+                </div>
+            </div>
+            <button id="btn-logout" class="bg-slate-100 text-slate-600 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest">Keluar</button>
+        </nav>
+
+        <div id="mobile-sidebar" class="fixed inset-0 bg-black/40 z-[60] hidden backdrop-blur-sm">
+            <div id="sidebar-container" class="mobile-menu closed bg-white w-80 h-full p-10 flex flex-col shadow-2xl">
+                <div class="mb-12 flex justify-between items-center">
+                    <h2 class="text-[11px] font-black text-black uppercase opacity-30 tracking-[0.3em]">Menu Utama</h2>
+                    <button id="menu-close" class="p-2 text-slate-400">X</button>
+                </div>
+                <div class="space-y-4 font-black text-[13px] uppercase tracking-widest text-slate-400">
+                    <button id="nav-welcome" class="flex items-center gap-4 w-full text-left p-5 hover:bg-yellow-50 rounded-2xl transition-all text-black border-l-4 border-yellow-400">Utama</button>
+                    <button id="nav-calendar" class="flex items-center gap-4 w-full text-left p-5 hover:bg-yellow-50 rounded-2xl transition-all text-black border-l-4 border-yellow-400">Kalendar Syif</button>
+                   <button id="nav-settings" class="flex items-center gap-4 w-full text-left p-5 hover:bg-yellow-50 rounded-2xl transition-all text-black border-l-4 border-yellow-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        <span>Tetapan</span>
+                    </button>
+                    <button id="admin-nav" class="hidden flex items-center justify-between w-full p-5 bg-black text-yellow-400 rounded-2xl mt-10">
+                        <span>Admin Panel</span>
+                        <span id="pending-count" class="hidden bg-yellow-400 text-black text-[10px] px-2 py-1 rounded-full">0</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <main class="max-w-4xl mx-auto p-6 md:p-12">
+            <div id="dynamic-content" class="space-y-8"></div>
+            <div id="note-modal" class="fixed inset-0 bg-black/60 z-[100] hidden backdrop-blur-sm flex items-center justify-center p-6">
+    <div class="bg-white w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl transform transition-all">
+        <div class="bg-black p-6 flex justify-between items-center">
+            <h3 id="modal-title" class="text-yellow-400 font-black uppercase text-[12px] tracking-widest">Nota Peribadi</h3>
+            <button onclick="tutupModal()" class="text-white/50 hover:text-white">✕</button>
+        </div>
+        <div class="p-8">
+            <textarea id="note-input" rows="4" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-[13px] font-bold outline-none focus:ring-2 focus:ring-yellow-400 placeholder:text-slate-300" placeholder="Tulis sesuatu di sini..."></textarea>
+            <div class="grid grid-cols-2 gap-3 mt-6">
+                <button id="btn-delete-note" class="bg-red-50 text-red-500 font-black py-4 rounded-2xl uppercase text-[10px] tracking-widest">Hapus</button>
+                <button id="btn-save-note" class="bg-black text-yellow-400 font-black py-4 rounded-2xl uppercase text-[10px] tracking-widest">Simpan</button>
+            </div>
+        </div>
+    </div>
+            </div>
+           
+        </main>
+            </div>
+               <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getDatabase, ref, get, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAcJ6nJ0sRcDb_cYG3RkMwBOZ_-1Hqz3XY",
+        authDomain: "pro-bravo.firebaseapp.com",
+        databaseURL: "https://pro-bravo-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "pro-bravo",
+        storageBucket: "pro-bravo.firebasestorage.app",
+        messagingSenderId: "540317526892",
+        appId: "1:540317526892:web:83309074248663d9806149",
+        measurementId: "G-NLBKFXPZDJ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+                  
+    let JADUAL_2 = {};
+    let START_ROW = {};
+    let userData = null;
+    let authMode = 'login';
+
+    const CUTI_JOHOR = {
+        "1-0": "Cuti Sekolah", "2-0": "Cuti Sekolah", "3-0": "Cuti Sekolah", "4-0": "Cuti Sekolah", "5-0": "Cuti Sekolah",
+        "6-0": "Cuti Sekolah", "7-0": "Cuti Sekolah", "8-0": "Cuti Sekolah", "9-0": "Cuti Sekolah", "10-0": "Cuti Sekolah",
+        "11-0": "Cuti Sekolah", "1-1": "Thaipusam", "17-1": "Tahun Baru Cina", "18-1": "Tahun Baru Cina (Hari Ke-2)",
+        "20-1": "Awal Ramadan*", "21-2": "Hari Raya Aidilfitri* & Cuti Sekolah", "22-2": "Hari Raya Aidilfitri (Hari Ke-2)* & Cuti Sekolah",
+        "23-2": "Cuti Sekolah", "24-2": "Hari Keputeraan Sultan Johor & Cuti Sekolah", "25-2": "Cuti Sekolah", 
+        "26-2": "Cuti Sekolah", "27-2": "Cuti Sekolah", "28-2": "Cuti Sekolah", "29-2": "Cuti Sekolah", "1-4": "Hari Pekerja",
+        "23-4": "Cuti Sekolah", "24-4": "Cuti Sekolah", "25-4": "Cuti Sekolah", "26-4": "Cuti Sekolah", 
+        "27-4": "Hari Raya Haji* & Cuti Sekolah", "28-4": "Cuti Sekolah", "29-4": "Cuti Sekolah", "30-4": "Cuti Sekolah",
+        "31-4": "Hari Wesak & Cuti Sekolah", "1-5": "Hari Keputeraan YDP Agong & Cuti Sekolah", "2-5": "Cuti Sekolah",
+        "3-5": "Cuti Sekolah", "4-5": "Cuti Sekolah", "5-5": "Cuti Sekolah", "6-5": "Cuti Sekolah", "7-5": "Cuti Sekolah",
+        "17-5": "Awal Muharram", "22-6": "Hari Hol Almarhum Sultan Iskandar", "25-7": "Maulidur Rasul", "29-7": "Cuti Sekolah",
+        "30-7": "Cuti Sekolah", "31-7": "Hari Kebangsaan & Cuti Sekolah", "1-8": "Cuti Sekolah", "2-8": "Cuti Sekolah",
+        "3-8": "Cuti Sekolah", "4-8": "Cuti Sekolah", "5-8": "Cuti Sekolah", "6-8": "Cuti Sekolah", "16-8": "Hari Malaysia",
+        "8-10": "Hari Deepavali", "5-11": "Cuti Sekolah", "6-11": "Cuti Sekolah", "7-11": "Cuti Sekolah", "8-11": "Cuti Sekolah",
+        "9-11": "Cuti Sekolah", "10-11": "Cuti Sekolah", "11-11": "Cuti Sekolah", "12-11": "Cuti Sekolah", "13-11": "Cuti Sekolah",
+        "14-11": "Cuti Sekolah", "15-11": "Cuti Sekolah", "16-11": "Cuti Sekolah", "17-11": "Cuti Sekolah", "18-11": "Cuti Sekolah",
+        "19-11": "Cuti Sekolah", "20-11": "Cuti Sekolah", "21-11": "Cuti Sekolah", "22-11": "Cuti Sekolah", "23-11": "Cuti Sekolah",
+        "24-11": "Cuti Sekolah", "25-11": "Hari Krismas & Cuti Sekolah", "26-11": "Cuti Sekolah", "27-11": "Cuti Sekolah",
+        "28-11": "Cuti Sekolah", "29-11": "Cuti Sekolah", "30-11": "Cuti Sekolah", "31-11": "Cuti Sekolah",
+    };
+
+    async function fetchSystemData() {
+        try {
+            const snap = await get(ref(db, 'system_data'));
+            if (snap.exists()) {
+                const data = snap.val();
+                JADUAL_2 = data.jadual_2;
+                START_ROW = data.start_row;
+                return true;
+            }
+            return false;
+        } catch (e) {
+            console.error(e);
+            return false;
+        }
+    }  
+
+    function getDuty(date, platoon) {
+        if (Object.keys(JADUAL_2).length === 0 || !START_ROW[platoon]) return { off: true };
+        let baseDate = new Date(2026, 0, 3); 
+        let targetDate = new Date(date); 
+        targetDate.setHours(0,0,0,0);
+        let diffDays = Math.floor((targetDate - baseDate) / 86400000);
+        if (diffDays < 0) return { off: true };
+        let cyclePos = diffDays % 4; 
+        if (cyclePos === 3) return { off: true };
+        let row = ((START_ROW[platoon] + Math.floor(diffDays/4) - 1) % 24) + 1;
+        return { off: false, shift: ["PETANG", "PAGI", "MALAM"][cyclePos], loc: JADUAL_2[row][cyclePos] };
+    }
+
+onAuthStateChanged(auth, async (user) => {
+    const loading = document.getElementById('loading-overlay');
+    
+    try {
+        if (user) {
+            const dataReady = await fetchSystemData();
+            const snap = await get(ref(db, 'users/' + user.uid));
+            
+            if (snap.exists() && snap.val().status === "approved") {
+                userData = snap.val();
+                document.getElementById('auth-section').classList.add('hidden');
+                document.getElementById('main-dashboard').classList.remove('hidden');
+                
+                if(userData.role === 'admin') {
+                    document.getElementById('admin-nav').classList.remove('hidden');
+                    monitorPendingUsers();
+                }
+                if (dataReady) showPage('welcome');
+            } else {
+                alert("Akaun belum diluluskan Admin.");
+                await signOut(auth);
+            }
+        } else {
+            document.getElementById('auth-section').classList.remove('hidden');
+            document.getElementById('main-dashboard').classList.add('hidden');
+            document.getElementById('admin-nav').classList.add('hidden');
+        }
+    } catch (error) {
+        console.error("Auth Error:", error);
+    } 
+
+    finally {
+        if (loading) {
+            loading.classList.add('fade-out');
+            setTimeout(() => { 
+            loading.style.display = 'none'; 
+            }, 600);
+        }
+    }
+});
+            async function showPage(p, targetMonth = new Date().getMonth()) {
+            const cont = document.getElementById('dynamic-content');
+                                
+            if (p === 'welcome') {
+    const tkhHariIni = new Date();
+    const dtyHariIni = getDuty(tkhHariIni, userData.platoon);
+    const htmlHariIni = `
+        <div class="bg-white rounded-[3rem] border border-slate-100 shadow-xl w-full max-w-md overflow-hidden mb-6">
+            <div class="bg-black py-4">
+                <p class="text-[10px] font-black text-yellow-400 uppercase tracking-[0.3em]">Jadual Hari Ini</p>
+            </div>
+            <div class="flex justify-between items-center p-6">
+                <div class="text-left">
+                    <p class="text-[12px] font-black text-black uppercase tracking-tighter">HARI INI</p>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        ${tkhHariIni.toLocaleDateString('ms-MY', { day: '2-digit', month: 'short' })}
+                    </p>
+                </div>
+                <div class="text-right">
+                    ${dtyHariIni.off ? 
+                        `<p class="text-sm font-black text-slate-300 uppercase italic">OFF</p>` : 
+                        `<p class="text-[13px] font-black text-black uppercase leading-none">${dtyHariIni.shift}</p>
+                         <p class="text-[10px] font-extrabold text-yellow-500 uppercase mt-1 tracking-tighter leading-none">${dtyHariIni.loc}</p>`
+                    }
+                </div>
+            </div>
+        </div>`;
+
+    let htmlList = '';
+    for (let i = 1; i <= 3; i++) {
+        const tkh = new Date();
+        tkh.setDate(tkh.getDate() + i);
+        const dty = getDuty(tkh, userData.platoon);
+        const namaHari = tkh.toLocaleDateString('ms-MY', { weekday: 'long' }).toUpperCase();
+        const tarikhRingkas = tkh.toLocaleDateString('ms-MY', { day: '2-digit', month: 'short' });
+
+        htmlList += `
+            <div class="flex justify-between items-center p-6 ${i < 3 ? 'border-b border-slate-50' : ''}">
+                <div class="text-left">
+                    <p class="text-[12px] font-black text-black uppercase tracking-tighter">${namaHari}</p>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">${tarikhRingkas}</p>
+                </div>
+                <div class="text-right">
+                    ${dty.off ? 
+                        `<p class="text-sm font-black text-slate-300 uppercase italic">OFF</p>` : 
+                        `<p class="text-[13px] font-black text-black uppercase leading-none">${dty.shift}</p>
+                         <p class="text-[10px] font-extrabold text-yellow-500 uppercase mt-1 tracking-tighter leading-none">${dty.loc}</p>`
+                    }
+                </div>
+            </div>`;
+    }
+    cont.innerHTML = `
+        <div class="flex flex-col items-center justify-center min-h-[60vh] text-center px-4">
+            <div class="w-24 h-24 bg-black rounded-[2.5rem] flex items-center justify-center mb-8 shadow-2xl relative">
+                <div class="absolute inset-0 border-4 border-yellow-400 rounded-[2.5rem] animate-pulse"></div>
+                <svg class="w-12 h-12 text-yellow-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+            </div>
+            <h1 class="text-3xl font-black text-black uppercase italic tracking-tighter mb-2">SELAMAT DATANG</h1>
+            <div class="mb-10">
+                <p class="text-[14px] font-black text-slate-800 uppercase tracking-widest">${userData.fullName}</p>
+                <span class="inline-block mt-2 px-4 py-1.5 bg-yellow-400 text-black text-[10px] font-black rounded-full uppercase tracking-widest">PLATUN ${userData.platoon}</span>
+            </div>
+            
+            ${htmlHariIni}
+
+            <div class="bg-white rounded-[3rem] border border-slate-100 shadow-xl w-full max-w-md overflow-hidden">
+                <div class="bg-black py-4">
+                    <p class="text-[10px] font-black text-yellow-400 uppercase tracking-[0.3em]">Jadual Akan Datang</p>
+                </div>
+                ${htmlList}
+            </div>
+        </div>`;
+}         
+        
+    else if (p === 'jadual-induk') {
+    const months = ["JANUARI", "FEBRUARI", "MAC", "APRIL", "MEI", "JUN", "JULAI", "OGOS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DISEMBER"];
+    const skrg = new Date();
+    
+    // Ambil nota dari Firebase
+    const notesSnap = await get(ref(db, `notes/${auth.currentUser.uid}/${targetMonth}`));
+    const userNotes = notesSnap.exists() ? notesSnap.val() : {};
+
+    let html = `
+        <div class="bg-white p-5 rounded-[2.5rem] mb-6 shadow-sm border border-slate-100">
+            <select id="month-select" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-[12px] font-black uppercase outline-none focus:ring-2 focus:ring-yellow-400">
+                ${months.map((m, i) => `<option value="${i}" ${i == targetMonth ? 'selected' : ''}>${m} 2026</option>`).join('')}
+            </select>
+        </div>
+        <div class="grid grid-cols-2 gap-4">`;
+    
+    const daysInMonth = new Date(2026, parseInt(targetMonth) + 1, 0).getDate();
+    
+               for(let i=1; i<=daysInMonth; i++){
+    let d = new Date(2026, targetMonth, i);
+    let r = getDuty(d, userData.platoon);
+    const adakahHariIni = (i === skrg.getDate() && targetMonth == skrg.getMonth());
+    const teksNota = userNotes[i] || "";
+    const kunciCuti = `${i}-${targetMonth}`;
+    const namaCuti = CUTI_JOHOR[kunciCuti] || "";
+
+    html += `
+        <div onclick="bukaModal(${i}, ${targetMonth}, \`${teksNota.replace(/"/g, '&quot;')}\`)" 
+             class="relative p-5 rounded-[2rem] border flex flex-col min-h-[130px] active:scale-95 transition-all cursor-pointer overflow-hidden ${r.off ? 'bg-slate-50' : 'bg-white shadow-sm'} ${adakahHariIni ? 'ring-4 ring-yellow-400 z-10 scale-[1.02]' : 'border-slate-100'}">
+            
+            ${adakahHariIni ? `
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 bg-yellow-400 px-3 py-1 rounded-b-xl z-20 animate-bounce">
+                    <p class="text-[7px] font-black text-black leading-none">HARI INI</p>
+                </div>
+            ` : ''}
+
+            <div class="flex justify-between items-start mb-1 relative z-10">
+                <div>
+                    <p class="text-[10px] font-black ${adakahHariIni ? 'text-black' : 'text-slate-400'} uppercase">${d.toLocaleDateString('ms-MY',{weekday:'short', day:'2-digit'})}</p>
+                    
+                    ${namaCuti ? `<p class="text-[7px] font-extrabold text-red-500 uppercase leading-tight mt-0.5">${namaCuti}</p>` : ''}
+                </div>
+                
+                <div class="p-1">
+                    ${teksNota 
+                        ? '<span class="flex h-2 w-2 bg-yellow-400 rounded-full animate-pulse"></span>' 
+                        : `<svg class="w-3 h-3 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>`
+                    }
+                </div>
+            </div>
+            
+            <div class="relative z-10 mt-auto">
+                <p class="text-[12px] font-black ${adakahHariIni ? 'text-black' : 'text-slate-700'} uppercase">${r.off ? 'OFF' : r.shift}</p>
+                <p class="text-[9px] font-black text-yellow-500 uppercase tracking-tighter">${r.off ? '' : r.loc}</p>
+            </div>
+            
+            ${teksNota ? `
+            <div class="mt-2 pt-2 border-t border-dashed border-slate-100 note-preview relative z-10">
+                <p class="text-[9px] font-bold text-slate-400 italic line-clamp-2 leading-tight">${teksNota}</p>
+            </div>` : ''}
+        </div>`;
+}
+    cont.innerHTML = html + '</div>';
+    document.getElementById('month-select').onchange = (e) => showPage('jadual-induk', e.target.value);
+}                      
+
+else if (p === 'settings') {
+    cont.innerHTML = `
+        <div class="space-y-6 animate-fadeIn pb-10">
+            <div class="px-2">
+                <h2 class="text-2xl font-black text-black uppercase italic tracking-tighter">Tetapan Profil</h2>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Kemaskini maklumat akaun anda</p>
+            </div>
+            
+            <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-2 bg-yellow-100 rounded-lg text-yellow-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    </div>
+                    <p class="text-[11px] font-black text-black uppercase tracking-widest">Maklumat Diri</p>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex gap-2">
+                        <input type="text" id="set-fn" value="${userData.firstName || ''}" placeholder="FIRST NAME" class="w-1/2 p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
+                        <input type="text" id="set-ln" value="${userData.lastName || ''}" placeholder="LAST NAME" class="w-1/2 p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
+                    </div>
+                    <button onclick="updateProfileName()" class="w-full bg-black text-yellow-400 text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Kemaskini Nama</button>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-8 border-b-yellow-400">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-2 bg-green-100 text-green-600 rounded-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    </div>
+                    <p class="text-[11px] font-black text-black uppercase tracking-widest">Tukar Platun</p>
+                </div>
+                <select id="set-platoon" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold mb-4 outline-none focus:ring-2 focus:ring-yellow-400 uppercase border-none appearance-none">
+                    ${Array.from({length: 25}, (_, i) => `<option value="${i+1}" ${userData.platoon == i+1 ? 'selected' : ''}>PLATUN ${i+1}</option>`).join('')}
+                </select>
+                <button onclick="updateUserPlatoon()" class="w-full bg-black text-yellow-400 text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Kemaskini Platun</button>
+            </div>
+        </div>
+    `;
+}
+              closeMenu();
+                            }
+                            async function showAdminPage() {
+    const cont = document.getElementById('dynamic-content');
+    
+    cont.innerHTML = `
+        <div class="space-y-6">
+            <div class="flex items-center gap-3 px-2 mb-2">
+                <div class="p-2 bg-yellow-400 rounded-xl text-black">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-xl font-black text-black uppercase">Admin Panel</h2>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pengurusan Keahlian</p>
+                </div>
+            </div>
+
+            <div id="adm-list" class="space-y-4">
+                <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest px-6">Kelulusan Pengguna Baru</h3>
+                
+                <div id="pending-users-list" class="space-y-1">
+                    <div class="flex justify-center py-10">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+    monitorPendingUsers();
+}
+
+function monitorPendingUsers() {
+    onValue(ref(db, 'users'), (snap) => {
+        const container = document.getElementById('pending-users-list');
+        const badge = document.getElementById('pending-count');
+        let count = 0;
+
+        if (container) container.innerHTML = '';
+
+        snap.forEach(child => {
+            const u = child.val();
+            const uid = child.key;
+            
+            if (u.status === 'pending') {
+                count++;
+                if (container) {
+                    const div = document.createElement('div');
+                    div.className = "p-6 bg-white rounded-[2.5rem] flex justify-between items-center border border-slate-100 shadow-sm mb-3";
+                    div.innerHTML = `
+                        <div>
+                            <p class="text-[13px] font-black uppercase text-black">${u.firstName || u.fullName} ${u.lastName || ''}</p>
+                            <p class="text-[10px] font-bold text-yellow-600 uppercase tracking-tighter">Platun ${u.platoon} • ${u.email}</p>
+                        </div>
+                    `;
+                    
+                    const btn = document.createElement('button');
+                    btn.className = "bg-black text-yellow-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all";
+                    btn.innerText = "Luluskan";
+                    
+                    // --- KEMASKINI SEMULA: LOGIK ASAL ---
+                    btn.onclick = async () => {
+                        if(!confirm(`Luluskan permohonan ${u.firstName || u.fullName}?`)) return;
+
+                        try {
+                            // 1. Hanya kemaskini status di Firebase Database
+                            await update(ref(db, 'users/' + uid), { 
+                                status: 'approved' 
+                            });
+
+                            // 2. Beri maklum balas visual melalui Toast sedia ada
+                            if(typeof window.showToast === 'function') {
+                                window.showToast("PENGGUNA DILULUSKAN");
+                            }
+
+                        } catch (e) {
+                            console.error("Database Update Error:", e);
+                            alert("Ralat sistem: " + e.message);
+                        }
+                    };
+
+                    div.appendChild(btn);
+                    container.appendChild(div);
+                }
+            }
+        });
+
+        if (badge) {
+            if (count > 0) {
+                badge.innerText = count;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+                if (container) {
+                    container.innerHTML = `<div class="py-10 text-center"><p class="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Tiada permohonan baru</p></div>`;
+                }
+            }
+        }
+    });
+}
+                 document.getElementById('btn-action').onclick = async () => {
+    const email = document.getElementById('email').value.trim();
+    const pass = document.getElementById('password').value;
+    const forgotEmail = document.getElementById('forgot-email').value.trim();
+
+    try {
+        if (authMode === 'forgot') {
+            if (!forgotEmail) return alert("Sila masukkan emel anda!");
+            await sendPasswordResetEmail(auth, forgotEmail);
+            alert("Pautan tetapan semula kata laluan telah dihantar ke emel anda. Sila semak Inbox atau Spam.");
+            location.reload();
+        } else if (authMode === 'register') {
+            const fn = document.getElementById('reg-firstname').value.trim().toUpperCase();
+            const ln = document.getElementById('reg-lastname').value.trim().toUpperCase();
+            const plt = document.getElementById('reg-platoon').value;
+
+            if (!fn || !plt || !email || !pass) return alert("Lengkapkan maklumat pendaftaran!");
+
+            const res = await createUserWithEmailAndPassword(auth, email, pass);
+            await set(ref(db, 'users/' + res.user.uid), {
+                firstName: fn,
+                lastName: ln,
+                fullName: fn + " " + ln,
+                platoon: parseInt(plt),
+                role: "user",
+                status: "pending"
+            });
+            alert("Pendaftaran berjaya! Sila tunggu kelulusan admin.");
+            await signOut(auth);
+            location.reload(); 
+        } else {
+            if (!email || !pass) return alert("Sila isi emel dan kata laluan!");
+            await signInWithEmailAndPassword(auth, email, pass);
+        }
+    } catch (e) {
+        console.error(e);
+        alert("Ralat: " + e.message);
+    }
+};
+                   
+document.getElementById('auth-toggle-btn').onclick = () => {
+    const isLogin = authMode === 'login' || authMode === 'forgot';
+    
+    if (authMode === 'forgot') {
+        // Jika sedang di skrin lupa kata laluan, kembali ke login
+        authMode = 'login';
+        document.getElementById('auth-title').innerText = 'BRAVORIAN';
+        document.getElementById('btn-action').innerText = 'Log Masuk';
+        document.getElementById('auth-toggle-btn').innerText = 'Daftar Akaun Baru';
+        document.getElementById('forgot-fields').classList.add('hidden');
+        document.getElementById('login-fields').classList.remove('hidden');
+        document.getElementById('forgot-toggle-btn').classList.remove('hidden');
+    } else {
+        // Logik asal tukar Login <-> Daftar
+        authMode = isLogin ? 'register' : 'login';
+        document.getElementById('auth-title').innerText = isLogin ? 'DAFTAR' : 'BRAVORIAN';
+        document.getElementById('btn-action').innerText = isLogin ? 'Hantar Pendaftaran' : 'Log Masuk';
+        document.getElementById('auth-toggle-btn').innerText = isLogin ? 'Sudah Ada Akaun? Log Masuk' : 'Daftar Akaun Baru';
+        document.getElementById('register-fields').classList.toggle('hidden', !isLogin);
+        document.getElementById('forgot-toggle-btn').classList.toggle('hidden', isLogin);
+    }
+};
+
+    document.getElementById('forgot-toggle-btn').onclick = () => {
+    authMode = 'forgot';
+    document.getElementById('auth-title').innerText = 'LUPA KATA LALUAN';
+    document.getElementById('btn-action').innerText = 'Hantar Emel Pautan';
+    document.getElementById('auth-toggle-btn').innerText = 'Kembali ke Log Masuk';
+    
+    document.getElementById('forgot-fields').classList.remove('hidden');
+    document.getElementById('login-fields').classList.add('hidden');
+    document.getElementById('register-fields').classList.add('hidden');
+    document.getElementById('forgot-toggle-btn').classList.add('hidden');
+};
+
+const sidebar = document.getElementById('mobile-sidebar');
+const containerMenu = document.getElementById('sidebar-container');
+
+function openMenu() { sidebar.classList.remove('hidden'); setTimeout(() => containerMenu.classList.remove('closed'), 10); }
+function closeMenu() { containerMenu.classList.add('closed'); setTimeout(() => sidebar.classList.add('hidden'), 300); }
+
+document.getElementById('menu-open').onclick = openMenu;
+document.getElementById('menu-close').onclick = closeMenu;
+sidebar.onclick = (e) => { if (e.target === sidebar) closeMenu(); };
+
+document.getElementById('nav-welcome').onclick = () => { showPage('welcome'); closeMenu(); };
+document.getElementById('nav-calendar').onclick = () => { showPage('jadual-induk'); closeMenu(); };
+document.getElementById('admin-nav').onclick = () => { showAdminPage(); closeMenu(); };
+document.getElementById('btn-logout').onclick = () => { if(confirm("Log keluar?")) signOut(auth); };
+
+setInterval(() => {
+    const clockEl = document.getElementById('live-clock');
+    if(clockEl) {
+        const now = new Date();
+        const hari = now.toLocaleDateString('ms-MY', { weekday: 'long' }).toUpperCase();
+        const tarikh = now.toLocaleDateString('ms-MY', { day: '2-digit', month: 'short', year: 'numeric' }).toUpperCase();
+        const masa = now.toLocaleTimeString('ms-MY', { hour12: false });
+        clockEl.innerHTML = `<span class="text-black font-black">${hari}</span> <span class="text-yellow-500 mx-1">|</span> <span class="text-slate-400">${tarikh}</span> <span class="text-yellow-500 mx-1">|</span> <span class="text-black font-black">${masa}</span>`;
+    }
+}, 1000);
+
+let currentEditingData = null;
+
+window.bukaModal = function(hari, bulan, teks) {
+    currentEditingData = { hari, bulan };
+    const modal = document.getElementById('note-modal');
+    const input = document.getElementById('note-input');
+    const title = document.getElementById('modal-title');
+    title.innerText = `NOTA: ${hari}/${parseInt(bulan) + 1}`;
+    input.value = teks;
+    modal.classList.remove('hidden');
+    input.focus();
+};
+
+window.tutupModal = function() {
+    document.getElementById('note-modal').classList.add('hidden');
+};
+
+document.getElementById('btn-save-note').onclick = async () => {
+    const teks = document.getElementById('note-input').value.trim();
+    if (!currentEditingData) return;
+    const path = `notes/${auth.currentUser.uid}/${currentEditingData.bulan}/${currentEditingData.hari}`;
+    await set(ref(db, path), teks || null);
+    tutupModal();
+    showPage('jadual-induk', currentEditingData.bulan);
+};
+
+document.getElementById('btn-delete-note').onclick = async () => {
+    if (!currentEditingData || !confirm("Hapus nota ini?")) return;
+    const path = `notes/${auth.currentUser.uid}/${currentEditingData.bulan}/${currentEditingData.hari}`;
+    await set(ref(db, path), null);
+    tutupModal();
+    showPage('jadual-induk', currentEditingData.bulan);
+};
+
+// 4. TOAST NOTIFICATION
+window.showToast = function(msg) {
+    const toast = document.getElementById('toast');
+    const msgEl = document.getElementById('toast-msg');
+    if(msgEl) msgEl.innerText = msg;
+    toast.classList.remove('opacity-0', 'pointer-events-none');
+    toast.classList.add('opacity-100');
+    setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0', 'pointer-events-none');
+    }, 3000);
+};
+
+const sel = document.getElementById('reg-platoon');
+if(sel && sel.options.length <= 1) {
+    for(let i=1; i<=25; i++) {
+        const o = document.createElement('option'); o.value = i; o.text = "PLATUN " + i; sel.appendChild(o);
+    }
+}  
+
+                   // FUNGSI LIHAT KATA LALUAN
+const togglePasswordBtn = document.getElementById('toggle-password-btn');
+const passwordInput = document.getElementById('password');
+const eyePath = document.getElementById('eye-path');
+
+if (togglePasswordBtn) {
+    togglePasswordBtn.addEventListener('click', function () {
+        // Tukar jenis input: password <-> text
+        const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        passwordInput.setAttribute('type', type);
+        
+        // Tukar ikon (Opsional: Garis palang pada mata jika mahu lebih terperinci)
+        if (type === 'text') {
+            // Ikon Mata Terbuka (Aktif)
+            eyePath.setAttribute('d', 'M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21');
+        } else {
+            // Ikon Mata Asal (Tertutup/Normal)
+            eyePath.setAttribute('d', 'M15 12a3 3 0 11-6 0 3 3 0 016 0z');
+        }
+    });
+}
+
+if(document.getElementById('nav-settings')) {
+    document.getElementById('nav-settings').onclick = () => { showPage('settings'); closeMenu(); };
+}
+
+window.updateProfileName = async () => {
+    const fn = document.getElementById('set-fn').value.trim().toUpperCase();
+    const ln = document.getElementById('set-ln').value.trim().toUpperCase();
+    
+    if(!fn) {
+        alert("Nama Pertama wajib diisi.");
+        return;
+    }
+
+    try {
+        const newFullName = ln ? `${fn} ${ln}` : fn;
+        await update(ref(db, `users/${auth.currentUser.uid}`), {
+            firstName: fn,
+            lastName: ln,
+            fullName: newFullName
+        });
+        
+        // Kemaskini data lokal
+        userData.firstName = fn;
+        userData.lastName = ln;
+        userData.fullName = newFullName;
+        
+        window.showToast("NAMA BERJAYA DIKEMASKINI");
+    } catch (e) {
+        alert("Ralat: " + e.message);
+    }
+};
+
+    window.updateUserPlatoon = async () => {
+    const newPlt = document.getElementById('set-platoon').value;
+    
+    if(confirm(`Adakah anda pasti mahu menukar ke PLATUN ${newPlt}? Jadual tugas anda akan berubah mengikut platun baru.`)) {
+        try {
+            await update(ref(db, `users/${auth.currentUser.uid}`), {
+                platoon: parseInt(newPlt)
+            });
+            
+            userData.platoon = parseInt(newPlt);
+            window.showToast("PLATUN BERJAYA DITUKAR");
+            
+            // Refresh halaman selepas 1.5 saat untuk mengira semula jadual
+            setTimeout(() => location.reload(), 1500);
+        } catch (e) {
+            alert("Ralat: " + e.message);
+        }
+    }
+};
+               
+</script>
+
+<div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-black text-white px-6 py-4 rounded-2xl text-[12px] font-bold shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-[200]">
+    <span id="toast-msg"></span>
+</div>
+</body>
+</html>
