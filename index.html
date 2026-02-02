@@ -847,52 +847,51 @@ window.updateProfileName = async () => {
 
 
 
+// FUNGSI TUNGGAL UNTUK KEMASKINI PASSWORD
 window.updatePassword = async () => {
-    // Kod ini akan mencari input berdasarkan ID yang kita buat di Langkah 1
-    const oldPassInput = document.getElementById('old-pass');
-    const newPassInput = document.getElementById('new-pass');
-    const confirmPassInput = document.getElementById('confirm-pass');
+    // Ambil elemen secara terus apabila butang ditekan
+    const elOld = document.querySelector('#old-pass');
+    const elNew = document.querySelector('#new-pass');
+    const elConf = document.querySelector('#confirm-pass');
 
-    // Jika salah satu elemen tidak dijumpai dalam DOM
-    if (!oldPassInput || !newPassInput || !confirmPassInput) {
-        console.error("Elemen input tidak dijumpai!");
+    // Semak jika elemen wujud dalam paparan semasa
+    if (!elOld || !elNew || !elConf) {
+        console.error("Input tidak dijumpai dalam DOM");
         return;
     }
 
-    const oldPass = oldPassInput.value;
-    const newPass = newPassInput.value;
-    const confirmPass = confirmPassInput.value;
+    const valOld = elOld.value.trim();
+    const valNew = elNew.value.trim();
+    const valConf = elConf.value.trim();
 
-    // Semakan jika ruangan kosong
-    if (!oldPass || !newPass || !confirmPass) {
+    // Logik semakan ruangan kosong
+    if (valOld === "" || valNew === "" || valConf === "") {
         alert("Sila lengkapkan semua ruangan.");
         return;
     }
 
-    if (newPass !== confirmPass) {
+    if (valNew !== valConf) {
         alert("Sahkan kata laluan baru tidak sepadan.");
         return;
     }
 
     try {
         const user = auth.currentUser;
-        const credential = EmailAuthProvider.credential(user.email, oldPass);
+        // Guna EmailAuthProvider (Pastikan sudah di-import di atas)
+        const credential = EmailAuthProvider.credential(user.email, valOld);
         
-        // Sahkan semula user
         await reauthenticateWithCredential(user, credential);
-        
-        // Kemaskini password
-        await firebaseUpdatePassword(user, newPass);
+        await firebaseUpdatePassword(user, valNew);
         
         window.showToast("KATA LALUAN BERJAYA DIKEMASKINI");
         
-        // Kosongkan ruangan selepas berjaya
-        oldPassInput.value = '';
-        newPassInput.value = '';
-        confirmPassInput.value = '';
+        // Kosongkan ruangan
+        elOld.value = "";
+        elNew.value = "";
+        elConf.value = "";
         
     } catch (e) {
-        console.error(e);
+        console.error("Error update pass:", e);
         if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
             alert("Kata laluan semasa salah.");
         } else {
@@ -933,7 +932,7 @@ window.togglePassView = function(inputId, btn) {
     }
 };
 
-window.updatePassword = async () => {
+ = async () => {
     // Pastikan elemen wujud dalam DOM semasa butang ditekan
     const oldPassInput = document.getElementById('old-pass');
     const newPassInput = document.getElementById('new-pass');
