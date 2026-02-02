@@ -939,6 +939,7 @@ async function requestPermission() {
         if (permission === 'granted') {
             const token = await getToken(messaging, { 
                 vapidKey: 'BC113-LtfQ5XxfvW6yUIr47zO3Gt1NSazDBTGVu4LRJ32lBotKV_4Y4XMM5c9L1q4FWpimLo18TYlYVTDsLy8Zs' 
+                serviceWorkerRegistration: await navigator.serviceWorker.register('/pro-bravo/firebase-messaging-sw.js')
             });
             
             if (token && auth.currentUser) {
