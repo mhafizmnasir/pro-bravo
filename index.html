@@ -150,7 +150,7 @@
             </div>
                <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, sendPasswordResetEmail, EmailAuthProvider, reauthenticateWithCredential, updatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
     import { getDatabase, ref, get, set, update, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
     const firebaseConfig = {
@@ -792,26 +792,42 @@ window.updateProfileName = async () => {
 import { updatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 window.updateUserPassword = async () => {
+    const oldPass = prompt("Sila masukkan KATA LALUAN ASAL anda untuk pengesahan keselamatan:");
     const newPass = document.getElementById('new-password').value;
     
-    if(!newPass || newPass.length < 6) {
-        alert("Kata laluan mestilah sekurang-kurangnya 6 aksara.");
+    // 1. Validasi input
+    if (!oldPass) {
+        alert("Pengesahan diperlukan untuk menukar kata laluan.");
         return;
     }
 
-    if(confirm("Adakah anda pasti mahu menukar kata laluan?")) {
-        try {
-            const user = auth.currentUser;
-            await updatePassword(user, newPass);
-            
-            document.getElementById('new-password').value = ""; // Kosongkan input
-            window.showToast("KATA LALUAN BERJAYA DITUKAR");
-        } catch (e) {
-            if(e.code === 'auth/requires-recent-login') {
-                alert("Sila log keluar dan log masuk semula untuk menukar kata laluan atas faktor keselamatan.");
-            } else {
-                alert("Ralat: " + e.message);
-            }
+    if (!newPass || newPass.length < 6) {
+        alert("Kata laluan baru mestilah sekurang-kurangnya 6 aksara.");
+        return;
+    }
+
+    try {
+        const user = auth.currentUser;
+        
+        // 2. Cipta kredential (Guna emel sedia ada + kata laluan lama dari prompt)
+        const credential = EmailAuthProvider.credential(user.email, oldPass);
+
+        // 3. Sahkan semula pengguna tanpa perlu log keluar (Re-authenticate)
+        await reauthenticateWithCredential(user, credential);
+        
+        // 4. Jika langkah 3 berjaya, barulah tukar kata laluan baru
+        await updatePassword(user, newPass);
+        
+        // 5. Selesai
+        document.getElementById('new-password').value = ""; 
+        window.showToast("KATA LALUAN BERJAYA DITUKAR");
+        
+    } catch (e) {
+        // Jika kata laluan lama salah
+        if (e.code === 'auth/wrong-password') {
+            alert("Kata laluan asal yang anda masukkan salah.");
+        } else {
+            alert("Ralat: " + e.message);
         }
     }
 };
