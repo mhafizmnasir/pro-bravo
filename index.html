@@ -550,8 +550,8 @@ function monitorPendingUsers() {
 
         // 2. Hantar Notifikasi Emel kepada PEMOHON
 const emailParams = {
-    to_email: u.email,    // Pastikan kunci ini 'to_email' (sama dengan {{to_email}})
-    to_name: u.firstName  // Pastikan kunci ini 'to_name' (sama dengan {{to_name}})
+    to_email: u.email,    // Pastikan ejaan 'to_email' (bukan to_emall)
+    to_name: namaPemohon
 };
 
 emailjs.send('service_6luey6m', 'template_vh606sx', emailParams)
