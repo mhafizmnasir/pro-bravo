@@ -538,32 +538,36 @@ function monitorPendingUsers() {
                     btn.innerText = "Luluskan";
                     
                     btn.onclick = async () => {
-                        if(!confirm(`Luluskan permohonan ${u.firstName || u.fullName}?`)) return;
+    // Gunakan nama pemohon dalam alert pengesahan
+    const namaPemohon = u.firstName || u.fullName || "Pengguna";
+    const emelPemohon = u.email; // Pastikan emel diambil dari data user dalam loop
 
-                        try {
-                            // 1. Kemaskini status di Firebase
-                            await update(ref(db, 'users/' + uid), { status: 'approved' });
+    if(!confirm(`Luluskan permohonan ${namaPemohon}?`)) return;
 
-                            // 2. Hantar Notifikasi Emel via EmailJS
-                            const emailParams = {
-                                to_email: u.email,
-                                to_name: u.firstName || u.fullName
-                            };
+    try {
+        // 1. Kemaskini status di Firebase
+        await update(ref(db, 'users/' + uid), { status: 'approved' });
 
-                            emailjs.send('service_3kaeoi9', 'template_vh606sx', emailParams)
-                                .then(() => {
-                                    console.log("Notifikasi emel dihantar");
-                                    if(typeof window.showToast === 'function') window.showToast("DILULUSKAN & EMEL DIHANTAR");
-                                })
-                                .catch((err) => {
-                                    console.error("EmailJS Error:", err);
-                                    if(typeof window.showToast === 'function') window.showToast("DILULUSKAN (EMEL GAGAL)");
-                                });
+        // 2. Hantar Notifikasi Emel kepada PEMOHON
+        const emailParams = {
+            to_email: emelPemohon, // EMEL INI MESTI DARI DATA PEMOHON
+            to_name: namaPemohon
+        };
 
-                        } catch (e) {
-                            alert("Ralat: " + e.message);
-                        }
-                    };
+        emailjs.send('service_3kaeoi9', 'template_vh606sx', emailParams)
+            .then(() => {
+                console.log("Emel dihantar ke: " + emelPemohon);
+                if(typeof window.showToast === 'function') window.showToast("DILULUSKAN & EMEL DIHANTAR");
+            })
+            .catch((err) => {
+                console.error("EmailJS Error:", err);
+                if(typeof window.showToast === 'function') window.showToast("DILULUSKAN (EMEL GAGAL)");
+            });
+
+    } catch (e) {
+        alert("Ralat: " + e.message);
+    }
+};
 
                     div.appendChild(btn);
                     container.appendChild(div);
