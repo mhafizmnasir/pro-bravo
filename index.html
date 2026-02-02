@@ -116,6 +116,7 @@
                 <div class="space-y-4 font-black text-[13px] uppercase tracking-widest text-slate-400">
                     <button id="nav-welcome" class="flex items-center gap-4 w-full text-left p-5 hover:bg-yellow-50 rounded-2xl transition-all text-black border-l-4 border-yellow-400">Utama</button>
                     <button id="nav-calendar" class="flex items-center gap-4 w-full text-left p-5 hover:bg-yellow-50 rounded-2xl transition-all text-black border-l-4 border-yellow-400">Kalendar Syif</button>
+                    <button id="nav-settings" class="flex items-center gap-4 w-full text-left p-5 hover:bg-yellow-50 rounded-2xl transition-all text-black border-l-4 border-yellow-400">Tetapan</button>
                     <button id="admin-nav" class="hidden flex items-center justify-between w-full p-5 bg-black text-yellow-400 rounded-2xl mt-10">
                         <span>Admin Panel</span>
                         <span id="pending-count" class="hidden bg-yellow-400 text-black text-[10px] px-2 py-1 rounded-full">0</span>
@@ -414,6 +415,54 @@ onAuthStateChanged(auth, async (user) => {
     cont.innerHTML = html + '</div>';
     document.getElementById('month-select').onchange = (e) => showPage('jadual-induk', e.target.value);
 }                      
+
+
+
+
+
+else if (p === 'settings') {
+    cont.innerHTML = `
+        <div class="space-y-6 animate-fadeIn">
+            <h2 class="text-2xl font-black text-black uppercase italic tracking-tighter ml-2">Tetapan Profil</h2>
+            
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                <p class="text-[10px] font-black text-yellow-500 uppercase tracking-[0.2em] mb-4">Maklumat Diri</p>
+                <div class="flex gap-3 mb-4">
+                    <input type="text" id="set-fn" value="${userData.firstName}" placeholder="FIRST NAME" class="w-1/2 p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400">
+                    <input type="text" id="set-ln" value="${userData.lastName}" placeholder="LAST NAME" class="w-1/2 p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400">
+                </div>
+                <button onclick="updateProfileName()" class="w-full bg-black text-white text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Simpan Nama</button>
+            </div>
+
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                <p class="text-[10px] font-black text-yellow-500 uppercase tracking-[0.2em] mb-4">Kemaskini Emel</p>
+                <input type="email" id="set-email" value="${auth.currentUser.email}" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold mb-4 outline-none focus:ring-2 focus:ring-yellow-400">
+                <button onclick="updateUserEmail()" class="w-full bg-black text-white text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Kemaskini Emel</button>
+            </div>
+
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100">
+                <p class="text-[10px] font-black text-yellow-500 uppercase tracking-[0.2em] mb-4">Kemaskini Kata Laluan</p>
+                <button onclick="resetPasswordViaEmail()" class="w-full bg-yellow-400 text-black text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Hantar Pautan Tukar Kata Laluan</button>
+                <p class="text-[9px] text-slate-400 mt-3 text-center font-bold">Pautan akan dihantar ke emel berdaftar anda.</p>
+            </div>
+
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-4 border-b-yellow-400">
+                <p class="text-[10px] font-black text-yellow-500 uppercase tracking-[0.2em] mb-4">Kemaskini Platun</p>
+                <select id="set-platoon" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold mb-4 outline-none focus:ring-2 focus:ring-yellow-400 uppercase">
+                    ${Array.from({length: 25}, (_, i) => `<option value="${i+1}" ${userData.platoon == i+1 ? 'selected' : ''}>PLATUN ${i+1}</option>`).join('')}
+                </select>
+                <button onclick="updateUserPlatoon()" class="w-full bg-black text-white text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Tukar Platun</button>
+            </div>
+        </div>
+    `;
+}
+
+
+
+
+
+
+                
             closeMenu();
                             }
                             async function showAdminPage() {
@@ -671,6 +720,73 @@ if (togglePasswordBtn) {
         }
     });
 }
+
+
+
+
+
+// Navigasi Menu Tetapan
+document.getElementById('nav-settings').onclick = () => { showPage('settings'); closeMenu(); };
+
+// 1. Update Nama
+window.updateProfileName = async () => {
+    const fn = document.getElementById('set-fn').value.trim().toUpperCase();
+    const ln = document.getElementById('set-ln').value.trim().toUpperCase();
+    if(!fn) return alert("Nama tidak boleh kosong!");
+    
+    await update(ref(db, `users/${auth.currentUser.uid}`), {
+        firstName: fn,
+        lastName: ln,
+        fullName: `${fn} ${ln}`
+    });
+    // Update local userData supaya paparan terus berubah
+    userData.firstName = fn;
+    userData.lastName = ln;
+    userData.fullName = `${fn} ${ln}`;
+    window.showToast("NAMA BERJAYA DIKEMASKINI");
+};
+
+// 2. Update Emel
+import { updateEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+window.updateUserEmail = async () => {
+    const newEmail = document.getElementById('set-email').value.trim();
+    if(confirm("Anda pasti mahu menukar emel? Anda perlu log masuk semula selepas ini.")) {
+        try {
+            await updateEmail(auth.currentUser, newEmail);
+            window.showToast("EMEL DIKEMASKINI");
+            setTimeout(() => signOut(auth), 2000);
+        } catch (e) {
+            alert("Ralat: Sila Log Keluar dan Log Masuk semula sebelum menukar emel (Security Requirement).");
+        }
+    }
+};
+
+// 3. Reset Kata Laluan
+window.resetPasswordViaEmail = async () => {
+    try {
+        await sendPasswordResetEmail(auth, auth.currentUser.email);
+        alert("Pautan telah dihantar ke " + auth.currentUser.email);
+    } catch (e) {
+        alert(e.message);
+    }
+};
+
+// 4. Update Platun
+window.updateUserPlatoon = async () => {
+    const newPlt = document.getElementById('set-platoon').value;
+    if(confirm(`Tukar ke PLATUN ${newPlt}?`)) {
+        await update(ref(db, `users/${auth.currentUser.uid}`), {
+            platoon: parseInt(newPlt)
+        });
+        userData.platoon = parseInt(newPlt);
+        window.showToast("PLATUN BERJAYA DITUKAR");
+    }
+};
+
+
+
+
+                   
                    
                    
     </script>
