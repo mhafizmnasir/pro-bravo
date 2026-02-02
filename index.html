@@ -441,7 +441,7 @@ else if (p === 'settings') {
                 <button onclick="updateUserPlatoon()" class="w-full bg-black text-yellow-400 text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Kemaskini Platun</button>
             </div>
 
-           <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-8 border-b-yellow-400">
+         <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-8 border-b-yellow-400">
     <div class="flex items-center gap-3 mb-6">
         <div class="p-2 bg-red-100 text-red-600 rounded-lg">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -458,7 +458,6 @@ else if (p === 'settings') {
         <button onclick="updateUserPassword()" class="w-full bg-black text-yellow-400 text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Kemaskini Kata Laluan</button>
     </div>
 </div>
-        </div>
     `;
 }
               closeMenu();
@@ -836,7 +835,8 @@ window.updateUserPassword = async () => {
                 alert("Ralat: " + e.message);
             }
         }
-    };
+    }
+};
 
 
 
