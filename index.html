@@ -916,42 +916,74 @@ window.updatePassword = async () => {
 
 
 
-               window.togglePassView = function(inputId, btn) {
+               // --- GANTIKAN SEMUA KOD UPDATE PASSWORD & TOGGLE VIEW DENGAN INI ---
+
+window.togglePassView = function(inputId, btn) {
     const input = document.getElementById(inputId);
-    const path = btn.querySelector('.eye-path');
+    const path = btn.querySelector('path'); // Cari path dalam SVG
+    
     if (input.type === 'password') {
         input.type = 'text';
         btn.classList.add('text-yellow-500');
-        path.setAttribute('d', 'M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21');
+        if(path) path.setAttribute('d', 'M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21');
     } else {
         input.type = 'password';
         btn.classList.remove('text-yellow-500');
-        path.setAttribute('d', 'M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z');
+        if(path) path.setAttribute('d', 'M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z');
     }
 };
 
 window.updatePassword = async () => {
-    const oldPass = document.getElementById('old-pass').value;
-    const newPass = document.getElementById('new-pass').value;
-    const confirmPass = document.getElementById('confirm-pass').value;
-    const user = auth.currentUser;
+    // Pastikan elemen wujud dalam DOM semasa butang ditekan
+    const oldPassInput = document.getElementById('old-pass');
+    const newPassInput = document.getElementById('new-pass');
+    const confirmPassInput = document.getElementById('confirm-pass');
 
-    if (!oldPass || !newPass || !confirmPass) return alert("Sila lengkapkan semua ruangan.");
-    if (newPass !== confirmPass) return alert("Pengesahan kata laluan tidak sepadan.");
+    if (!oldPassInput || !newPassInput || !confirmPassInput) {
+        alert("Ralat: Ruangan input tidak dijumpai dalam paparan.");
+        return;
+    }
+
+    const oldPass = oldPassInput.value.trim();
+    const newPass = newPassInput.value.trim();
+    const confirmPass = confirmPassInput.value.trim();
+
+    if (!oldPass || !newPass || !confirmPass) {
+        alert("Sila lengkapkan semua ruangan.");
+        return;
+    }
+
+    if (newPass !== confirmPass) {
+        alert("Sahkan kata laluan baru tidak sepadan.");
+        return;
+    }
 
     try {
+        const user = auth.currentUser;
         const credential = EmailAuthProvider.credential(user.email, oldPass);
+        
+        // Proses Re-authentication
         await reauthenticateWithCredential(user, credential);
+        
+        // Kemaskini ke Firebase
         await firebaseUpdatePassword(user, newPass);
+        
         window.showToast("KATA LALUAN BERJAYA DIKEMASKINI");
-        document.getElementById('old-pass').value = '';
-        document.getElementById('new-pass').value = '';
-        document.getElementById('confirm-pass').value = '';
+        
+        // Kosongkan input
+        oldPassInput.value = '';
+        newPassInput.value = '';
+        confirmPassInput.value = '';
+        
     } catch (e) {
-        alert("Ralat: " + e.message);
+        console.error(e);
+        if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
+            alert("Kata laluan semasa salah.");
+        } else {
+            alert("Ralat: " + e.message);
+        }
     }
 };
-
                    
                
 </script>
