@@ -578,11 +578,28 @@ function monitorPendingUsers() {
             if (!email || !pass) return alert("Sila isi emel dan kata laluan!");
             await signInWithEmailAndPassword(auth, email, pass);
         }
-    } catch (e) {
-        console.error(e);
-        alert("Ralat: " + e.message);
+} catch (e) {
+    console.error(e);
+    
+    // Pemetaan mesej ralat kepada bahasa yang lebih mesra
+    let mesejMesra = "Maaf, berlaku ralat teknikal. Sila cuba lagi.";
+    
+    if (e.code === 'auth/invalid-credential') {
+        mesejMesra = "Emel atau kata laluan salah. Sila semak semula.";
+    } else if (e.code === 'auth/user-not-found') {
+        mesejMesra = "Akaun tidak dijumpai. Sila daftar terlebih dahulu.";
+    } else if (e.code === 'auth/wrong-password') {
+        mesejMesra = "Kata laluan yang anda masukkan tidak tepat.";
+    } else if (e.code === 'auth/email-already-in-use') {
+        mesejMesra = "Emel ini telah pun digunakan oleh pengguna lain.";
+    } else if (e.code === 'auth/weak-password') {
+        mesejMesra = "Kata laluan terlalu lemah. Gunakan sekurang-kurangnya 6 aksara.";
+    } else if (e.code === 'auth/too-many-requests') {
+        mesejMesra = "Terlalu banyak cubaan gagal. Sila cuba sebentar lagi.";
     }
-};
+
+    alert(mesejMesra);
+}
                    
 document.getElementById('auth-toggle-btn').onclick = () => {
     const isLogin = authMode === 'login' || authMode === 'forgot';
