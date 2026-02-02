@@ -549,12 +549,12 @@ function monitorPendingUsers() {
         await update(ref(db, 'users/' + uid), { status: 'approved' });
 
         // 2. Hantar Notifikasi Emel kepada PEMOHON
-        const emailParams = {
-            to_email: emelPemohon, // EMEL INI MESTI DARI DATA PEMOHON
-            to_name: namaPemohon
-        };
+const emailParams = {
+    to_email: u.email,    // Pastikan kunci ini 'to_email' (sama dengan {{to_email}})
+    to_name: u.firstName  // Pastikan kunci ini 'to_name' (sama dengan {{to_name}})
+};
 
-        emailjs.send('service_3kaeoi9', 'template_vh606sx', emailParams)
+emailjs.send('service_3kaeoi9', 'template_vh606sx', emailParams)
             .then(() => {
                 console.log("Emel dihantar ke: " + emelPemohon);
                 if(typeof window.showToast === 'function') window.showToast("DILULUSKAN & EMEL DIHANTAR");
