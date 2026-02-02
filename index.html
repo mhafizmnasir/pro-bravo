@@ -37,7 +37,7 @@
 
 
 
-<audio id="admin-notif-sound" preload="auto">
+<audio id="admin-notif-sound" preload="auto" playsinline crossorigin="anonymous">
     <source src="https://assets.mixkit.co/active_storage/sfx/2358/2358-preview.mp3" type="audio/mpeg">
 </audio>
 
@@ -528,10 +528,25 @@ else if (p === 'settings') {
 
                    
 
-// Letakkan variabel ini di luar fungsi (di bahagian atas monitorPendingUsers)
-let lastPendingCount = 0; 
+let lastPendingCount = 0;
+let soundEnabled = false; // Penanda kebenaran bunyi
 
 function monitorPendingUsers() {
+    // Fungsi umpan untuk aktifkan bunyi pada telefon (Mobile Autoplay Fix)
+    const enableSound = () => {
+        const adminSound = document.getElementById('admin-notif-sound');
+        if (adminSound && !soundEnabled) {
+            adminSound.play().then(() => {
+                adminSound.pause(); // Main dan pause sekejap untuk 'unlock' audio
+                adminSound.currentTime = 0;
+                soundEnabled = true;
+                console.log("Audio unlocked!");
+                window.removeEventListener('click', enableSound);
+            }).catch(e => console.log("Waiting for user interaction..."));
+        }
+    };
+    window.addEventListener('click', enableSound);
+
     onValue(ref(db, 'users'), (snap) => {
         const container = document.getElementById('pending-users-list');
         const badge = document.getElementById('pending-count');
@@ -543,47 +558,32 @@ function monitorPendingUsers() {
         snap.forEach(child => {
             const u = child.val();
             const uid = child.key;
-            
             if (u.status === 'pending') {
                 count++;
                 if (container) {
                     const div = document.createElement('div');
                     div.className = "p-6 bg-white rounded-[2.5rem] flex justify-between items-center border border-slate-100 shadow-sm mb-3";
-                    div.innerHTML = `
-                        <div>
-                            <p class="text-[13px] font-black uppercase text-black">${u.firstName || u.fullName} ${u.lastName || ''}</p>
-                            <p class="text-[10px] font-bold text-yellow-600 uppercase tracking-tighter">Platun ${u.platoon} • ${u.email}</p>
-                        </div>
-                    `;
-                    
+                    div.innerHTML = `<div><p class="text-[13px] font-black uppercase text-black">${u.firstName || u.fullName} ${u.lastName || ''}</p><p class="text-[10px] font-bold text-yellow-600 uppercase tracking-tighter">Platun ${u.platoon} • ${u.email}</p></div>`;
                     const btn = document.createElement('button');
                     btn.className = "bg-black text-yellow-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all";
                     btn.innerText = "Luluskan";
-                    
                     btn.onclick = async () => {
                         if(!confirm(`Luluskan permohonan ${u.firstName || u.fullName}?`)) return;
-                        try {
-                            await update(ref(db, 'users/' + uid), { status: 'approved' });
-                            window.showToast("PENGGUNA DILULUSKAN");
-                        } catch (e) {
-                            console.error("Database Update Error:", e);
-                            alert("Ralat sistem: " + e.message);
-                        }
+                        await update(ref(db, 'users/' + uid), { status: 'approved' });
+                        window.showToast("PENGGUNA DILULUSKAN");
                     };
-
                     div.appendChild(btn);
                     container.appendChild(div);
                 }
             }
         });
 
-        // LOGIK BUNYI: Jika jumlah pending bertambah, mainkan bunyi
-        if (count > lastPendingCount && userData && userData.role === 'admin') {
-            if (adminSound) {
-                adminSound.play().catch(e => console.log("Bunyi menunggu interaksi pengguna."));
-            }
+        // Bunyi hanya berbunyi jika jumlah Pendaftaran BARU bertambah
+        if (count > lastPendingCount && userData && userData.role === 'admin' && soundEnabled) {
+            adminSound.play().catch(e => console.log("Playback failed:", e));
         }
-        lastPendingCount = count; 
+        
+        lastPendingCount = count;
 
         if (badge) {
             if (count > 0) {
@@ -591,9 +591,6 @@ function monitorPendingUsers() {
                 badge.classList.remove('hidden');
             } else {
                 badge.classList.add('hidden');
-                if (container) {
-                    container.innerHTML = `<div class="py-10 text-center"><p class="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Tiada permohonan baru</p></div>`;
-                }
             }
         }
     });
