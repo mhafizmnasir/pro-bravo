@@ -424,7 +424,7 @@ else if (p === 'settings') {
                         <input type="text" id="set-fn" value="${userData.firstName || ''}" placeholder="FIRST NAME" class="w-1/2 p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
                         <input type="text" id="set-ln" value="${userData.lastName || ''}" placeholder="LAST NAME" class="w-1/2 p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
                     </div>
-                    <button onclick="updateProfileName()" class="w-full bg-black text-yellow-400 text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Simpan Nama</button>
+                    <button onclick="updateProfileName()" class="w-full bg-black text-yellow-400 text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Kemaskini Nama</button>
                 </div>
             </div>
 
@@ -438,7 +438,7 @@ else if (p === 'settings') {
                 <select id="set-platoon" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold mb-4 outline-none focus:ring-2 focus:ring-yellow-400 uppercase border-none appearance-none">
                     ${Array.from({length: 25}, (_, i) => `<option value="${i+1}" ${userData.platoon == i+1 ? 'selected' : ''}>PLATUN ${i+1}</option>`).join('')}
                 </select>
-                <button onclick="updateUserPlatoon()" class="w-full bg-black text-yellow-400 text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Kemas kini Platun</button>
+                <button onclick="updateUserPlatoon()" class="w-full bg-black text-yellow-400 text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Kemaskini Platun</button>
             </div>
         </div>
     `;
@@ -756,7 +756,7 @@ window.updateProfileName = async () => {
     window.updateUserPlatoon = async () => {
     const newPlt = document.getElementById('set-platoon').value;
     
-    if(confirm(`Adakah anda pasti mahu menukar ke PLATUN ${newPlt}? Jadual kerja anda akan berubah mengikut platun baru.`)) {
+    if(confirm(`Adakah anda pasti mahu menukar ke PLATUN ${newPlt}? Jadual tugas anda akan berubah mengikut platun baru.`)) {
         try {
             await update(ref(db, `users/${auth.currentUser.uid}`), {
                 platoon: parseInt(newPlt)
