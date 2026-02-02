@@ -441,7 +441,7 @@ else if (p === 'settings') {
                 <button onclick="updateUserPlatoon()" class="w-full bg-black text-yellow-400 text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Kemaskini Platun</button>
             </div>
 
-         <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-8 border-b-yellow-400">
+        <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-8 border-b-yellow-400">
     <div class="flex items-center gap-3 mb-6">
         <div class="p-2 bg-red-100 text-red-600 rounded-lg">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -451,9 +451,19 @@ else if (p === 'settings') {
         <p class="text-[11px] font-black text-black uppercase tracking-widest">Keselamatan Akaun</p>
     </div>
     <div class="space-y-3">
-        <input type="password" id="old-password" placeholder="KATA LALUAN ASAL" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
+        <div class="relative">
+            <input type="password" id="old-password" placeholder="KATA LALUAN ASAL" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
+            <button type="button" onclick="togglePass('old-password', this)" class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+            </button>
+        </div>
         
-        <input type="password" id="new-password" placeholder="KATA LALUAN BARU" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
+        <div class="relative">
+            <input type="password" id="new-password" placeholder="KATA LALUAN BARU" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
+            <button type="button" onclick="togglePass('new-password', this)" class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+            </button>
+        </div>
         
         <button onclick="updateUserPassword()" class="w-full bg-black text-yellow-400 text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Kemaskini Kata Laluan</button>
     </div>
@@ -839,7 +849,15 @@ window.updateUserPassword = async () => {
 };
 
 
-
+window.togglePass = (id, btn) => {
+    const input = document.getElementById(id);
+    const isPass = input.type === 'password';
+    input.type = isPass ? 'text' : 'password';
+    
+    // Tukar warna ikon untuk indikasi visual
+    btn.classList.toggle('text-yellow-500', isPass);
+    btn.classList.toggle('text-slate-400', !isPass);
+};
                    
                
 </script>
