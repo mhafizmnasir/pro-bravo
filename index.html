@@ -830,13 +830,10 @@ window.updateProfileName = async () => {
 
 
 
-// Pastikan anda masukkan ini di dalam blok <script type="module">
 window.updatePassword = async () => {
     const oldPass = document.getElementById('old-pass').value;
     const newPass = document.getElementById('new-pass').value;
     const confirmPass = document.getElementById('confirm-pass').value;
-    
-    // Guna 'auth' yang sedia ada dalam fail anda (Firebase v10)
     const user = auth.currentUser;
 
     if (!oldPass || !newPass || !confirmPass) {
@@ -855,19 +852,13 @@ window.updatePassword = async () => {
     }
 
     try {
-        // Import fungsi yang diperlukan secara dinamik untuk v10 modular
-        const { EmailAuthProvider, reauthenticateWithCredential, updatePassword } = await import("https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js");
-
-        // Proses pengesahan semula (Re-authentication)
+        // Guna fungsi yang diimport di atas
         const credential = EmailAuthProvider.credential(user.email, oldPass);
         await reauthenticateWithCredential(user, credential);
-        
-        // Kemaskini kata laluan
         await updatePassword(user, newPass);
         
         window.showToast("KATA LALUAN BERJAYA DIKEMASKINI");
         
-        // Kosongkan input
         document.getElementById('old-pass').value = '';
         document.getElementById('new-pass').value = '';
         document.getElementById('confirm-pass').value = '';
@@ -876,14 +867,11 @@ window.updatePassword = async () => {
         console.error(e);
         if (e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password') {
             alert("Kata laluan semasa anda salah.");
-        } else if (e.code === 'auth/too-many-requests') {
-            alert("Terlalu banyak cubaan. Sila cuba sebentar lagi.");
         } else {
             alert("Ralat: " + e.message);
         }
     }
 };
-
 
                    window.togglePassView = function(inputId, btn) {
     const input = document.getElementById(inputId);
