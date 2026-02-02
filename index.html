@@ -472,21 +472,27 @@ else if (p === 'settings') {
         </div>
         <p class="text-[11px] font-black text-black uppercase tracking-widest">Kemaskini Kata Laluan</p>
     </div>
-    <div class="space-y-3">
-        <div class="relative">
-            <input type="password" id="old-pass" placeholder="KATA LALUAN SEMASA" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
-            <button type="button" onclick="window.togglePassView('old-pass', this)" class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path class="eye-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg></button>
-        </div>
-        <div class="relative">
-            <input type="password" id="new-pass" placeholder="KATA LALUAN BARU" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
-            <button type="button" onclick="window.togglePassView('new-pass', this)" class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path class="eye-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg></button>
-        </div>
-        <div class="relative">
-            <input type="password" id="confirm-pass" placeholder="SAHKAN KATA LALUAN BARU" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
-            <button type="button" onclick="window.togglePassView('confirm-pass', this)" class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path class="eye-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg></button>
-        </div>
-        <button onclick="window.updatePassword()" class="w-full bg-black text-yellow-400 text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Kemaskini Kata Laluan</button>
+   <div class="space-y-3">
+    <div class="relative">
+        <input type="password" id="old-pass" placeholder="KATA LALUAN SEMASA" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
+        <button type="button" onclick="window.togglePassView('old-pass', this)" class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path class="eye-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+        </button>
     </div>
+    <div class="relative">
+        <input type="password" id="new-pass" placeholder="KATA LALUAN BARU" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
+        <button type="button" onclick="window.togglePassView('new-pass', this)" class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path class="eye-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+        </button>
+    </div>
+    <div class="relative">
+        <input type="password" id="confirm-pass" placeholder="SAHKAN KATA LALUAN BARU" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
+        <button type="button" onclick="window.togglePassView('confirm-pass', this)" class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path class="eye-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+        </button>
+    </div>
+    <button onclick="window.updatePassword()" class="w-full bg-black text-yellow-400 text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Kemaskini Kata Laluan</button>
+</div>
 </div>
         </div>
     `;
@@ -842,41 +848,53 @@ window.updateProfileName = async () => {
 
 
 window.updatePassword = async () => {
-    const oldPass = document.getElementById('old-pass').value;
-    const newPass = document.getElementById('new-pass').value;
-    const confirmPass = document.getElementById('confirm-pass').value;
-    const user = auth.currentUser;
+    // Kod ini akan mencari input berdasarkan ID yang kita buat di Langkah 1
+    const oldPassInput = document.getElementById('old-pass');
+    const newPassInput = document.getElementById('new-pass');
+    const confirmPassInput = document.getElementById('confirm-pass');
 
+    // Jika salah satu elemen tidak dijumpai dalam DOM
+    if (!oldPassInput || !newPassInput || !confirmPassInput) {
+        console.error("Elemen input tidak dijumpai!");
+        return;
+    }
+
+    const oldPass = oldPassInput.value;
+    const newPass = newPassInput.value;
+    const confirmPass = confirmPassInput.value;
+
+    // Semakan jika ruangan kosong
     if (!oldPass || !newPass || !confirmPass) {
-        alert("Sila lengkapkan semua ruangan kata laluan.");
+        alert("Sila lengkapkan semua ruangan.");
         return;
     }
+
     if (newPass !== confirmPass) {
-        alert("Kata laluan baru dan pengesahan tidak sepadan.");
-        return;
-    }
-    if (newPass.length < 6) {
-        alert("Kata laluan baru mestilah sekurang-kurangnya 6 aksara.");
+        alert("Sahkan kata laluan baru tidak sepadan.");
         return;
     }
 
     try {
+        const user = auth.currentUser;
         const credential = EmailAuthProvider.credential(user.email, oldPass);
-        // Proses sahkan semula user
+        
+        // Sahkan semula user
         await reauthenticateWithCredential(user, credential);
-        // Proses kemaskini password
+        
+        // Kemaskini password
         await firebaseUpdatePassword(user, newPass);
         
         window.showToast("KATA LALUAN BERJAYA DIKEMASKINI");
         
-        // Kosongkan input
-        document.getElementById('old-pass').value = '';
-        document.getElementById('new-pass').value = '';
-        document.getElementById('confirm-pass').value = '';
+        // Kosongkan ruangan selepas berjaya
+        oldPassInput.value = '';
+        newPassInput.value = '';
+        confirmPassInput.value = '';
+        
     } catch (e) {
         console.error(e);
-        if (e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password') {
-            alert("Kata laluan semasa anda salah.");
+        if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
+            alert("Kata laluan semasa salah.");
         } else {
             alert("Ralat: " + e.message);
         }
