@@ -537,9 +537,8 @@ function monitorPendingUsers() {
                     btn.className = "bg-black text-yellow-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all";
                     btn.innerText = "Luluskan";
                     
-                    // --- KEMASKINI DI SINI ---
                     btn.onclick = async () => {
-                        if(!confirm(`Luluskan permohonan ${u.firstName}?`)) return;
+                        if(!confirm(`Luluskan permohonan ${u.firstName || u.fullName}?`)) return;
 
                         try {
                             // 1. Kemaskini status di Firebase
@@ -565,7 +564,6 @@ function monitorPendingUsers() {
                             alert("Ralat: " + e.message);
                         }
                     };
-                    // -------------------------
 
                     div.appendChild(btn);
                     container.appendChild(div);
@@ -573,6 +571,7 @@ function monitorPendingUsers() {
             }
         });
 
+        // Paparkan jumlah permohonan pada badge
         if (badge) {
             if (count > 0) {
                 badge.innerText = count;
@@ -583,17 +582,7 @@ function monitorPendingUsers() {
             }
         }
     });
-
-        if (badge) {
-            if (count > 0) {
-                badge.innerText = count;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-                if (container) container.innerHTML = `<div class="py-10 text-center"><p class="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Tiada permohonan baru</p></div>`;
-            }
-        }
-    });
+} // Penutup fungsi monitorPendingUsers yang betul
 
                  document.getElementById('btn-action').onclick = async () => {
     const email = document.getElementById('email').value.trim();
