@@ -775,28 +775,62 @@ window.updateProfileName = async () => {
 };
 
 // 2. Logik Update Emel (Perlu Import updateEmail)
-import { updateEmail } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { 
+    updateEmail, 
+    EmailAuthProvider, 
+    reauthenticateWithCredential 
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 window.updateUserEmail = async () => {
     const newEmail = document.getElementById('set-email').value.trim();
-    if(!newEmail) return;
     
-    if(confirm("Anda perlu log masuk semula selepas menukar emel. Teruskan?")) {
+    // Validasi ringkas
+    if (!newEmail || newEmail === auth.currentUser.email) {
+        alert("Sila masukkan emel baru yang berbeza.");
+        return;
+    }
+
+    if (confirm("Adakah anda pasti mahu menukar emel ke: " + newEmail + "?")) {
         try {
+            // Cuba kemaskini emel secara terus
             await updateEmail(auth.currentUser, newEmail);
-            window.showToast("EMEL BERHASIL DITUKAR");
-            setTimeout(() => signOut(auth), 2000);
-        } catch (e) {
-            alert("Sila Log Keluar dan Log Masuk semula sebelum menukar emel (Sebab Keselamatan).");
+            
+            // Jika berjaya, kemaskini di Database
+            await update(ref(db, `users/${auth.currentUser.uid}`), {
+                email: newEmail
+            });
+
+            window.showToast("EMEL BERJAYA DIKEMASKINI");
+            setTimeout(() => location.reload(), 2000);
+
+        } catch (error) {
+            // JIKA PERLU RE-AUTHENTICATION
+            if (error.code === 'auth/requires-recent-login') {
+                const password = prompt("Demi keselamatan, sila masukkan semula KATA LALUAN anda untuk mengesahkan pertukaran emel:");
+                
+                if (password) {
+                    try {
+                        // Proses Log Masuk Semula secara automatik di belakang tab
+                        const credential = EmailAuthProvider.credential(auth.currentUser.email, password);
+                        await reauthenticateWithCredential(auth.currentUser, credential);
+                        
+                        // Selepas berjaya re-auth, cuba kemaskini emel sekali lagi
+                        await updateEmail(auth.currentUser, newEmail);
+                        await update(ref(db, `users/${auth.currentUser.uid}`), {
+                            email: newEmail
+                        });
+
+                        window.showToast("EMEL BERJAYA DIKEMASKINI");
+                        setTimeout(() => location.reload(), 2000);
+                        
+                    } catch (reAuthError) {
+                        alert("Kata laluan salah atau ralat berlaku. Sila cuba lagi.");
+                    }
+                }
+            } else {
+                alert("Ralat: " + error.message);
+            }
         }
     }
-};
-
-// 3. Logik Hantar Emel Tukar Kata Laluan
-window.resetPasswordViaEmail = async () => {
-    try {
-        await sendPasswordResetEmail(auth, auth.currentUser.email);
-        alert("Pautan tukar kata laluan telah dihantar ke emel anda.");
-    } catch (e) { alert(e.message); }
 };
 
 // 4. Logik Update Platun
