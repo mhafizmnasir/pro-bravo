@@ -9,6 +9,16 @@
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="manifest" href="site.webmanifest">
     <script src="https://cdn.tailwindcss.com"></script>
+    
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script type="text/javascript">
+   (function(){
+      emailjs.init("l_rhu0wpusKr-VVGT"); // Ganti dengan Public Key anda
+   })();
+</script>
+
+    
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
     body { 
@@ -526,15 +536,53 @@ function monitorPendingUsers() {
                     const btn = document.createElement('button');
                     btn.className = "bg-black text-yellow-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all";
                     btn.innerText = "Luluskan";
+                    
+                    // --- KEMASKINI DI SINI ---
                     btn.onclick = async () => {
-                        await update(ref(db, 'users/' + uid), { status: 'approved' });
-                        if(typeof window.showToast === 'function') window.showToast("PENGGUNA DILULUSKAN");
+                        if(!confirm(`Luluskan permohonan ${u.firstName}?`)) return;
+
+                        try {
+                            // 1. Kemaskini status di Firebase
+                            await update(ref(db, 'users/' + uid), { status: 'approved' });
+
+                            // 2. Hantar Notifikasi Emel via EmailJS
+                            const emailParams = {
+                                to_email: u.email,
+                                to_name: u.firstName || u.fullName
+                            };
+
+                            emailjs.send('service_3kaeoi9', 'template_vh606sx', emailParams)
+                                .then(() => {
+                                    console.log("Notifikasi emel dihantar");
+                                    if(typeof window.showToast === 'function') window.showToast("DILULUSKAN & EMEL DIHANTAR");
+                                })
+                                .catch((err) => {
+                                    console.error("EmailJS Error:", err);
+                                    if(typeof window.showToast === 'function') window.showToast("DILULUSKAN (EMEL GAGAL)");
+                                });
+
+                        } catch (e) {
+                            alert("Ralat: " + e.message);
+                        }
                     };
+                    // -------------------------
+
                     div.appendChild(btn);
                     container.appendChild(div);
                 }
             }
         });
+
+        if (badge) {
+            if (count > 0) {
+                badge.innerText = count;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+                if (container) container.innerHTML = `<div class="py-10 text-center"><p class="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Tiada permohonan baru</p></div>`;
+            }
+        }
+    });
 
         if (badge) {
             if (count > 0) {
