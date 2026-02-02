@@ -66,6 +66,10 @@
 
 <div id="login-fields" class="space-y-4">
     <input type="email" id="email" placeholder="EMEL" class="w-full p-5 bg-slate-50 border-none rounded-2xl text-[12px] font-bold outline-none focus:ring-2 focus:ring-yellow-400">
+    <div class="relative">
+        <input type="password" id="password" placeholder="KATA LALUAN" class="w-full p-5 bg-slate-50 border-none rounded-2xl text-[12px] font-bold outline-none focus:ring-2 focus:ring-yellow-400">
+    </div>
+</div>
     
     <div class="relative">
         <input type="password" id="password" placeholder="KATA LALUAN" class="w-full p-5 bg-slate-50 border-none rounded-2xl text-[12px] font-bold outline-none focus:ring-2 focus:ring-yellow-400">
@@ -847,105 +851,18 @@ window.updateProfileName = async () => {
 
 
 
-// FUNGSI TUNGGAL UNTUK KEMASKINI PASSWORD
-window.updatePassword = async () => {
-    // Ambil elemen secara terus apabila butang ditekan
-    const elOld = document.querySelector('#old-pass');
-    const elNew = document.querySelector('#new-pass');
-    const elConf = document.querySelector('#confirm-pass');
-
-    // Semak jika elemen wujud dalam paparan semasa
-    if (!elOld || !elNew || !elConf) {
-        console.error("Input tidak dijumpai dalam DOM");
-        return;
-    }
-
-    const valOld = elOld.value.trim();
-    const valNew = elNew.value.trim();
-    const valConf = elConf.value.trim();
-
-    // Logik semakan ruangan kosong
-    if (valOld === "" || valNew === "" || valConf === "") {
-        alert("Sila lengkapkan semua ruangan.");
-        return;
-    }
-
-    if (valNew !== valConf) {
-        alert("Sahkan kata laluan baru tidak sepadan.");
-        return;
-    }
-
-    try {
-        const user = auth.currentUser;
-        // Guna EmailAuthProvider (Pastikan sudah di-import di atas)
-        const credential = EmailAuthProvider.credential(user.email, valOld);
-        
-        await reauthenticateWithCredential(user, credential);
-        await firebaseUpdatePassword(user, valNew);
-        
-        window.showToast("KATA LALUAN BERJAYA DIKEMASKINI");
-        
-        // Kosongkan ruangan
-        elOld.value = "";
-        elNew.value = "";
-        elConf.value = "";
-        
-    } catch (e) {
-        console.error("Error update pass:", e);
-        if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
-            alert("Kata laluan semasa salah.");
-        } else {
-            alert("Ralat: " + e.message);
-        }
-    }
-};
-
-                window.togglePassView = function(inputId, btn) {
-    const input = document.getElementById(inputId);
-    const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
-    input.setAttribute('type', type);
-    
-    // Tukar warna ikon sebagai petunjuk aktif
-    if(type === 'text') {
-        btn.classList.add('text-yellow-500');
-    } else {
-        btn.classList.remove('text-yellow-500');
-    }
-};
-
-
-
-               // --- GANTIKAN SEMUA KOD UPDATE PASSWORD & TOGGLE VIEW DENGAN INI ---
-
 window.togglePassView = function(inputId, btn) {
     const input = document.getElementById(inputId);
-    const path = btn.querySelector('path'); // Cari path dalam SVG
-    
-    if (input.type === 'password') {
-        input.type = 'text';
-        btn.classList.add('text-yellow-500');
-        if(path) path.setAttribute('d', 'M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21');
-    } else {
-        input.type = 'password';
-        btn.classList.remove('text-yellow-500');
-        if(path) path.setAttribute('d', 'M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z');
-    }
+    if (!input) return;
+    input.type = input.type === 'password' ? 'text' : 'password';
+    btn.classList.toggle('text-yellow-500');
 };
 
- = async () => {
-    // Pastikan elemen wujud dalam DOM semasa butang ditekan
-    const oldPassInput = document.getElementById('old-pass');
-    const newPassInput = document.getElementById('new-pass');
-    const confirmPassInput = document.getElementById('confirm-pass');
-
-    if (!oldPassInput || !newPassInput || !confirmPassInput) {
-        alert("Ralat: Ruangan input tidak dijumpai dalam paparan.");
-        return;
-    }
-
-    const oldPass = oldPassInput.value.trim();
-    const newPass = newPassInput.value.trim();
-    const confirmPass = confirmPassInput.value.trim();
+window.updatePassword = async () => {
+    // Cari elemen di dalam menu settings yang aktif
+    const oldPass = document.getElementById('old-pass')?.value;
+    const newPass = document.getElementById('new-pass')?.value;
+    const confirmPass = document.getElementById('confirm-pass')?.value;
 
     if (!oldPass || !newPass || !confirmPass) {
         alert("Sila lengkapkan semua ruangan.");
@@ -961,22 +878,19 @@ window.togglePassView = function(inputId, btn) {
         const user = auth.currentUser;
         const credential = EmailAuthProvider.credential(user.email, oldPass);
         
-        // Proses Re-authentication
         await reauthenticateWithCredential(user, credential);
-        
-        // Kemaskini ke Firebase
         await firebaseUpdatePassword(user, newPass);
         
         window.showToast("KATA LALUAN BERJAYA DIKEMASKINI");
         
-        // Kosongkan input
-        oldPassInput.value = '';
-        newPassInput.value = '';
-        confirmPassInput.value = '';
+        // Reset input
+        document.getElementById('old-pass').value = '';
+        document.getElementById('new-pass').value = '';
+        document.getElementById('confirm-pass').value = '';
         
     } catch (e) {
         console.error(e);
-        if (e.code === 'auth/wrong-password' || e.code === 'auth/invalid-credential') {
+        if (e.code === 'auth/wrong-password') {
             alert("Kata laluan semasa salah.");
         } else {
             alert("Ralat: " + e.message);
