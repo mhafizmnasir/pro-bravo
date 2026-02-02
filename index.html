@@ -440,6 +440,20 @@ else if (p === 'settings') {
                 </select>
                 <button onclick="updateUserPlatoon()" class="w-full bg-black text-yellow-400 text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Kemaskini Platun</button>
             </div>
+            <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 mt-6">
+    <div class="flex items-center gap-3 mb-6">
+        <div class="p-2 bg-red-100 text-red-600 rounded-lg">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+        </div>
+        <p class="text-[11px] font-black text-black uppercase tracking-widest">Kemaskini Kata Laluan</p>
+    </div>
+    <div class="space-y-3">
+        <input type="password" id="old-pass" placeholder="KATA LALUAN SEMASA" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
+        <input type="password" id="new-pass" placeholder="KATA LALUAN BARU" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
+        <input type="password" id="confirm-pass" placeholder="SAHKAN KATA LALUAN BARU" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
+        <button onclick="updatePassword()" class="w-full bg-black text-yellow-400 text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Kemaskini Kata Laluan</button>
+    </div>
+</div>
         </div>
     `;
 }
@@ -790,6 +804,56 @@ window.updateProfileName = async () => {
         }
     }
 };
+
+
+
+window.updatePassword = async () => {
+    const oldPass = document.getElementById('old-pass').value;
+    const newPass = document.getElementById('new-pass').value;
+    const confirmPass = document.getElementById('confirm-pass').value;
+    const user = auth.currentUser;
+
+    if (!oldPass || !newPass || !confirmPass) {
+        alert("Sila lengkapkan semua ruangan kata laluan.");
+        return;
+    }
+
+    if (newPass !== confirmPass) {
+        alert("Kata laluan baru dan pengesahan tidak sepadan.");
+        return;
+    }
+
+    if (newPass.length < 6) {
+        alert("Kata laluan baru mestilah sekurang-kurangnya 6 aksara.");
+        return;
+    }
+
+    try {
+        // Firebase memerlukan re-authentication sebelum tukar password demi keselamatan
+        const credential = firebase.auth.EmailAuthProvider.credential(user.email, oldPass);
+        await user.reauthenticateWithCredential(credential);
+        
+        // Kemaskini kata laluan baru
+        await user.updatePassword(newPass);
+        
+        window.showToast("KATA LALUAN BERJAYA DIKEMASKINI");
+        
+        // Kosongkan input
+        document.getElementById('old-pass').value = '';
+        document.getElementById('new-pass').value = '';
+        document.getElementById('confirm-pass').value = '';
+        
+    } catch (e) {
+        console.error(e);
+        if (e.code === 'auth/wrong-password') {
+            alert("Kata laluan semasa anda salah.");
+        } else {
+            alert("Ralat: " + e.message);
+        }
+    }
+};
+
+                   
                
 </script>
 
