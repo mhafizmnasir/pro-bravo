@@ -613,9 +613,21 @@ function monitorPendingUsers() {
             await signInWithEmailAndPassword(auth, email, pass);
         }
     } catch (e) {
-        console.error(e);
-        alert("Ralat: " + e.message);
+    console.error(e);
+    // Tukar mesej ralat Firebase kepada bahasa yang lebih mudah
+    let errorMsg = "RALAT SISTEM. SILA CUBA LAGI.";
+    
+    if (e.code === 'auth/invalid-credential' || e.code === 'auth/wrong-password' || e.code === 'auth/user-not-found') {
+        errorMsg = "EMEL ATAU KATA LALUAN SALAH";
+    } else if (e.code === 'auth/invalid-email') {
+        errorMsg = "FORMAT EMEL TIDAK SAH";
+    } else if (e.code === 'auth/too-many-requests') {
+        errorMsg = "TERLALU BANYAK PERCUBAAN. SILA TUNGGU SEBENTAR.";
     }
+
+    // Gunakan Toast sedia ada aplikasi anda
+    window.showToast(errorMsg);
+}
 };
                    
 document.getElementById('auth-toggle-btn').onclick = () => {
