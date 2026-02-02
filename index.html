@@ -428,7 +428,7 @@ else if (p === 'settings') {
                 </div>
             </div>
 
-            <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-8 border-b-yellow-400">
+            <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100">
                 <div class="flex items-center gap-3 mb-6">
                     <div class="p-2 bg-green-100 text-green-600 rounded-lg">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
@@ -439,6 +439,19 @@ else if (p === 'settings') {
                     ${Array.from({length: 25}, (_, i) => `<option value="${i+1}" ${userData.platoon == i+1 ? 'selected' : ''}>PLATUN ${i+1}</option>`).join('')}
                 </select>
                 <button onclick="updateUserPlatoon()" class="w-full bg-black text-yellow-400 text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Kemaskini Platun</button>
+            </div>
+
+            <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100 border-b-8 border-b-yellow-400">
+                <div class="flex items-center gap-3 mb-6">
+                    <div class="p-2 bg-red-100 text-red-600 rounded-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                    </div>
+                    <p class="text-[11px] font-black text-black uppercase tracking-widest">Keselamatan Akaun</p>
+                </div>
+                <div class="space-y-3">
+                    <input type="password" id="new-password" placeholder="KATA LALUAN BARU" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
+                    <button onclick="updateUserPassword()" class="w-full bg-black text-yellow-400 text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest active:scale-95 transition-all">Kemaskini Kata Laluan</button>
+                </div>
             </div>
         </div>
     `;
@@ -772,6 +785,40 @@ window.updateProfileName = async () => {
         }
     }
 };
+
+
+
+
+import { updatePassword } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+window.updateUserPassword = async () => {
+    const newPass = document.getElementById('new-password').value;
+    
+    if(!newPass || newPass.length < 6) {
+        alert("Kata laluan mestilah sekurang-kurangnya 6 aksara.");
+        return;
+    }
+
+    if(confirm("Adakah anda pasti mahu menukar kata laluan?")) {
+        try {
+            const user = auth.currentUser;
+            await updatePassword(user, newPass);
+            
+            document.getElementById('new-password').value = ""; // Kosongkan input
+            window.showToast("KATA LALUAN BERJAYA DITUKAR");
+        } catch (e) {
+            if(e.code === 'auth/requires-recent-login') {
+                alert("Sila log keluar dan log masuk semula untuk menukar kata laluan atas faktor keselamatan.");
+            } else {
+                alert("Ralat: " + e.message);
+            }
+        }
+    }
+};
+
+
+
+                   
                
 </script>
 
