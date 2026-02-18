@@ -138,22 +138,22 @@
             </button>
         </div>
 
-        <div class="mt-12">
-            <div class="mb-4 flex justify-between items-center">
-                <h2 class="text-[11px] font-black text-black uppercase opacity-30 tracking-[0.3em]">Admin Panel</h2>
+        <div id="admin-section" class="mt-12 hidden">
+    <div class="mb-4 flex justify-between items-center">
+        <h2 class="text-[11px] font-black text-black uppercase opacity-30 tracking-[0.3em]">Admin Panel</h2>
+    </div>
+    <div class="space-y-4 font-black text-[13px] uppercase tracking-widest text-slate-400">
+        <button id="admin-nav" class="hidden flex items-center justify-between w-full p-5 bg-black text-yellow-400 rounded-2xl hover:opacity-90 transition-opacity">
+            <div class="flex items-center gap-4">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                </svg>
+                <span>Pengurusan Keahlian</span>
             </div>
-            <div class="space-y-4 font-black text-[13px] uppercase tracking-widest text-slate-400">
-                <button id="admin-nav" class="hidden flex items-center justify-between w-full p-5 bg-black text-yellow-400 rounded-2xl hover:opacity-90 transition-opacity">
-                    <div class="flex items-center gap-4">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                        </svg>
-                        <span>Pengurusan Keahlian</span>
-                    </div>
-                    <span id="pending-count" class="hidden bg-yellow-400 text-black text-[10px] px-2 py-1 rounded-full font-bold">0</span>
-                </button>
-            </div>
-        </div>
+            <span id="pending-count" class="hidden bg-yellow-400 text-black text-[10px] px-2 py-1 rounded-full font-bold">0</span>
+        </button>
+    </div>
+</div>
 
     </div> </div>
 
@@ -267,6 +267,7 @@ onAuthStateChanged(auth, async (user) => {
                 document.getElementById('main-dashboard').classList.remove('hidden');
                 
                 if(userData.role === 'admin') {
+                    document.getElementById('admin-section').classList.remove('hidden');
                     document.getElementById('admin-nav').classList.remove('hidden');
                     monitorPendingUsers();
                 }
