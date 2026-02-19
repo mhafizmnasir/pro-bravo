@@ -554,37 +554,47 @@ function monitorPendingUsers() {
                 count++;
                 if (container) {
                     const div = document.createElement('div');
-                    div.className = "p-6 bg-white rounded-[2.5rem] flex justify-between items-center border border-slate-100 shadow-sm mb-3";
+                    div.className = "p-6 bg-white rounded-[2.5rem] flex flex-col gap-4 border border-slate-100 shadow-sm mb-3";
                     div.innerHTML = `
-                        <div>
-                            <p class="text-[13px] font-black uppercase text-black">${u.firstName || u.fullName} ${u.lastName || ''}</p>
-                            <p class="text-[10px] font-bold text-yellow-600 uppercase tracking-tighter">Platun ${u.platoon} • ${u.email}</p>
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-[13px] font-black uppercase text-black">${u.firstName || u.fullName} ${u.lastName || ''}</p>
+                                <p class="text-[10px] font-bold text-yellow-600 uppercase tracking-tighter">Platun ${u.platoon} • ${u.email}</p>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button id="btn-cancel-${uid}" class="bg-red-50 text-red-500 py-3 rounded-2xl text-[10px] font-black uppercase active:scale-95 transition-all">
+                                Batalkan
+                            </button>
+                            <button id="btn-approve-${uid}" class="bg-black text-yellow-400 py-3 rounded-2xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all">
+                                Luluskan
+                            </button>
                         </div>
                     `;
-                    
-                    const btn = document.createElement('button');
-                    btn.className = "bg-black text-yellow-400 px-6 py-3 rounded-2xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all";
-                    btn.innerText = "Luluskan";
-                    btn.onclick = async () => {
+
+                    container.appendChild(div);
+
+                    // Logik Butang Luluskan
+                    document.getElementById(`btn-approve-${uid}`).onclick = async () => {
                         if(!confirm(`Luluskan permohonan ${u.firstName || u.fullName}?`)) return;
-
                         try {
-                            await update(ref(db, 'users/' + uid), { 
-                                status: 'approved' 
-                            });
-
-                            if(typeof window.showToast === 'function') {
-                                window.showToast("PENGGUNA DILULUSKAN");
-                            }
-
+                            await update(ref(db, 'users/' + uid), { status: 'approved' });
+                            window.showToast("PENGGUNA DILULUSKAN");
                         } catch (e) {
-                            console.error("Database Update Error:", e);
                             alert("Ralat sistem: " + e.message);
                         }
                     };
 
-                    div.appendChild(btn);
-                    container.appendChild(div);
+                    // Logik Butang Batalkan
+                    document.getElementById(`btn-cancel-${uid}`).onclick = async () => {
+                        if(!confirm(`Adakah anda pasti mahu membatalkan dan memadam permohonan ${u.firstName || u.fullName}?`)) return;
+                        try {
+                            await set(ref(db, 'users/' + uid), null); // Memadam data pemohon
+                            window.showToast("PERMOHONAN DIBATALKAN");
+                        } catch (e) {
+                            alert("Ralat sistem: " + e.message);
+                        }
+                    };
                 }
             }
         });
@@ -601,8 +611,9 @@ function monitorPendingUsers() {
             }
         }
     });
-}
-                 document.getElementById('btn-action').onclick = async () => {
+}                 
+    
+    document.getElementById('btn-action').onclick = async () => {
     const email = document.getElementById('email').value.trim();
     const pass = document.getElementById('password').value;
     const forgotEmail = document.getElementById('forgot-email').value.trim();
