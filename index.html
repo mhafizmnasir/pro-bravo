@@ -525,16 +525,26 @@ else if (p === 'settings') {
                 </div>
             </div>
 
+            <div class="px-2">
+                <div class="relative">
+                    <input type="text" id="admin-search" placeholder="CARI NAMA PENGGUNA..." 
+                        class="w-full bg-white border border-slate-100 rounded-2xl py-4 px-6 pl-12 text-[10px] font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all shadow-sm uppercase">
+                    <div class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </div>
+                </div>
+            </div>
+
             <div id="adm-list" class="space-y-8">
                 <div class="space-y-4">
-                    <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest px-6">Menunggu kelulusan admin</h3>
+                    <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest px-6">Menunggu kelulusan</h3>
                     <div id="pending-users-list" class="space-y-1"></div>
                 </div>
 
                 <hr class="border-slate-100 mx-6">
 
                 <div class="space-y-4 pb-10">
-                    <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest px-6">Pengguna sedia ada (Approved)</h3>
+                    <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest px-6">Pengguna sedia ada</h3>
                     <div id="approved-users-list" class="space-y-1"></div>
                 </div>
             </div>
@@ -547,91 +557,112 @@ function monitorPendingUsers() {
     onValue(ref(db, 'users'), (snap) => {
         const pendingContainer = document.getElementById('pending-users-list');
         const approvedContainer = document.getElementById('approved-users-list');
+        const searchInput = document.getElementById('admin-search'); // Input carian
         const badge = document.getElementById('pending-count');
         
-        let pendingCount = 0;
+        let allUsers = [];
 
-        if (pendingContainer) pendingContainer.innerHTML = '';
-        if (approvedContainer) approvedContainer.innerHTML = '';
-
+        // Ambil semua data pengguna dari Firebase
         snap.forEach(child => {
-            const u = child.val();
-            const uid = child.key;
-            
-            // LOGIK UNTUK PENDING USERS
-            if (u.status === 'pending') {
-                pendingCount++;
-                if (pendingContainer) {
-                    const div = document.createElement('div');
-                    div.className = "p-6 bg-white rounded-[2.5rem] flex flex-col gap-4 border border-slate-100 shadow-sm mb-3";
-                    div.innerHTML = `
-                        <div>
-                            <p class="text-[13px] font-black uppercase text-black">${u.firstName || u.fullName} ${u.lastName || ''}</p>
-                            <p class="text-[10px] font-bold text-yellow-600 uppercase tracking-tighter">Platun ${u.platoon} • ${u.email}</p>
-                        </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <button id="btn-cancel-${uid}" class="bg-red-50 text-red-500 py-3 rounded-2xl text-[10px] font-black uppercase active:scale-95 transition-all">Batalkan</button>
-                            <button id="btn-approve-${uid}" class="bg-black text-yellow-400 py-3 rounded-2xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all">Luluskan</button>
-                        </div>
-                    `;
-                    pendingContainer.appendChild(div);
-
-                    document.getElementById(`btn-approve-${uid}`).onclick = async () => {
-                        if(confirm(`Luluskan permohonan ${u.firstName || u.fullName}?`)) {
-                            await update(ref(db, 'users/' + uid), { status: 'approved' });
-                            window.showToast("PENGGUNA DILULUSKAN");
-                        }
-                    };
-
-                    document.getElementById(`btn-cancel-${uid}`).onclick = async () => {
-                        if(confirm(`Padam permohonan ${u.firstName || u.fullName}?`)) {
-                            await set(ref(db, 'users/' + uid), null);
-                            window.showToast("PERMOHONAN DIPADAM");
-                        }
-                    };
-                }
-            } 
-            
-            // LOGIK UNTUK APPROVED USERS
-            else if (u.status === 'approved' && u.role !== 'admin') {
-                if (approvedContainer) {
-                    const div = document.createElement('div');
-                    div.className = "p-5 bg-slate-50/50 rounded-[2rem] flex justify-between items-center border border-slate-100 mb-2 mx-2";
-                    div.innerHTML = `
-                        <div>
-                            <p class="text-[11px] font-black uppercase text-slate-700">${u.firstName || u.fullName} ${u.lastName || ''}</p>
-                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Platun ${u.platoon} • Status: <span class="text-green-500">Aktif</span></p>
-                        </div>
-                        <button id="btn-revoke-${uid}" class="p-2 text-slate-300 hover:text-red-500 transition-colors">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                        </button>
-                    `;
-                    approvedContainer.appendChild(div);
-
-                    document.getElementById(`btn-revoke-${uid}`).onclick = async () => {
-                        if(confirm(`Adakah anda pasti mahu memadam akses untuk ${u.firstName || u.fullName}?`)) {
-                            await set(ref(db, 'users/' + uid), null);
-                            window.showToast("PENGGUNA DIPADAM");
-                        }
-                    };
-                }
-            }
+            allUsers.push({ id: child.key, ...child.val() });
         });
 
-        // Kemaskini Badge
-        if (badge) {
-            if (pendingCount > 0) {
-                badge.innerText = pendingCount;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-                if (pendingContainer) {
-                    pendingContainer.innerHTML = `<div class="py-10 text-center"><p class="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Tiada permohonan baru</p></div>`;
+        // Fungsi untuk paparkan senarai berdasarkan tapisan carian
+        const renderLists = (filterText = "") => {
+            if (pendingContainer) pendingContainer.innerHTML = '';
+            if (approvedContainer) approvedContainer.innerHTML = '';
+            let pendingCount = 0;
+
+            allUsers.forEach(u => {
+                const fullName = `${u.firstName || u.fullName || ''} ${u.lastName || ''}`.trim().toUpperCase();
+                const matchesSearch = fullName.includes(filterText.toUpperCase());
+
+                if (!matchesSearch) return;
+
+                // LOGIK UNTUK PENDING USERS
+                if (u.status === 'pending') {
+                    pendingCount++;
+                    if (pendingContainer) {
+                        const div = document.createElement('div');
+                        div.className = "p-6 bg-white rounded-[2.5rem] flex flex-col gap-4 border border-slate-100 shadow-sm mb-3 mx-2";
+                        div.innerHTML = `
+                            <div>
+                                <p class="text-[13px] font-black uppercase text-black">${fullName}</p>
+                                <p class="text-[10px] font-bold text-yellow-600 uppercase tracking-tighter">Platun ${u.platoon} • ${u.email}</p>
+                            </div>
+                            <div class="grid grid-cols-2 gap-2">
+                                <button onclick="handleUserAction('${u.id}', 'cancel', '${fullName}')" class="bg-red-50 text-red-500 py-3 rounded-2xl text-[10px] font-black uppercase active:scale-95 transition-all">Batalkan</button>
+                                <button onclick="handleUserAction('${u.id}', 'approve', '${fullName}')" class="bg-black text-yellow-400 py-3 rounded-2xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all">Luluskan</button>
+                            </div>
+                        `;
+                        pendingContainer.appendChild(div);
+                    }
+                } 
+                // LOGIK UNTUK APPROVED USERS
+                else if (u.status === 'approved' && u.role !== 'admin') {
+                    if (approvedContainer) {
+                        const div = document.createElement('div');
+                        div.className = "p-5 bg-slate-50/50 rounded-[2rem] flex justify-between items-center border border-slate-100 mb-2 mx-2";
+                        div.innerHTML = `
+                            <div>
+                                <p class="text-[11px] font-black uppercase text-slate-700">${fullName}</p>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Platun ${u.platoon} • <span class="text-green-500">Aktif</span></p>
+                            </div>
+                            <button onclick="handleUserAction('${u.id}', 'delete', '${fullName}')" class="p-2 text-slate-300 hover:text-red-500 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        `;
+                        approvedContainer.appendChild(div);
+                    }
+                }
+            });
+
+            // Kemaskini Badge (Sentiasa tunjuk jumlah asal yang pending)
+            if (badge) {
+                const totalPendingActual = allUsers.filter(x => x.status === 'pending').length;
+                if (totalPendingActual > 0) {
+                    badge.innerText = totalPendingActual;
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                    if (pendingContainer && filterText === "") {
+                        pendingContainer.innerHTML = `<div class="py-10 text-center"><p class="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Tiada permohonan baru</p></div>`;
+                    }
                 }
             }
+        };
+
+        // Jalankan paparan pertama
+        renderLists(searchInput ? searchInput.value : "");
+
+        // Listener untuk bar carian
+        if (searchInput) {
+            searchInput.oninput = (e) => renderLists(e.target.value);
         }
     });
-}                 
+}
+
+// Fungsi global untuk mengendalikan tindakan Admin (Lulus/Batal/Padam)
+window.handleUserAction = async (uid, action, name) => {
+    let confirmMsg = "";
+    if (action === 'approve') confirmMsg = `Luluskan permohonan ${name}?`;
+    else if (action === 'cancel') confirmMsg = `Adakah anda pasti mahu membatalkan permohonan ${name}?`;
+    else confirmMsg = `Adakah anda pasti mahu memadam akses untuk ${name}?`;
+
+    if (!confirm(confirmMsg)) return;
+
+    try {
+        if (action === 'approve') {
+            await update(ref(db, 'users/' + uid), { status: 'approved' });
+            window.showToast("PENGGUNA DILULUSKAN");
+        } else {
+            await set(ref(db, 'users/' + uid), null);
+            window.showToast(action === 'cancel' ? "PERMOHONAN DIPADAM" : "PENGGUNA DIPADAM");
+        }
+    } catch (e) {
+        alert("Ralat sistem: " + e.message);
+    }
+};                 
     
     document.getElementById('btn-action').onclick = async () => {
     const email = document.getElementById('email').value.trim();
