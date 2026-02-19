@@ -508,7 +508,8 @@ else if (p === 'settings') {
 }
               closeMenu();
                             }
-                            async function showAdminPage() {
+                   
+    async function showAdminPage() {
     const cont = document.getElementById('dynamic-content');
     
     cont.innerHTML = `
@@ -524,20 +525,24 @@ else if (p === 'settings') {
                 </div>
             </div>
 
-            <div id="adm-list" class="space-y-4">
-                <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest px-6">Menunggu kelulusan admin</h3>
-                
-                <div id="pending-users-list" class="space-y-1">
-                    <div class="flex justify-center py-10">
-                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
-                    </div>
+            <div id="adm-list" class="space-y-8">
+                <div class="space-y-4">
+                    <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest px-6">Menunggu kelulusan admin</h3>
+                    <div id="pending-users-list" class="space-y-1"></div>
+                </div>
+
+                <hr class="border-slate-100 mx-6">
+
+                <div class="space-y-4 pb-10">
+                    <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest px-6">Pengguna sedia ada (Approved)</h3>
+                    <div id="approved-users-list" class="space-y-1"></div>
                 </div>
             </div>
         </div>
     `;
     monitorPendingUsers();
 }
-
+                   
 function monitorPendingUsers() {
     onValue(ref(db, 'users'), (snap) => {
         const container = document.getElementById('pending-users-list');
