@@ -106,7 +106,7 @@
             <button id="btn-logout" class="bg-slate-100 text-slate-600 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest">Keluar</button>
         </nav>
 
-      <div id="mobile-sidebar" class="fixed inset-0 bg-black/40 z-[60] hidden backdrop-blur-sm">
+    <div id="mobile-sidebar" class="fixed inset-0 bg-black/40 z-[60] hidden backdrop-blur-sm">
     <div id="sidebar-container" class="mobile-menu closed bg-white w-80 h-full p-10 flex flex-col shadow-2xl">
         
         <div class="mb-10 flex justify-between items-center">
@@ -138,20 +138,29 @@
             </button>
         </div>
 
-        <div id="admin-section" class="mt-10 hidden border-t border-slate-50 pt-10">
-            <h2 class="text-[11px] font-black text-black uppercase opacity-30 tracking-[0.3em] mb-6">Admin Panel</h2>
-            <div class="flex flex-col gap-3 font-black text-[13px] uppercase tracking-widest">
-                <button id="admin-nav" class="hidden flex items-center justify-between w-full p-5 bg-black text-yellow-400 rounded-2xl hover:opacity-90 transition-all">
-                    <div class="flex items-center gap-4">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                        </svg>
-                        <span>Keahlian</span>
-                    </div>
-                    <span id="pending-count" class="hidden bg-yellow-400 text-black text-[10px] px-2 py-1 rounded-full font-black">0</span>
-                </button>
+       <div id="admin-section" class="mt-10 hidden border-t border-slate-50 pt-10">
+    <h2 class="text-[11px] font-black text-black uppercase opacity-30 tracking-[0.3em] mb-6">Admin Panel</h2>
+    <div class="flex flex-col gap-3 font-black text-[13px] uppercase tracking-widest">
+        
+        <button id="admin-nav" class="hidden flex items-center justify-between w-full p-5 bg-black text-yellow-400 rounded-2xl hover:opacity-90 transition-all">
+            <div class="flex items-center gap-4">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                </svg>
+                <span>Keahlian</span>
             </div>
-        </div>
+            <span id="pending-count" class="hidden bg-yellow-400 text-black text-[10px] px-2 py-1 rounded-full font-black">0</span>
+        </button>
+
+        <button id="admin-users-nav" class="flex items-center gap-4 w-full text-left p-5 text-black hover:bg-white rounded-2xl transition-all border border-transparent hover:border-slate-100">
+            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+            <span>Senarai Pengguna</span>
+        </button>
+
+    </div>
+</div>
 
     </div> 
 </div>
@@ -686,6 +695,94 @@ window.handleUserAction = async (uid, action, name) => {
 
 
 
+
+
+
+                   async function showUsersListPage() {
+    const cont = document.getElementById('dynamic-content');
+    
+    // UI untuk Senarai Pengguna (Approved)
+    cont.innerHTML = `
+        <div class="space-y-6">
+            <div class="flex items-center gap-3 px-2 mb-2">
+                <div class="p-2 bg-black rounded-xl text-yellow-400">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h2 class="text-xl font-black text-black uppercase">Senarai Pengguna</h2>                
+                </div>
+            </div>
+
+            <div class="px-2">
+                <input type="text" id="admin-search" placeholder="CARI NAMA AHLI..." 
+                    class="w-full bg-white border border-slate-100 rounded-2xl py-4 px-6 text-[10px] font-bold tracking-widest outline-none focus:ring-2 focus:ring-yellow-400 shadow-sm uppercase">
+            </div>
+
+            <div id="approved-users-list" class="space-y-1">
+                <div class="flex justify-center py-10">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-yellow-500"></div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Logik untuk monitor hanya pengguna yang status 'approved'
+    onValue(ref(db, 'users'), (snap) => {
+        const listCont = document.getElementById('approved-users-list');
+        const searchInput = document.getElementById('admin-search');
+        if (!listCont) return;
+
+        const render = (filter = "") => {
+            listCont.innerHTML = '';
+            snap.forEach(child => {
+                const u = child.val();
+                const uid = child.key;
+                const fullName = `${u.firstName || u.fullName || ''} ${u.lastName || ''}`.trim().toUpperCase();
+
+                if (u.status === 'approved' && u.role !== 'admin') {
+                    if (filter === "" || fullName.includes(filter.toUpperCase())) {
+                        const div = document.createElement('div');
+                        div.className = "p-5 bg-white rounded-[2rem] flex justify-between items-center border border-slate-100 mb-2 mx-2 shadow-sm";
+                        div.innerHTML = `
+                            <div>
+                                <p class="text-[11px] font-black uppercase text-slate-700">${fullName}</p>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Platun ${u.platoon} • <span class="text-green-500">AKTIF</span></p>
+                            </div>
+                            <button onclick="deleteUser('${uid}', '${fullName}')" class="p-2 text-slate-300 hover:text-red-500 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        `;
+                        listCont.appendChild(div);
+                    }
+                }
+            });
+        };
+
+        render(searchInput.value);
+        searchInput.oninput = (e) => render(e.target.value);
+    });
+}
+
+// Fungsi Padam Pengguna (Admin)
+window.deleteUser = async (uid, name) => {
+    if (!confirm(`Padam akses untuk ${name}? Tindakan ini tidak boleh diundur.`)) return;
+    try {
+        await set(ref(db, 'users/' + uid), null);
+        window.showToast("PENGGUNA TELAH DIPADAM");
+    } catch (e) {
+        alert("Ralat: " + e.message);
+    }
+};
+
+
+
+                   
+
+                   
+
+
                    
     document.getElementById('btn-action').onclick = async () => {
     const email = document.getElementById('email').value.trim();
@@ -785,7 +882,11 @@ document.getElementById('nav-welcome').onclick = () => { showPage('welcome'); cl
 document.getElementById('nav-calendar').onclick = () => { showPage('jadual-induk'); closeMenu(); };
 document.getElementById('admin-nav').onclick = () => { showAdminPage(); closeMenu(); };
 document.getElementById('btn-logout').onclick = () => { if(confirm("Log keluar?")) signOut(auth); };
-
+document.getElementById('admin-users-nav').onclick = () => { 
+    showUsersListPage(); 
+    closeMenu(); 
+};
+                   
 setInterval(() => {
     const clockEl = document.getElementById('live-clock');
     if(clockEl) {
