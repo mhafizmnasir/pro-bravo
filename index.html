@@ -545,73 +545,88 @@ else if (p === 'settings') {
                    
 function monitorPendingUsers() {
     onValue(ref(db, 'users'), (snap) => {
-        const container = document.getElementById('pending-users-list');
+        const pendingContainer = document.getElementById('pending-users-list');
+        const approvedContainer = document.getElementById('approved-users-list');
         const badge = document.getElementById('pending-count');
-        let count = 0;
+        
+        let pendingCount = 0;
 
-        if (container) container.innerHTML = '';
+        if (pendingContainer) pendingContainer.innerHTML = '';
+        if (approvedContainer) approvedContainer.innerHTML = '';
 
         snap.forEach(child => {
             const u = child.val();
             const uid = child.key;
             
+            // LOGIK UNTUK PENDING USERS
             if (u.status === 'pending') {
-                count++;
-                if (container) {
+                pendingCount++;
+                if (pendingContainer) {
                     const div = document.createElement('div');
                     div.className = "p-6 bg-white rounded-[2.5rem] flex flex-col gap-4 border border-slate-100 shadow-sm mb-3";
                     div.innerHTML = `
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <p class="text-[13px] font-black uppercase text-black">${u.firstName || u.fullName} ${u.lastName || ''}</p>
-                                <p class="text-[10px] font-bold text-yellow-600 uppercase tracking-tighter">Platun ${u.platoon} • ${u.email}</p>
-                            </div>
+                        <div>
+                            <p class="text-[13px] font-black uppercase text-black">${u.firstName || u.fullName} ${u.lastName || ''}</p>
+                            <p class="text-[10px] font-bold text-yellow-600 uppercase tracking-tighter">Platun ${u.platoon} • ${u.email}</p>
                         </div>
                         <div class="grid grid-cols-2 gap-2">
-                            <button id="btn-cancel-${uid}" class="bg-red-50 text-red-500 py-3 rounded-2xl text-[10px] font-black uppercase active:scale-95 transition-all">
-                                Batalkan
-                            </button>
-                            <button id="btn-approve-${uid}" class="bg-black text-yellow-400 py-3 rounded-2xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all">
-                                Luluskan
-                            </button>
+                            <button id="btn-cancel-${uid}" class="bg-red-50 text-red-500 py-3 rounded-2xl text-[10px] font-black uppercase active:scale-95 transition-all">Batalkan</button>
+                            <button id="btn-approve-${uid}" class="bg-black text-yellow-400 py-3 rounded-2xl text-[10px] font-black uppercase shadow-lg active:scale-95 transition-all">Luluskan</button>
                         </div>
                     `;
+                    pendingContainer.appendChild(div);
 
-                    container.appendChild(div);
-
-                    // Logik Butang Luluskan
                     document.getElementById(`btn-approve-${uid}`).onclick = async () => {
-                        if(!confirm(`Luluskan permohonan ${u.firstName || u.fullName}?`)) return;
-                        try {
+                        if(confirm(`Luluskan permohonan ${u.firstName || u.fullName}?`)) {
                             await update(ref(db, 'users/' + uid), { status: 'approved' });
                             window.showToast("PENGGUNA DILULUSKAN");
-                        } catch (e) {
-                            alert("Ralat sistem: " + e.message);
                         }
                     };
 
-                    // Logik Butang Batalkan
                     document.getElementById(`btn-cancel-${uid}`).onclick = async () => {
-                        if(!confirm(`Adakah anda pasti mahu membatalkan dan memadam permohonan ${u.firstName || u.fullName}?`)) return;
-                        try {
-                            await set(ref(db, 'users/' + uid), null); // Memadam data pemohon
-                            window.showToast("PERMOHONAN DIBATALKAN");
-                        } catch (e) {
-                            alert("Ralat sistem: " + e.message);
+                        if(confirm(`Padam permohonan ${u.firstName || u.fullName}?`)) {
+                            await set(ref(db, 'users/' + uid), null);
+                            window.showToast("PERMOHONAN DIPADAM");
+                        }
+                    };
+                }
+            } 
+            
+            // LOGIK UNTUK APPROVED USERS
+            else if (u.status === 'approved' && u.role !== 'admin') {
+                if (approvedContainer) {
+                    const div = document.createElement('div');
+                    div.className = "p-5 bg-slate-50/50 rounded-[2rem] flex justify-between items-center border border-slate-100 mb-2 mx-2";
+                    div.innerHTML = `
+                        <div>
+                            <p class="text-[11px] font-black uppercase text-slate-700">${u.firstName || u.fullName} ${u.lastName || ''}</p>
+                            <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Platun ${u.platoon} • Status: <span class="text-green-500">Aktif</span></p>
+                        </div>
+                        <button id="btn-revoke-${uid}" class="p-2 text-slate-300 hover:text-red-500 transition-colors">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                    `;
+                    approvedContainer.appendChild(div);
+
+                    document.getElementById(`btn-revoke-${uid}`).onclick = async () => {
+                        if(confirm(`Adakah anda pasti mahu memadam akses untuk ${u.firstName || u.fullName}?`)) {
+                            await set(ref(db, 'users/' + uid), null);
+                            window.showToast("PENGGUNA DIPADAM");
                         }
                     };
                 }
             }
         });
 
+        // Kemaskini Badge
         if (badge) {
-            if (count > 0) {
-                badge.innerText = count;
+            if (pendingCount > 0) {
+                badge.innerText = pendingCount;
                 badge.classList.remove('hidden');
             } else {
                 badge.classList.add('hidden');
-                if (container) {
-                    container.innerHTML = `<div class="py-10 text-center"><p class="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Tiada permohonan baru</p></div>`;
+                if (pendingContainer) {
+                    pendingContainer.innerHTML = `<div class="py-10 text-center"><p class="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Tiada permohonan baru</p></div>`;
                 }
             }
         }
