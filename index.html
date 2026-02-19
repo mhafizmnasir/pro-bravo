@@ -509,90 +509,71 @@ else if (p === 'settings') {
               closeMenu();
                             }
                    
+   
+                   
+                   
+                   
+                   
     async function showAdminPage() {
     const cont = document.getElementById('dynamic-content');
     
     cont.innerHTML = `
-        <div class="space-y-6">
-            <div class="flex items-center gap-3 px-2 mb-2">
-                <div class="p-2 bg-yellow-400 rounded-xl text-black">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-                    </svg>
+        <div class="space-y-10 pb-20">
+            <div class="space-y-6">
+                <div class="flex items-center gap-3 px-2 mb-2">
+                    <div class="p-2 bg-yellow-400 rounded-xl text-black">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-black text-black uppercase tracking-tight">Keahlian</h2>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Permohonan Baru</p>
+                    </div>
                 </div>
-                <div>
-                    <h2 class="text-xl font-black text-black uppercase tracking-tight">Pengurusan Ahli</h2>                
-                </div>
+
+                <div id="pending-users-list" class="space-y-1">
+                    </div>
             </div>
 
-            <div class="flex gap-2 px-2 overflow-x-auto no-scrollbar">
-                <button onclick="switchAdminTab('pending')" id="tab-pending" 
-                    class="flex-none px-6 py-3 bg-black text-yellow-400 rounded-2xl text-[10px] font-black uppercase shadow-lg transition-all">
-                    Keahlian
-                </button>
-                <button onclick="switchAdminTab('list')" id="tab-list" 
-                    class="flex-none px-6 py-3 bg-white text-slate-400 rounded-2xl text-[10px] font-black uppercase border border-slate-100 transition-all">
-                    Senarai Pengguna
-                </button>
-            </div>
+            <hr class="border-slate-100 mx-6">
 
-            <div id="admin-tab-content" class="space-y-6 pb-20">
+            <div class="space-y-6">
+                <div class="flex items-center gap-3 px-2 mb-2">
+                    <div class="p-2 bg-black rounded-xl text-yellow-400">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2 class="text-xl font-black text-black uppercase tracking-tight">Senarai Pengguna</h2>
+                        <p class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Pengurusan Ahli Sedia Ada</p>
+                    </div>
                 </div>
+
+                <div class="px-2">
+                    <div class="relative">
+                        <input type="text" id="admin-search" placeholder="CARI NAMA AHLI..." 
+                            class="w-full bg-white border border-slate-100 rounded-2xl py-4 px-6 pl-12 text-[10px] font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all shadow-sm uppercase">
+                        <div class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="approved-users-list" class="space-y-1">
+                    </div>
+            </div>
         </div>
     `;
     
-    // Aktifkan tab pertama secara automatik
-    switchAdminTab('pending');
+    monitorPendingUsers();
 }
 
-// Fungsi untuk menukar paparan antara Keahlian dan Senarai Pengguna
-window.switchAdminTab = (tab) => {
-    const content = document.getElementById('admin-tab-content');
-    const tPending = document.getElementById('tab-pending');
-    const tList = document.getElementById('tab-list');
 
-    if (!content || !tPending || !tList) return;
 
-    if (tab === 'pending') {
-        // Gaya Butang Aktif (Keahlian)
-        tPending.className = "flex-none px-6 py-3 bg-black text-yellow-400 rounded-2xl text-[10px] font-black uppercase shadow-lg transition-all";
-        tList.className = "flex-none px-6 py-3 bg-white text-slate-400 rounded-2xl text-[10px] font-black uppercase border border-slate-100 transition-all";
-        
-        content.innerHTML = `
-            <div class="space-y-4">
-                <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest px-6">Menunggu Kelulusan</h3>
-                <div id="pending-users-list" class="space-y-1"></div>
-            </div>
-        `;
-    } else {
-        // Gaya Butang Aktif (Senarai Pengguna)
-        tList.className = "flex-none px-6 py-3 bg-black text-yellow-400 rounded-2xl text-[10px] font-black uppercase shadow-lg transition-all";
-        tPending.className = "flex-none px-6 py-3 bg-white text-slate-400 rounded-2xl text-[10px] font-black uppercase border border-slate-100 transition-all";
-        
-        content.innerHTML = `
-            <div class="px-2 space-y-6">
-                <div class="relative">
-                    <input type="text" id="admin-search" placeholder="CARI NAMA PENGGUNA..." 
-                        class="w-full bg-white border border-slate-100 rounded-2xl py-4 px-6 pl-12 text-[10px] font-bold tracking-widest focus:outline-none focus:ring-2 focus:ring-yellow-400 transition-all shadow-sm uppercase">
-                    <div class="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                        </svg>
-                    </div>
-                </div>
-                <div class="space-y-4">
-                    <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-widest px-4">Pengguna Sedia Ada</h3>
-                    <div id="approved-users-list" class="space-y-1"></div>
-                </div>
-            </div>
-        `;
-    }
-    
-    // Jalankan semula monitorPendingUsers untuk memaparkan data dalam tab baru
-    if (typeof monitorPendingUsers === 'function') {
-        monitorPendingUsers();
-    }
-};
+
+
                    
 function monitorPendingUsers() {
     onValue(ref(db, 'users'), (snap) => {
@@ -607,7 +588,7 @@ function monitorPendingUsers() {
         });
 
         const renderLists = (filterText = "") => {
-            // Kosongkan bekas jika ia wujud dalam tab semasa
+            // 1. KOSONGKAN BEKAS
             if (pendingContainer) pendingContainer.innerHTML = '';
             if (approvedContainer) approvedContainer.innerHTML = '';
             
@@ -616,7 +597,7 @@ function monitorPendingUsers() {
             allUsers.forEach(u => {
                 const fullName = `${u.firstName || u.fullName || ''} ${u.lastName || ''}`.trim().toUpperCase();
                 
-                // 1. LOGIK TAB KEAHLIAN (Hanya tunjuk status 'pending')
+                // 2. LOGIK SEKSYEN KEAHLIAN (Sentiasa tunjuk semua yang 'pending')
                 if (u.status === 'pending') {
                     pendingCount++;
                     if (pendingContainer) {
@@ -636,7 +617,7 @@ function monitorPendingUsers() {
                     }
                 } 
                 
-                // 2. LOGIK TAB SENARAI PENGGUNA (Hanya tunjuk 'approved' + Tapisan Carian)
+                // 3. LOGIK SEKSYEN SENARAI PENGGUNA (Tunjuk 'approved' + Tapis ikut Carian)
                 else if (u.status === 'approved' && u.role !== 'admin') {
                     const matchesSearch = fullName.includes(filterText.toUpperCase());
                     
@@ -657,25 +638,23 @@ function monitorPendingUsers() {
                 }
             });
 
-            // Kemaskini Badge Notifikasi (Sentiasa tunjuk jumlah asal permohonan baru)
+            // 4. KEMASKINI NOTIFIKASI BADGE & DATA KOSONG
             if (badge) {
-                const totalPendingActual = allUsers.filter(x => x.status === 'pending').length;
-                if (totalPendingActual > 0) {
-                    badge.innerText = totalPendingActual;
-                    badge.classList.remove('hidden');
-                } else {
-                    badge.classList.add('hidden');
-                    if (pendingContainer) {
-                        pendingContainer.innerHTML = `<div class="py-10 text-center"><p class="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Tiada permohonan baru</p></div>`;
-                    }
-                }
+                badge.innerText = pendingCount;
+                badge.classList.toggle('hidden', pendingCount === 0);
+            }
+            if (pendingContainer && pendingCount === 0) {
+                pendingContainer.innerHTML = `<div class="py-10 text-center"><p class="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Tiada permohonan baru</p></div>`;
+            }
+            if (approvedContainer && approvedContainer.innerHTML === '' && filterText !== "") {
+                approvedContainer.innerHTML = `<div class="py-10 text-center"><p class="text-[10px] font-black text-slate-300 uppercase tracking-widest italic">Nama tidak ditemui</p></div>`;
             }
         };
 
-        // Jalankan render berdasarkan input carian jika ada
+        // Render awal
         renderLists(searchInput ? searchInput.value : "");
 
-        // Pasang listener carian jika elemen carian wujud (iaitu ketika di tab Senarai Pengguna)
+        // Pasang listener carian
         if (searchInput) {
             searchInput.oninput = (e) => renderLists(e.target.value);
         }
@@ -702,8 +681,12 @@ window.handleUserAction = async (uid, action, name) => {
     } catch (e) {
         alert("Ralat sistem: " + e.message);
     }
-};                 
-    
+};
+
+
+
+
+                   
     document.getElementById('btn-action').onclick = async () => {
     const email = document.getElementById('email').value.trim();
     const pass = document.getElementById('password').value;
