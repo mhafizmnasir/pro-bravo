@@ -13,7 +13,7 @@ export const firebaseConfig = {
     measurementId: "G-NLBKFXPZDJ"
 };
 
-export const googleCalendarApiKey = "AIzaSyCQ9SBXkEILe6PZdmLyGBSFK63XhPM_V7o";
+export const googleCalendarApiKey = "AIzaSyAcJ6nJ0sRcDb_cYG3RkMwBOZ_-1Hqz3XY";
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
