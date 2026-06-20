@@ -118,7 +118,69 @@ export async function showPage(p, targetMonth = new Date().getMonth(), targetYea
         document.getElementById('month-select').onchange = (e) => showPage('jadual-induk', e.target.value, document.getElementById('year-select').value);
         document.getElementById('year-select').onchange = (e) => showPage('jadual-induk', document.getElementById('month-select').value, e.target.value);
     } 
-    
+
+        } else if (p === 'overtime') {
+        cont.innerHTML = `
+            <div class="space-y-6 animate-fadeIn pb-10">
+                <div class="px-2">
+                    <h2 class="text-2xl font-black text-black uppercase italic tracking-tighter">Kerja Lebih Masa</h2>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Kiraan Elaun Tuntutan (OT)</p>
+                </div>
+
+                <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100">
+                    <div class="space-y-5">
+                        <div>
+                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2 px-1">Gaji Pokok (RM)</label>
+                            <input type="number" id="ot-gaji" placeholder="Contoh: 2350" class="w-full p-4 bg-slate-50 rounded-2xl text-[14px] font-black outline-none focus:ring-2 focus:ring-yellow-400 border-none">
+                        </div>
+
+                        <div>
+                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2 px-1">Jenis Hari</label>
+                            <select id="ot-jenis-hari" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold outline-none focus:ring-2 focus:ring-yellow-400 border-none uppercase appearance-none">
+                                <option value="biasa">Hari Kerja Biasa</option>
+                                <option value="rehat">Hari Rehat</option>
+                                <option value="cuti">Hari Cuti Umum</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2 px-1">Syif Kerja</label>
+                            <select id="ot-syif" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold outline-none focus:ring-2 focus:ring-yellow-400 border-none uppercase appearance-none">
+                                <option value="pagi">Kerja Pagi</option>
+                                <option value="petang">Kerja Petang</option>
+                                <option value="malam">Kerja Malam</option>
+                            </select>
+                        </div>
+
+                        <button onclick="kiraOT()" class="w-full bg-black text-yellow-400 text-[12px] font-black py-4 rounded-2xl uppercase tracking-widest mt-4 active:scale-95 transition-all shadow-lg">Kira Elaun OT</button>
+                    </div>
+                </div>
+
+                <!-- Paparan Keputusan -->
+                <div id="ot-result-box" class="hidden bg-yellow-400 p-6 rounded-[2.5rem] shadow-xl border border-yellow-500 relative overflow-hidden mt-6">
+                    <div class="relative z-10">
+                        <p class="text-[10px] font-black text-black uppercase tracking-widest mb-4 opacity-70">Keputusan Kiraan</p>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-4">
+                            <div class="bg-white/50 p-4 rounded-2xl">
+                                <p class="text-[9px] font-bold text-black uppercase tracking-widest mb-1">Kadar Sejam</p>
+                                <p id="ot-result-kadar" class="text-[14px] font-black text-black">RM 0.00</p>
+                            </div>
+                            <div class="bg-white/50 p-4 rounded-2xl">
+                                <p class="text-[9px] font-bold text-black uppercase tracking-widest mb-1">Jumlah Jam</p>
+                                <p id="ot-result-jam" class="text-[14px] font-black text-black">0 Jam</p>
+                            </div>
+                        </div>
+
+                        <div class="bg-black p-5 rounded-2xl text-center">
+                            <p class="text-[10px] font-black text-yellow-400 uppercase tracking-widest mb-1">Jumlah Tuntutan</p>
+                            <p id="ot-result-total" class="text-3xl font-black text-white tracking-tighter">RM 0.00</p>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+    }
+        
     else if (p === 'settings') {
         cont.innerHTML = `
             <div class="space-y-6 animate-fadeIn pb-10">
