@@ -113,6 +113,7 @@ if(sidebar) sidebar.onclick = (e) => { if (e.target === sidebar) closeMenu(); };
 const navMap = {
     'nav-welcome': () => { showPage('welcome'); closeMenu(); },
     'nav-calendar': () => { showPage('jadual-induk', new Date().getMonth(), new Date().getFullYear()); closeMenu(); },
+    'nav-overtime': () => { showPage('overtime'); closeMenu(); }, // Baris baru ditambah
     'nav-settings': () => { showPage('settings'); closeMenu(); },
     'admin-nav': () => { showAdminPage(); closeMenu(); },
     'admin-users-nav': () => { showUsersListPage(); closeMenu(); }
