@@ -118,6 +118,7 @@ export async function showPage(p, targetMonth = new Date().getMonth(), targetYea
        document.getElementById('month-select').onchange = (e) => showPage('jadual-induk', e.target.value, document.getElementById('year-select').value);
         document.getElementById('year-select').onchange = (e) => showPage('jadual-induk', document.getElementById('month-select').value, e.target.value);
     } 
+        
     else if (p === 'overtime') {
         cont.innerHTML = `
             <div class="space-y-6 animate-fadeIn pb-10">
