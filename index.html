@@ -208,6 +208,59 @@
     let JADUAL_2 = {};
     let START_ROW = {};
     let userData = null;
+
+// Pembolehubah cache untuk kurangkan panggilan API
+let cacheCutiGoogle = {};
+
+async function dapatkanCutiGoogle(tahun) {
+    // Jika data cuti untuk tahun tersebut sudah diambil, guna semula data tersebut
+    if (cacheCutiGoogle[tahun]) return cacheCutiGoogle[tahun];
+
+    // API Key ini diambil terus dari konfigurasi Firebase sedia ada anda
+    const apiKey = "AIzaSyCQ9SBXkEILe6PZdmLyGBSFK63XhPM_V7o"; 
+    
+    // ID Rasmi Kalendar Cuti Awam Malaysia daripada Google
+    const calendarId = encodeURIComponent("en.malaysia#holiday@group.v.calendar.google.com");
+    
+    // Hadkan tarikh carian kepada bermula 1 Jan hingga 31 Dis bagi tahun pilihan
+    const timeMin = new Date(tahun, 0, 1).toISOString();
+    const timeMax = new Date(tahun, 11, 31, 23, 59, 59).toISOString();
+    
+    const url = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events?key=${apiKey}&timeMin=${timeMin}&timeMax=${timeMax}&singleEvents=true&orderBy=startTime`;
+
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Google Calendar API tidak dapat diakses.");
+        
+        const data = await response.json();
+        let senaraiCuti = {};
+        
+        // Memformat tarikh dari API Google supaya sepadan dengan struktur jadual kita
+        data.items.forEach(item => {
+            if (item.start && item.start.date) {
+                const parts = item.start.date.split('-');
+                const hari = parseInt(parts[2]);
+                const bulan = parseInt(parts[1]) - 1; // Bulan JavaScript bermula dari 0
+                
+                const kunci = `${hari}-${bulan}`;
+                senaraiCuti[kunci] = item.summary; // Menyimpan nama cuti (cth: "Labour Day")
+            }
+        });
+        
+        // Tambahan Manual (Opsional): Oleh kerana Google memberikan cuti peringkat Kebangsaan, 
+        // anda boleh menyelitkan cuti tetap spesifik untuk Johor di sini jika perlu:
+        senaraiCuti['23-2'] = senaraiCuti['23-2'] || "Hari Keputeraan Sultan Johor";
+        
+        cacheCutiGoogle[tahun] = senaraiCuti;
+        return senaraiCuti;
+        
+    } catch (error) {
+        console.error("Ralat memuat turun cuti:", error);
+        return {}; // Jika ralat/tiada internet, pulangkan objek kosong supaya sistem tidak tergendala
+    }
+}
+
+                   
     let authMode = 'login';
 
     const CUTI_JOHOR = {
@@ -384,9 +437,12 @@ onAuthStateChanged(auth, async (user) => {
     const tahunSemasa = skrg.getFullYear();
     const years = [tahunSemasa - 1, tahunSemasa, tahunSemasa + 1, tahunSemasa + 2];
 
-    // Ambil nota dari Firebase (Sertakan targetYear dalam path supaya data tidak bertindih antar tahun)
+    // Ambil nota dari Firebase
     const notesSnap = await get(ref(db, `notes/${auth.currentUser.uid}/${targetYear}/${targetMonth}`));
     const userNotes = notesSnap.exists() ? notesSnap.val() : {};
+
+    // Panggil API Google Calendar sebelum melukis jadual
+    const cutiGoogle = await dapatkanCutiGoogle(targetYear);
 
     let html = `
         <div class="bg-white p-5 rounded-[2.5rem] mb-6 shadow-sm border border-slate-100 grid grid-cols-2 gap-4">
@@ -399,7 +455,7 @@ onAuthStateChanged(auth, async (user) => {
         </div>
         <div class="grid grid-cols-2 gap-4">`;
     
-    // Gunakan targetYear secara dinamik, bukan lagi kekal 2026
+    // Gunakan targetYear secara dinamik
     const daysInMonth = new Date(targetYear, parseInt(targetMonth) + 1, 0).getDate();
     
     for(let i=1; i<=daysInMonth; i++){
@@ -407,8 +463,10 @@ onAuthStateChanged(auth, async (user) => {
         let r = getDuty(d, userData.platoon);
         const adakahHariIni = (i === skrg.getDate() && targetMonth == skrg.getMonth() && targetYear == skrg.getFullYear());
         const teksNota = userNotes[i] || "";
+        
+        // Semak cuti dari hasil Google menggunakan format Hari-Bulan
         const kunciCuti = `${i}-${targetMonth}`;
-        const namaCuti = CUTI_JOHOR[kunciCuti] || "";
+        const namaCuti = cutiGoogle[kunciCuti] || "";
 
         html += `
             <div onclick="bukaModal(${i}, ${targetMonth}, ${targetYear}, \`${teksNota.replace(/"/g, '&quot;')}\`)" 
