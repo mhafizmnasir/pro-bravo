@@ -68,7 +68,7 @@ export async function showPage(p, targetMonth = new Date().getMonth(), targetYea
         const months = ["JANUARI", "FEBRUARI", "MAC", "APRIL", "MEI", "JUN", "JULAI", "OGOS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DISEMBER"];
         const skrg = new Date();
         const tahunSemasa = skrg.getFullYear();
-        const years = [tahunSemasa - 1, tahunSemasa, tahunSemasa + 1, tahunSemasa + 2];
+        const years = [tahunSemasa, tahunSemasa + 1, tahunSemasa + 2, tahunSemasa + 3];
 
         const notesSnap = await get(ref(db, `notes/${auth.currentUser.uid}/${targetYear}/${targetMonth}`));
         const userNotes = notesSnap.exists() ? notesSnap.val() : {};
