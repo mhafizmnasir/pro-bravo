@@ -3,96 +3,93 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-     <title>BRAVORIANS - BSI</title>
+    <title>BRAVORIANS - BSI</title>
     <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
     <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
     <link rel="manifest" href="site.webmanifest">
     <script src="https://cdn.tailwindcss.com"></script>    
     <style>          
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-    body { 
-        font-family: 'Plus Jakarta Sans', sans-serif; 
-        -webkit-tap-highlight-color: transparent;
-        background-color: #f8fafc;
-    }
-    #loading-overlay {
-        position: fixed;
-        inset: 0;
-        background-color: white;
-        z-index: 999;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        transition: opacity 0.6s ease, visibility 0.6s ease;
-        opacity: 1;
-        visibility: visible;
-    }
-    #loading-overlay.fade-out {
-        opacity: 0;
-        visibility: hidden;
-    }
-    .bg-bravorian-gold { background-color: #facc15; }
-    .text-bravorian-gold { color: #facc15; }
-    .border-bravorian-black { border-color: #000000; }
-    .bg-bravorian-black { background-color: #000000; }
-    .mobile-menu { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-    .mobile-menu.closed { transform: translateX(-100%); }
-    .note-preview {
-        pointer-events: none;
-    }
-</style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            -webkit-tap-highlight-color: transparent;
+            background-color: #f8fafc;
+        }
+        #loading-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: white;
+            z-index: 999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.6s ease, visibility 0.6s ease;
+            opacity: 1;
+            visibility: visible;
+        }
+        #loading-overlay.fade-out {
+            opacity: 0;
+            visibility: hidden;
+        }
+        .bg-bravorian-gold { background-color: #facc15; }
+        .text-bravorian-gold { color: #facc15; }
+        .border-bravorian-black { border-color: #000000; }
+        .bg-bravorian-black { background-color: #000000; }
+        .mobile-menu { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .mobile-menu.closed { transform: translateX(-100%); }
+        .note-preview { pointer-events: none; }
+    </style>
 </head>
 <body class="min-h-screen text-slate-900">
     <div id="loading-overlay" class="fixed inset-0 bg-white z-[100] flex flex-col items-center justify-center">
         <div class="w-12 h-12 border-4 border-yellow-400 border-t-black rounded-full animate-spin"></div>
     </div>
-        <div id="auth-section" class="hidden flex items-center justify-center min-h-screen p-6">
-    <div class="bg-white p-10 rounded-[3rem] shadow-2xl w-full max-w-md border border-slate-100 text-center relative overflow-hidden">
-        <div class="absolute top-0 left-0 w-full h-2 bg-bravorian-gold"></div>
-        
-        <h1 id="auth-title" class="text-4xl font-black text-black uppercase italic mb-2 tracking-tighter">BRAVORIANS</h1>
-        <p id="auth-subtitle" class="text-[11px] font-bold text-slate-400 uppercase mb-10 tracking-[0.4em]">B.S.I JOHOR BAHRU</p>
-        
-        <div id="register-fields" class="hidden space-y-4 mb-4 text-left">
-    <div class="flex gap-3">
-        <input type="text" id="reg-firstname" placeholder="FIRST NAME" class="w-1/2 p-5 bg-slate-50 border-none rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400">
-        <input type="text" id="reg-lastname" placeholder="LAST NAME" class="w-1/2 p-5 bg-slate-50 border-none rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400">
-    </div>
-    <select id="reg-platoon" class="w-full p-5 bg-slate-50 border-none rounded-2xl text-[12px] font-bold outline-none focus:ring-2 focus:ring-yellow-400 uppercase"></select>
-</div>
-
-<div id="login-fields" class="space-y-4">
-    <input type="email" id="email" placeholder="EMEL" class="w-full p-5 bg-slate-50 border-none rounded-2xl text-[12px] font-bold outline-none focus:ring-2 focus:ring-yellow-400">
     
-    <div class="relative">
-        <input type="password" id="password" placeholder="KATA LALUAN" class="w-full p-5 bg-slate-50 border-none rounded-2xl text-[12px] font-bold outline-none focus:ring-2 focus:ring-yellow-400">
-        <button type="button" id="toggle-password-btn" class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-black">
-            <svg id="eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path id="eye-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-            </svg>
-        </button>
-    </div>
-</div>
+    <div id="auth-section" class="hidden flex items-center justify-center min-h-screen p-6">
+        <div class="bg-white p-10 rounded-[3rem] shadow-2xl w-full max-w-md border border-slate-100 text-center relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-2 bg-bravorian-gold"></div>
+            
+            <h1 id="auth-title" class="text-4xl font-black text-black uppercase italic mb-2 tracking-tighter">BRAVORIANS</h1>
+            <p id="auth-subtitle" class="text-[11px] font-bold text-slate-400 uppercase mb-10 tracking-[0.4em]">B.S.I JOHOR BAHRU</p>
+            
+            <div id="register-fields" class="hidden space-y-4 mb-4 text-left">
+                <div class="flex gap-3">
+                    <input type="text" id="reg-firstname" placeholder="FIRST NAME" class="w-1/2 p-5 bg-slate-50 border-none rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400">
+                    <input type="text" id="reg-lastname" placeholder="LAST NAME" class="w-1/2 p-5 bg-slate-50 border-none rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400">
+                </div>
+                <select id="reg-platoon" class="w-full p-5 bg-slate-50 border-none rounded-2xl text-[12px] font-bold outline-none focus:ring-2 focus:ring-yellow-400 uppercase"></select>
+            </div>
 
-        <div id="forgot-fields" class="hidden space-y-4 mb-4">
-            <p class="text-[10px] text-slate-500 font-bold uppercase mb-4 text-center">Sila masukkan emel anda untuk menerima pautan tetapan semula kata laluan.</p>
-            <input type="email" id="forgot-email" placeholder="EMEL BERDAFTAR" class="w-full p-5 bg-slate-50 border-none rounded-2xl text-[12px] font-bold outline-none focus:ring-2 focus:ring-yellow-400">
+            <div id="login-fields" class="space-y-4">
+                <input type="email" id="email" placeholder="EMEL" class="w-full p-5 bg-slate-50 border-none rounded-2xl text-[12px] font-bold outline-none focus:ring-2 focus:ring-yellow-400">
+                <div class="relative">
+                    <input type="password" id="password" placeholder="KATA LALUAN" class="w-full p-5 bg-slate-50 border-none rounded-2xl text-[12px] font-bold outline-none focus:ring-2 focus:ring-yellow-400">
+                    <button type="button" id="toggle-password-btn" class="absolute right-5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-black">
+                        <svg id="eye-icon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path id="eye-path" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <div id="forgot-fields" class="hidden space-y-4 mb-4">
+                <p class="text-[10px] text-slate-500 font-bold uppercase mb-4 text-center">Sila masukkan emel anda untuk menerima pautan tetapan semula kata laluan.</p>
+                <input type="email" id="forgot-email" placeholder="EMEL BERDAFTAR" class="w-full p-5 bg-slate-50 border-none rounded-2xl text-[12px] font-bold outline-none focus:ring-2 focus:ring-yellow-400">
+            </div>
+
+            <button id="btn-action" class="w-full bg-black text-yellow-400 font-black py-5 rounded-2xl mt-8 uppercase text-[12px] tracking-widest shadow-xl active:scale-95 transition-all">Log Masuk</button>
+            
+            <div class="mt-8 flex flex-col gap-4">
+                <button id="auth-toggle-btn" class="text-[10px] text-black font-black uppercase tracking-widest border-b-2 border-yellow-400 inline-block pb-1 w-max mx-auto">Daftar Akaun Baru</button>
+                <button id="forgot-toggle-btn" class="text-[10px] text-slate-400 font-bold uppercase tracking-widest hover:text-black transition-colors">Lupa Kata Laluan?</button>
+            </div>
         </div>
-
-        <button id="btn-action" class="w-full bg-black text-yellow-400 font-black py-5 rounded-2xl mt-8 uppercase text-[12px] tracking-widest shadow-xl active:scale-95 transition-all">Log Masuk</button>
-        
-        <div class="mt-8 flex flex-col gap-4">
-    <button id="auth-toggle-btn" class="text-[10px] text-black font-black uppercase tracking-widest border-b-2 border-yellow-400 inline-block pb-1 w-max mx-auto">Daftar Akaun Baru</button>
-    
-    <button id="forgot-toggle-btn" class="text-[10px] text-slate-400 font-bold uppercase tracking-widest hover:text-black transition-colors">Lupa Kata Laluan?</button>
-</div>
     </div>
-</div>
 
-            <div id="main-dashboard" class="hidden">
+    <div id="main-dashboard" class="hidden">
         <nav class="bg-white/90 backdrop-blur-lg border-b border-slate-100 p-5 sticky top-0 z-50 flex justify-between items-center px-8">
             <div class="flex items-center gap-4">
                 <button id="menu-open" class="p-3 text-black bg-yellow-400 rounded-2xl shadow-sm">
@@ -106,86 +103,73 @@
             <button id="btn-logout" class="bg-slate-100 text-slate-600 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest">Keluar</button>
         </nav>
 
-    <div id="mobile-sidebar" class="fixed inset-0 bg-black/40 z-[60] hidden backdrop-blur-sm">
-    <div id="sidebar-container" class="mobile-menu closed bg-white w-80 h-full p-10 flex flex-col shadow-2xl">
-        
-        <div class="mb-10 flex justify-between items-center">
-            <h2 class="text-[11px] font-black text-black uppercase opacity-30 tracking-[0.3em]">Menu Utama</h2>
-            <button id="menu-close" class="p-2 text-slate-400 hover:text-black transition-colors text-lg">✕</button>
+        <div id="mobile-sidebar" class="fixed inset-0 bg-black/40 z-[60] hidden backdrop-blur-sm">
+            <div id="sidebar-container" class="mobile-menu closed bg-white w-80 h-full p-10 flex flex-col shadow-2xl">
+                <div class="mb-10 flex justify-between items-center">
+                    <h2 class="text-[11px] font-black text-black uppercase opacity-30 tracking-[0.3em]">Menu Utama</h2>
+                    <button id="menu-close" class="p-2 text-slate-400 hover:text-black transition-colors text-lg">✕</button>
+                </div>
+
+                <div class="flex flex-col gap-3 font-black text-[13px] uppercase tracking-widest text-slate-400">
+                    <button id="nav-welcome" class="flex items-center gap-4 w-full text-left p-5 hover:bg-yellow-50 rounded-2xl transition-all text-black border-l-4 border-yellow-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                        <span>Utama</span>
+                    </button>
+                    <button id="nav-calendar" class="flex items-center gap-4 w-full text-left p-5 hover:bg-yellow-50 rounded-2xl transition-all text-black border-l-4 border-yellow-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <span>Kalendar Syif</span>
+                    </button>
+                    <button id="nav-settings" class="flex items-center gap-4 w-full text-left p-5 hover:bg-yellow-50 rounded-2xl transition-all text-black border-l-4 border-yellow-400">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        <span>Tetapan</span>
+                    </button>
+                </div>
+
+                <div id="admin-section" class="mt-10 hidden border-t border-slate-50 pt-10">
+                    <h2 class="text-[11px] font-black text-black uppercase opacity-30 tracking-[0.3em] mb-6 px-2">Admin Panel</h2>
+                    <div class="flex flex-col gap-3 font-black text-[13px] uppercase tracking-widest">
+                        <button id="admin-nav" class="hidden flex items-center justify-between w-full p-5 hover:bg-yellow-50 rounded-2xl transition-all text-black border-l-4 border-yellow-400">
+                            <div class="flex items-center gap-4">
+                                <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                                <span>Permohonan Baru</span>
+                            </div>
+                            <span id="pending-count" class="hidden bg-yellow-400 text-black text-[10px] px-2 py-1 rounded-full font-black min-w-[20px] text-center">0</span>
+                        </button>
+                        <button id="admin-users-nav" class="flex items-center gap-4 w-full text-left p-5 hover:bg-yellow-50 rounded-2xl transition-all text-black border-l-4 border-yellow-400">
+                            <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                            <span>Senarai Pengguna</span>
+                        </button>
+                    </div>
+                </div>
+            </div> 
         </div>
-
-        <div class="flex flex-col gap-3 font-black text-[13px] uppercase tracking-widest text-slate-400">
-            <button id="nav-welcome" class="flex items-center gap-4 w-full text-left p-5 hover:bg-yellow-50 rounded-2xl transition-all text-black border-l-4 border-yellow-400">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
-                </svg>
-                <span>Utama</span>
-            </button>
-
-            <button id="nav-calendar" class="flex items-center gap-4 w-full text-left p-5 hover:bg-yellow-50 rounded-2xl transition-all text-black border-l-4 border-yellow-400">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                </svg>
-                <span>Kalendar Syif</span>
-            </button>
-
-            <button id="nav-settings" class="flex items-center gap-4 w-full text-left p-5 hover:bg-yellow-50 rounded-2xl transition-all text-black border-l-4 border-yellow-400">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                </svg>
-                <span>Tetapan</span>
-            </button>
-        </div>
-
-      <div id="admin-section" class="mt-10 hidden border-t border-slate-50 pt-10">
-    <h2 class="text-[11px] font-black text-black uppercase opacity-30 tracking-[0.3em] mb-6 px-2">Admin Panel</h2>
-    <div class="flex flex-col gap-3 font-black text-[13px] uppercase tracking-widest">
-        
-        <button id="admin-nav" class="hidden flex items-center justify-between w-full p-5 hover:bg-yellow-50 rounded-2xl transition-all text-black border-l-4 border-yellow-400">
-            <div class="flex items-center gap-4">
-                <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                </svg>
-                <span>Permohonan Baru</span>
-            </div>
-            <span id="pending-count" class="hidden bg-yellow-400 text-black text-[10px] px-2 py-1 rounded-full font-black min-w-[20px] text-center">0</span>
-        </button>
-
-        <button id="admin-users-nav" class="flex items-center gap-4 w-full text-left p-5 hover:bg-yellow-50 rounded-2xl transition-all text-black border-l-4 border-yellow-400">
-            <svg class="w-5 h-5 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
-            </svg>
-            <span>Senarai Pengguna</span>
-        </button>
-
-    </div>
-</div>
-
-    </div> 
-</div>
 
         <main class="max-w-4xl mx-auto p-6 md:p-12">
             <div id="dynamic-content" class="space-y-8"></div>
+            
             <div id="note-modal" class="fixed inset-0 bg-black/60 z-[100] hidden backdrop-blur-sm flex items-center justify-center p-6">
-    <div class="bg-white w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl transform transition-all">
-        <div class="bg-black p-6 flex justify-between items-center">
-            <h3 id="modal-title" class="text-yellow-400 font-black uppercase text-[12px] tracking-widest">Nota Peribadi</h3>
-            <button onclick="tutupModal()" class="text-white/50 hover:text-white">✕</button>
-        </div>
-        <div class="p-8">
-            <textarea id="note-input" rows="4" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-[13px] font-bold outline-none focus:ring-2 focus:ring-yellow-400 placeholder:text-slate-300" placeholder="Tulis sesuatu di sini..."></textarea>
-            <div class="grid grid-cols-2 gap-3 mt-6">
-                <button id="btn-delete-note" class="bg-red-50 text-red-500 font-black py-4 rounded-2xl uppercase text-[10px] tracking-widest">Hapus</button>
-                <button id="btn-save-note" class="bg-black text-yellow-400 font-black py-4 rounded-2xl uppercase text-[10px] tracking-widest">Simpan</button>
+                <div class="bg-white w-full max-w-sm rounded-[2.5rem] overflow-hidden shadow-2xl transform transition-all">
+                    <div class="bg-black p-6 flex justify-between items-center">
+                        <h3 id="modal-title" class="text-yellow-400 font-black uppercase text-[12px] tracking-widest">Nota Peribadi</h3>
+                        <button onclick="tutupModal()" class="text-white/50 hover:text-white">✕</button>
+                    </div>
+                    <div class="p-8">
+                        <textarea id="note-input" rows="4" class="w-full p-4 bg-slate-50 border-none rounded-2xl text-[13px] font-bold outline-none focus:ring-2 focus:ring-yellow-400 placeholder:text-slate-300" placeholder="Tulis sesuatu di sini..."></textarea>
+                        <div class="grid grid-cols-2 gap-3 mt-6">
+                            <button id="btn-delete-note" class="bg-red-50 text-red-500 font-black py-4 rounded-2xl uppercase text-[10px] tracking-widest">Hapus</button>
+                            <button id="btn-save-note" class="bg-black text-yellow-400 font-black py-4 rounded-2xl uppercase text-[10px] tracking-widest">Simpan</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-        </div>
-    </div>
-            </div>
-           
         </main>
-            </div>
-               <script type="module" src="js/app.js"></script>
+    </div>
+    
+    <div id="toast" class="fixed bottom-10 left-1/2 -translate-x-1/2 bg-black text-white px-6 py-4 rounded-2xl text-[12px] font-bold shadow-2xl opacity-0 pointer-events-none transition-all duration-300 z-[200]">
+        <span id="toast-msg"></span>
+    </div>
+
+    <script type="module" src="js/app.js"></script>
 
 </body>
 </html>
