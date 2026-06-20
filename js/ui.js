@@ -70,8 +70,20 @@ export async function showPage(p, targetMonth = new Date().getMonth(), targetYea
         const tahunSemasa = skrg.getFullYear();
         const years = [tahunSemasa, tahunSemasa + 1, tahunSemasa + 2, tahunSemasa + 3];
 
-        const notesSnap = await get(ref(db, `notes/${auth.currentUser.uid}/${targetYear}/${targetMonth}`));
-        const userNotes = notesSnap.exists() ? notesSnap.val() : {};
+        let notesSnap = await get(ref(db, `notes/${auth.currentUser.uid}/${targetYear}/${targetMonth}`));
+        let userNotes = notesSnap.exists() ? notesSnap.val() : null;
+
+        // 2. Jika tiada, cari di struktur lama (Tanpa Tahun) - Keserasian data lama HANYA untuk tahun 2026
+        if (!userNotes && targetYear == 2026) {
+            let oldNotesSnap = await get(ref(db, `notes/${auth.currentUser.uid}/${targetMonth}`));
+            userNotes = oldNotesSnap.exists() ? oldNotesSnap.val() : null;
+        }
+
+        // 3. Pastikan userNotes menjadi objek kosong jika masih tiada sebarang data
+        if (!userNotes) {
+            userNotes = {};
+        }
+        
         const cutiGoogle = await dapatkanCutiGoogle(targetYear);
 
         let html = `
