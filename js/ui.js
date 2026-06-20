@@ -417,33 +417,59 @@ window.kiraOT = function() {
     const jenisHari = document.getElementById('ot-jenis-hari').value;
     const syif = document.getElementById('ot-syif').value;
 
-    let rate = 0;
-    let jam = (syif === 'malam') ? 8 : 7; // Pagi/Petang = 7 jam, Malam = 8 jam
+    // 1. Tetapkan multiplier (rate) berdasarkan pilihan jenis hari
+    let rateSiang = 0;
+    let rateMalam = 0;
 
-    // 1. Dapatkan multiplier (rate) berdasarkan pilihan pengguna
     if (jenisHari === 'biasa') {
-        rate = (syif === 'malam') ? 1.25 : 1.125;
+        rateSiang = 1.125; 
+        rateMalam = 1.25;
     } else if (jenisHari === 'rehat') {
-        rate = (syif === 'malam') ? 1.5 : 1.25;
+        rateSiang = 1.25; 
+        rateMalam = 1.5;
     } else if (jenisHari === 'cuti') {
-        rate = (syif === 'malam') ? 2.0 : 1.75;
+        rateSiang = 1.75; 
+        rateMalam = 2.0;
     }
 
-    // 2. Kira Kadar Sejam Asas
+    // 2. Pecahan jam mengikut definisi Siang (0600-2200) dan Malam (2200-0600)
+    let jamSiang = 0;
+    let jamMalam = 0;
+
+    if (syif === 'pagi') {
+        // 08:00 - 15:00
+        jamSiang = 7;
+        jamMalam = 0;
+    } else if (syif === 'petang') {
+        // 15:00 - 23:00 (15:00-22:00 Siang, 22:00-23:00 Malam)
+        jamSiang = 7;
+        jamMalam = 1;
+    } else if (syif === 'malam') {
+        // 23:00 - 08:00 (06:00-08:00 Siang, 23:00-06:00 Malam)
+        jamSiang = 2;
+        jamMalam = 7;
+    }
+
+    const jumlahJam = jamSiang + jamMalam;
+
+    // 3. Kira Kadar Sejam Asas
     // Formula: (Gaji * 12) / 2504
     const kadarSejamAsas = (gajiPokok * 12) / 2504;
     
-    // 3. Bundarkan Kadar Sejam Asas kepada 2 titik perpuluhan (seperti contoh anda: 11.26)
-    const kadarSejamBundar = Math.round(kadarSejamAsas * 100) / 100; 
+    // 4. Sistem "Pemotongan" Perpuluhan (Contoh: 14.556 -> 14.55)
+    // Math.floor membundarkan ke bawah dengan mutlak
+    const kadarSejamBundar = Math.floor(kadarSejamAsas * 100) / 100; 
 
-    // 4. Pengiraan Akhir: RM11.26 * 1.25 * 7 jam = RM98.53 (jika Hari Rehat, Pagi/Petang)
-    const totalOT = kadarSejamBundar * rate * jam;
+    // 5. Pengiraan Akhir: Asingkan kiraan rate siang dan malam
+    const totalOTSiang = kadarSejamBundar * rateSiang * jamSiang;
+    const totalOTMalam = kadarSejamBundar * rateMalam * jamMalam;
+    const totalOT = totalOTSiang + totalOTMalam;
 
-    // 5. Paparkan hasil ke skrin
+    // 6. Paparkan hasil ke skrin
     document.getElementById('ot-result-kadar').innerText = "RM " + kadarSejamBundar.toFixed(2);
-    document.getElementById('ot-result-jam').innerText = jam + " Jam";
+    document.getElementById('ot-result-jam').innerText = jumlahJam + " Jam";
     document.getElementById('ot-result-total').innerText = "RM " + totalOT.toFixed(2);
     
-    // Munculkan kotak keputusan (buang tag 'hidden')
+    // Munculkan kotak keputusan
     document.getElementById('ot-result-box').classList.remove('hidden');
 };
