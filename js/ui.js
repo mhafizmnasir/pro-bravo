@@ -63,8 +63,8 @@ export async function showPage(p, targetMonth = new Date().getMonth(), targetYea
                 </div>
             </div>`;
     } 
-    
-    else if (p === 'jadual-induk') {
+        
+  else if (p === 'jadual-induk') {
         const months = ["JANUARI", "FEBRUARI", "MAC", "APRIL", "MEI", "JUN", "JULAI", "OGOS", "SEPTEMBER", "OKTOBER", "NOVEMBER", "DISEMBER"];
         const skrg = new Date();
         const tahunSemasa = skrg.getFullYear();
@@ -83,7 +83,7 @@ export async function showPage(p, targetMonth = new Date().getMonth(), targetYea
         if (!userNotes) {
             userNotes = {};
         }
-        
+
         const cutiGoogle = await dapatkanCutiGoogle(targetYear);
 
         let html = `
@@ -100,99 +100,41 @@ export async function showPage(p, targetMonth = new Date().getMonth(), targetYea
         const daysInMonth = new Date(targetYear, parseInt(targetMonth) + 1, 0).getDate();
         
         for(let i=1; i<=daysInMonth; i++){
-            let d = new Date(targetYear, targetMonth, i);
-            let r = getDuty(d, userData.platoon);
-            const adakahHariIni = (i === skrg.getDate() && targetMonth == skrg.getMonth() && targetYear == skrg.getFullYear());
-            const teksNota = userNotes[i] || "";
-            const kunciCuti = `${i}-${targetMonth}`;
-            const namaCuti = cutiGoogle[kunciCuti] || "";
+    let d = new Date(targetYear, targetMonth, i);
+    let r = getDuty(d, userData.platoon);
+    const adakahHariIni = (i === skrg.getDate() && targetMonth == skrg.getMonth() && targetYear == skrg.getFullYear());
+    
+    const teksNota = userNotes[i] || "";
+    // BUKAN LAGI replace, kita gunakan encodeURIComponent untuk keselamatan 100%
+    const notaEncoded = teksNota ? encodeURIComponent(teksNota).replace(/'/g, "%27") : "";
+    
+    const kunciCuti = `${i}-${targetMonth}`;
+    const namaCuti = cutiGoogle[kunciCuti] || "";
 
-            html += `
-                <div onclick="bukaModal(${i}, ${targetMonth}, ${targetYear}, \`${teksNota.replace(/"/g, '&quot;')}\`)" 
-                     class="relative p-5 rounded-[2rem] border flex flex-col min-h-[130px] active:scale-95 transition-all cursor-pointer overflow-hidden ${r.off ? 'bg-slate-50' : 'bg-white shadow-sm'} ${adakahHariIni ? 'ring-4 ring-yellow-400 z-10 scale-[1.02]' : 'border-slate-100'}">
-                    ${adakahHariIni ? `<div class="absolute top-0 left-1/2 -translate-x-1/2 bg-yellow-400 px-3 py-1 rounded-b-xl z-20 animate-bounce"><p class="text-[7px] font-black text-black leading-none">HARI INI</p></div>` : ''}
-                    <div class="flex justify-between items-start mb-1 relative z-10">
-                        <div>
-                            <p class="text-[10px] font-black ${adakahHariIni ? 'text-black' : 'text-slate-400'} uppercase">${d.toLocaleDateString('ms-MY',{weekday:'short', day:'2-digit'})}</p>
-                            ${namaCuti ? `<p class="text-[7px] font-extrabold text-red-500 uppercase leading-tight mt-0.5">${namaCuti}</p>` : ''}
-                        </div>
-                        <div class="p-1">${teksNota ? '<span class="flex h-2 w-2 bg-yellow-400 rounded-full animate-pulse"></span>' : `<svg class="w-3 h-3 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>`}</div>
-                    </div>
-                    <div class="relative z-10 mt-auto">
-                        <p class="text-[12px] font-black ${adakahHariIni ? 'text-black' : 'text-slate-700'} uppercase">${r.off ? 'OFF' : r.shift}</p>
-                        <p class="text-[9px] font-black text-yellow-500 uppercase tracking-tighter">${r.off ? '' : r.loc}</p>
-                    </div>
-                    ${teksNota ? `<div class="mt-2 pt-2 border-t border-dashed border-slate-100 note-preview relative z-10"><p class="text-[9px] font-bold text-slate-400 italic line-clamp-2 leading-tight">${teksNota}</p></div>` : ''}
-                </div>`;
-        }
+    html += `
+        <div onclick="bukaModal(${i}, ${targetMonth}, ${targetYear}, '${notaEncoded}')" 
+             class="relative p-5 rounded-[2rem] border flex flex-col min-h-[130px] active:scale-95 transition-all cursor-pointer overflow-hidden ${r.off ? 'bg-slate-50' : 'bg-white shadow-sm'} ${adakahHariIni ? 'ring-4 ring-yellow-400 z-10 scale-[1.02]' : 'border-slate-100'}">
+            ${adakahHariIni ? `<div class="absolute top-0 left-1/2 -translate-x-1/2 bg-yellow-400 px-3 py-1 rounded-b-xl z-20 animate-bounce"><p class="text-[7px] font-black text-black leading-none">HARI INI</p></div>` : ''}
+            <div class="flex justify-between items-start mb-1 relative z-10">
+                <div>
+                    <p class="text-[10px] font-black ${adakahHariIni ? 'text-black' : 'text-slate-400'} uppercase">${d.toLocaleDateString('ms-MY',{weekday:'short', day:'2-digit'})}</p>
+                    ${namaCuti ? `<p class="text-[7px] font-extrabold text-red-500 uppercase leading-tight mt-0.5">${namaCuti}</p>` : ''}
+                </div>
+                <div class="p-1">${teksNota ? '<span class="flex h-2 w-2 bg-yellow-400 rounded-full animate-pulse"></span>' : `<svg class="w-3 h-3 text-slate-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>`}</div>
+            </div>
+            <div class="relative z-10 mt-auto">
+                <p class="text-[12px] font-black ${adakahHariIni ? 'text-black' : 'text-slate-700'} uppercase">${r.off ? 'OFF' : r.shift}</p>
+                <p class="text-[9px] font-black text-yellow-500 uppercase tracking-tighter">${r.off ? '' : r.loc}</p>
+            </div>
+            ${teksNota ? `<div class="mt-2 pt-2 border-t border-dashed border-slate-100 note-preview relative z-10"><p class="text-[9px] font-bold text-slate-400 italic line-clamp-2 leading-tight">${teksNota.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</p></div>` : ''}
+        </div>`;
+}
         cont.innerHTML = html + '</div>';
 
-       document.getElementById('month-select').onchange = (e) => showPage('jadual-induk', e.target.value, document.getElementById('year-select').value);
+        document.getElementById('month-select').onchange = (e) => showPage('jadual-induk', e.target.value, document.getElementById('year-select').value);
         document.getElementById('year-select').onchange = (e) => showPage('jadual-induk', document.getElementById('month-select').value, e.target.value);
     } 
-        
-    else if (p === 'overtime') {
-        cont.innerHTML = `
-            <div class="space-y-6 animate-fadeIn pb-10">
-                <div class="px-2">
-                    <h2 class="text-2xl font-black text-black uppercase italic tracking-tighter">Kerja Lebih Masa</h2>
-                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Kiraan Elaun Tuntutan (OT)</p>
-                </div>
-
-                <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100">
-                    <div class="space-y-5">
-                        <div>
-                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2 px-1">Gaji Pokok (RM)</label>
-                            <input type="number" id="ot-gaji" placeholder="Contoh: 2350" class="w-full p-4 bg-slate-50 rounded-2xl text-[14px] font-black outline-none focus:ring-2 focus:ring-yellow-400 border-none">
-                        </div>
-
-                        <div>
-                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2 px-1">Jenis Hari</label>
-                            <select id="ot-jenis-hari" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold outline-none focus:ring-2 focus:ring-yellow-400 border-none uppercase appearance-none">
-                                <option value="biasa">Hari Kerja Biasa</option>
-                                <option value="rehat">Hari Rehat</option>
-                                <option value="cuti">Hari Cuti Umum</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest block mb-2 px-1">Syif Kerja</label>
-                            <select id="ot-syif" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold outline-none focus:ring-2 focus:ring-yellow-400 border-none uppercase appearance-none">
-                                <option value="pagi">Kerja Pagi</option>
-                                <option value="petang">Kerja Petang</option>
-                                <option value="malam">Kerja Malam</option>
-                            </select>
-                        </div>
-
-                        <button onclick="kiraOT()" class="w-full bg-black text-yellow-400 text-[12px] font-black py-4 rounded-2xl uppercase tracking-widest mt-4 active:scale-95 transition-all shadow-lg">Kira Elaun OT</button>
-                    </div>
-                </div>
-
-                <!-- Paparan Keputusan -->
-                <div id="ot-result-box" class="hidden bg-yellow-400 p-6 rounded-[2.5rem] shadow-xl border border-yellow-500 relative overflow-hidden mt-6">
-                    <div class="relative z-10">
-                        <p class="text-[10px] font-black text-black uppercase tracking-widest mb-4 opacity-70">Keputusan Kiraan</p>
-                        
-                        <div class="grid grid-cols-2 gap-4 mb-4">
-                            <div class="bg-white/50 p-4 rounded-2xl">
-                                <p class="text-[9px] font-bold text-black uppercase tracking-widest mb-1">Kadar Sejam</p>
-                                <p id="ot-result-kadar" class="text-[14px] font-black text-black">RM 0.00</p>
-                            </div>
-                            <div class="bg-white/50 p-4 rounded-2xl">
-                                <p class="text-[9px] font-bold text-black uppercase tracking-widest mb-1">Jumlah Jam</p>
-                                <p id="ot-result-jam" class="text-[14px] font-black text-black">0 Jam</p>
-                            </div>
-                        </div>
-
-                        <div class="bg-black p-5 rounded-2xl text-center">
-                            <p class="text-[10px] font-black text-yellow-400 uppercase tracking-widest mb-1">Jumlah Tuntutan</p>
-                            <p id="ot-result-total" class="text-3xl font-black text-white tracking-tighter">RM 0.00</p>
-                        </div>
-                    </div>
-                </div>
-            </div>`;
-    }
-        
+    
     else if (p === 'settings') {
         cont.innerHTML = `
             <div class="space-y-6 animate-fadeIn pb-10">
@@ -374,10 +316,13 @@ window.deleteUser = async (uid, name) => {
     } catch (e) { alert("Ralat: " + e.message); }
 };
 
-window.bukaModal = function(hari, bulan, tahun, teks) {
+window.bukaModal = function(hari, bulan, tahun, teksEncoded) {
     currentEditingData = { hari, bulan, tahun };
     document.getElementById('modal-title').innerText = `NOTA: ${hari}/${parseInt(bulan) + 1}/${tahun}`;
-    document.getElementById('note-input').value = teks;
+    
+    // Proses nyahkod. Jika undefined/null, kosongkan.
+    document.getElementById('note-input').value = teksEncoded ? decodeURIComponent(teksEncoded) : "";
+    
     document.getElementById('note-modal').classList.remove('hidden');
     document.getElementById('note-input').focus();
 };
@@ -388,17 +333,16 @@ document.getElementById('btn-save-note').onclick = async () => {
     const teks = document.getElementById('note-input').value.trim();
     if (!currentEditingData) return;
     await set(ref(db, `notes/${auth.currentUser.uid}/${currentEditingData.tahun}/${currentEditingData.bulan}/${currentEditingData.hari}`), teks || null);
-    tutupModal();
+    window.tutupModal(); // <--- WAJIB MENGGUNAKAN window.
     showPage('jadual-induk', currentEditingData.bulan, currentEditingData.tahun);
 };
 
 document.getElementById('btn-delete-note').onclick = async () => {
     if (!currentEditingData || !confirm("Hapus nota ini?")) return;
     await set(ref(db, `notes/${auth.currentUser.uid}/${currentEditingData.tahun}/${currentEditingData.bulan}/${currentEditingData.hari}`), null);
-    tutupModal();
+    window.tutupModal(); // <--- WAJIB MENGGUNAKAN window.
     showPage('jadual-induk', currentEditingData.bulan, currentEditingData.tahun);
 };
-
 window.togglePass = (id, btn) => {
     const input = document.getElementById(id);
     const isPass = input.type === 'password';
