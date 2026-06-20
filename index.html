@@ -263,28 +263,6 @@ async function dapatkanCutiGoogle(tahun) {
                    
     let authMode = 'login';
 
-    const CUTI_JOHOR = {
-        "1-0": "Cuti Sekolah", "2-0": "Cuti Sekolah", "3-0": "Cuti Sekolah", "4-0": "Cuti Sekolah", "5-0": "Cuti Sekolah",
-        "6-0": "Cuti Sekolah", "7-0": "Cuti Sekolah", "8-0": "Cuti Sekolah", "9-0": "Cuti Sekolah", "10-0": "Cuti Sekolah",
-        "11-0": "Cuti Sekolah", "1-1": "Thaipusam", "17-1": "Tahun Baru Cina", "18-1": "Tahun Baru Cina (Hari Ke-2)",
-        "19-1": "Awal Ramadan", "21-2": "Hari Raya Aidilfitri & Cuti Sekolah", "22-2": "Hari Raya Aidilfitri (Hari Ke-2)* & Cuti Sekolah",
-        "23-2": "Cuti Sekolah", "24-2": "Hari Keputeraan Sultan Johor & Cuti Sekolah", "25-2": "Cuti Sekolah", 
-        "26-2": "Cuti Sekolah", "27-2": "Cuti Sekolah", "28-2": "Cuti Sekolah", "29-2": "Cuti Sekolah", "1-4": "Hari Pekerja",
-        "23-4": "Cuti Sekolah", "24-4": "Cuti Sekolah", "25-4": "Cuti Sekolah", "26-4": "Cuti Sekolah", 
-        "27-4": "Hari Raya Haji* & Cuti Sekolah", "28-4": "Cuti Sekolah", "29-4": "Cuti Sekolah", "30-4": "Pesta Kaamatan 1 & Cuti Sekolah",
-        "31-4": "Pesta Kaamatan 2, Hari Wesak & Cuti Sekolah", "1-5": "Hari Gawai 1, Hari Keputeraan YDP Agong & Cuti Sekolah", "2-5": "Hari Gawai 2 & Cuti Sekolah",
-        "3-5": "Cuti Sekolah", "4-5": "Cuti Sekolah", "5-5": "Cuti Sekolah", "6-5": "Cuti Sekolah", "7-5": "Cuti Sekolah",
-        "17-5": "Awal Muharram", "22-6": "Hari Hol Almarhum Sultan Iskandar", "25-7": "Maulidur Rasul", "29-7": "Cuti Sekolah",
-        "30-7": "Cuti Sekolah", "31-7": "Hari Kebangsaan & Cuti Sekolah", "1-8": "Cuti Sekolah", "2-8": "Cuti Sekolah",
-        "3-8": "Cuti Sekolah", "4-8": "Cuti Sekolah", "5-8": "Cuti Sekolah", "6-8": "Cuti Sekolah", "16-8": "Hari Malaysia",
-        "8-10": "Hari Deepavali", "5-11": "Cuti Sekolah", "6-11": "Cuti Sekolah", "7-11": "Cuti Sekolah", "8-11": "Cuti Sekolah",
-        "9-11": "Cuti Sekolah", "10-11": "Cuti Sekolah", "11-11": "Cuti Sekolah", "12-11": "Cuti Sekolah", "13-11": "Cuti Sekolah",
-        "14-11": "Cuti Sekolah", "15-11": "Cuti Sekolah", "16-11": "Cuti Sekolah", "17-11": "Cuti Sekolah", "18-11": "Cuti Sekolah",
-        "19-11": "Cuti Sekolah", "20-11": "Cuti Sekolah", "21-11": "Cuti Sekolah", "22-11": "Cuti Sekolah", "23-11": "Cuti Sekolah",
-        "24-11": "Cuti Sekolah", "25-11": "Hari Krismas & Cuti Sekolah", "26-11": "Cuti Sekolah", "27-11": "Cuti Sekolah",
-        "28-11": "Cuti Sekolah", "29-11": "Cuti Sekolah", "30-11": "Cuti Sekolah", "31-11": "Cuti Sekolah",
-    };
-
     async function fetchSystemData() {
         try {
             const snap = await get(ref(db, 'system_data'));
