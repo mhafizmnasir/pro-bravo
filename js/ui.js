@@ -432,22 +432,22 @@ window.kiraOT = function() {
         rateMalam = 2.0;
     }
 
-    // 2. Pecahan jam mengikut definisi Siang (0600-2200) dan Malam (2200-0600)
+    // 2. Pecahan jam mengikut jam kelayakan tuntutan OT
     let jamSiang = 0;
     let jamMalam = 0;
 
     if (syif === 'pagi') {
-        // 08:00 - 15:00
+        // 08:00 - 15:00 (Layak 7 Jam)
         jamSiang = 7;
         jamMalam = 0;
     } else if (syif === 'petang') {
-        // 15:00 - 23:00 (15:00-22:00 Siang, 22:00-23:00 Malam)
-        jamSiang = 7;
+        // 15:00 - 23:00 (Layak 7 Jam. Pembahagian: 6j Siang, 1j Malam)
+        jamSiang = 6;
         jamMalam = 1;
     } else if (syif === 'malam') {
-        // 23:00 - 08:00 (06:00-08:00 Siang, 23:00-06:00 Malam)
+        // 23:00 - 08:00 (Layak 8 Jam. Pembahagian: 2j Siang, 6j Malam)
         jamSiang = 2;
-        jamMalam = 7;
+        jamMalam = 6;
     }
 
     const jumlahJam = jamSiang + jamMalam;
@@ -457,7 +457,6 @@ window.kiraOT = function() {
     const kadarSejamAsas = (gajiPokok * 12) / 2504;
     
     // 4. Sistem "Pemotongan" Perpuluhan (Contoh: 14.556 -> 14.55)
-    // Math.floor membundarkan ke bawah dengan mutlak
     const kadarSejamBundar = Math.floor(kadarSejamAsas * 100) / 100; 
 
     // 5. Pengiraan Akhir: Asingkan kiraan rate siang dan malam
