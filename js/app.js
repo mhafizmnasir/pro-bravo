@@ -80,13 +80,49 @@ document.getElementById('forgot-toggle-btn').onclick = () => {
     document.getElementById('forgot-toggle-btn').classList.add('hidden');
 };
 
-// Pengendali Menu Sidebar Navigation
+
+// ==========================================
+// KEMASKINI: Pengendali Menu Sidebar Navigation
+// ==========================================
+const sidebar = document.getElementById('mobile-sidebar');
+const containerMenu = document.getElementById('sidebar-container');
+
+function openMenu() { 
+    sidebar.classList.remove('hidden'); 
+    setTimeout(() => containerMenu.classList.remove('closed'), 10); 
+}
+
+// Event Listeners untuk Sidebar
+document.getElementById('menu-open').onclick = openMenu;
+document.getElementById('menu-close').onclick = closeMenu; // closeMenu di-import dari ui.js
+sidebar.onclick = (e) => { if (e.target === sidebar) closeMenu(); };
+
+// Event Listeners untuk Navigasi Halaman
 document.getElementById('nav-welcome').onclick = () => { showPage('welcome'); closeMenu(); };
 document.getElementById('nav-calendar').onclick = () => { showPage('jadual-induk', new Date().getMonth(), new Date().getFullYear()); closeMenu(); };
 document.getElementById('nav-settings').onclick = () => { showPage('settings'); closeMenu(); };
 document.getElementById('admin-nav').onclick = () => { showAdminPage(); closeMenu(); };
 document.getElementById('admin-users-nav').onclick = () => { showUsersListPage(); closeMenu(); };
-document.getElementById('btn-logout').onclick = () => { if(confirm("Log keluar?")) signOut(auth); };
+
+// Log Keluar (Ditambah location.reload() untuk membersihkan kitaran Firebase di latar belakang)
+document.getElementById('btn-logout').onclick = async () => { 
+    if(confirm("Log keluar?")) {
+        await signOut(auth);
+        location.reload(); 
+    }
+};
+
+// ==========================================
+// KEMASKINI: Butang Papar/Sembunyi Kata Laluan
+// ==========================================
+const togglePasswordBtn = document.getElementById('toggle-password-btn');
+if (togglePasswordBtn) {
+    togglePasswordBtn.onclick = function() {
+        // window.togglePass dikonfigurasi dan dieksport dari ui.js
+        window.togglePass('password', this);
+    };
+}
+
 
 // Live Jam Kemaskini
 setInterval(() => {
