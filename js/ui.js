@@ -209,8 +209,8 @@ export async function showPage(p, targetMonth = new Date().getMonth(), targetYea
                             <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Jenis Hari</label>
                             <select id="ot-jenis-hari" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none appearance-none">
                                 <option value="biasa">HARI BEKERJA BIASA</option>
-                                <option value="rehat">HARI REHAT MINGGUAN (MINGGUAN)</option>
-                                <option value="cuti">HARI KELEPASAN AM (CUTI UMUM)</option>
+                                <option value="rehat">HARI REHAT MINGGUAN</option>
+                                <option value="cuti">HARI KELEPASAN AM</option>
                             </select>
                         </div>
                         <div>
