@@ -435,6 +435,7 @@ export function showToast(msg) {
 window.kiraOT = function() {
     const gajiPokok = parseFloat(document.getElementById('ot-gaji').value);
     
+    // Semak jika pengguna tidak meletakkan nilai atau meletakkan huruf
     if (isNaN(gajiPokok) || gajiPokok <= 0) {
         return showToast("Sila masukkan Gaji Pokok yang sah.");
     }
@@ -447,7 +448,7 @@ window.kiraOT = function() {
         return showToast("Sila masukkan Waktu Mula dan Waktu Tamat dengan tepat.");
     }
 
-    // 1. Tetapkan multiplier (rate)
+    // 1. Tetapkan multiplier (rate) berdasarkan pilihan jenis hari
     let rateSiang = 0;
     let rateMalam = 0;
 
@@ -462,7 +463,7 @@ window.kiraOT = function() {
         rateMalam = 2.0;
     }
 
-    // 2. Pengiraan Jam Siang & Malam (Format Minit ke Jam)
+    // 2. Pengiraan Minit Kerja & Tolakan Waktu Rehat
     let totalSiangMin = 0;
     let totalMalamMin = 0;
 
@@ -477,9 +478,27 @@ window.kiraOT = function() {
         endMins += 24 * 60;
     }
 
+    const jumlahMinitKerja = endMins - startMins;
+
+    // Formula Penolakan: Tentukan waktu rehat (60 minit) di tengah-tengah syif JIKA kerja >= 8 jam (480 minit)
+    let mulaRehat = -1;
+    let tamatRehat = -1;
+
+    if (jumlahMinitKerja >= 480) {
+        const tengahSyif = startMins + Math.floor(jumlahMinitKerja / 2);
+        mulaRehat = tengahSyif - 30; // 30 minit sebelum tengah syif
+        tamatRehat = tengahSyif + 30; // 30 minit selepas tengah syif
+    }
+
     // Loop semakan minit demi minit untuk ketepatan silang syif
     for (let m = startMins; m < endMins; m++) {
-        let minSemasa = m % (24 * 60); // Reset ke 0 jika lebih 24 jam
+        
+        // Abaikan kiraan jika minit ini jatuh dalam waktu rehat (sistem akan potong exactly 60 kali)
+        if (m >= mulaRehat && m < tamatRehat) {
+            continue;
+        }
+
+        let minSemasa = m % (24 * 60); // Reset ke 0 jika melepasi 24 jam
         
         // Siang: 06:00 (360 min) hingga 21:59 (1319 min)
         if (minSemasa >= 360 && minSemasa < 1320) {
@@ -493,22 +512,25 @@ window.kiraOT = function() {
     // Tukar kembali minit kepada pecahan jam perpuluhan
     const jamSiang = totalSiangMin / 60;
     const jamMalam = totalMalamMin / 60;
-    const jumlahJam = jamSiang + jamMalam;
+    const jumlahJamLayak = jamSiang + jamMalam;
 
     // 3. Kira Kadar Sejam Asas
+    // Formula: (Gaji * 12) / 2504
     const kadarSejamAsas = (gajiPokok * 12) / 2504;
+    
+    // 4. Sistem "Pemotongan" Perpuluhan (Contoh: 14.556 -> 14.55)
     const kadarSejamBundar = Math.floor(kadarSejamAsas * 100) / 100; 
 
-    // 4. Pengiraan Akhir: Asingkan kiraan mengikut rate
+    // 5. Pengiraan Akhir: Asingkan kiraan rate siang dan malam
     const totalOTSiang = kadarSejamBundar * rateSiang * jamSiang;
     const totalOTMalam = kadarSejamBundar * rateMalam * jamMalam;
     const totalOT = totalOTSiang + totalOTMalam;
 
-    // 5. Paparkan hasil
+    // 6. Paparkan hasil ke skrin
     document.getElementById('ot-result-kadar').innerText = "RM " + kadarSejamBundar.toFixed(2);
     
-    // Format paparan jam. Jika ada perpuluhan, ia tunjuk 2 titik perpuluhan (cth: 1.20 Jam)
-    const teksJam = Number.isInteger(jumlahJam) ? jumlahJam + " Jam" : jumlahJam.toFixed(2) + " Jam";
+    // Format paparan jam
+    const teksJam = Number.isInteger(jumlahJamLayak) ? jumlahJamLayak + " Jam" : jumlahJamLayak.toFixed(2) + " Jam";
     document.getElementById('ot-result-jam').innerText = teksJam;
     
     document.getElementById('ot-result-total').innerText = "RM " + totalOT.toFixed(2);
