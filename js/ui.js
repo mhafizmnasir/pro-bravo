@@ -184,6 +184,72 @@ export async function showPage(p, targetMonth = new Date().getMonth(), targetYea
                 </div>
             </div>`;
     }
+    else if (p === 'overtime') {
+        cont.innerHTML = `
+            <div class="space-y-6 animate-fadeIn pb-10">
+                <div class="px-2">
+                    <h2 class="text-2xl font-black text-black uppercase italic tracking-tighter">Kerja Lebih Masa</h2>
+                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Kalkulator Tuntutan Elaun Lebih Masa</p>
+                </div>
+                
+                <div class="bg-white p-6 rounded-[2.5rem] shadow-sm border border-slate-100">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="p-2 bg-yellow-100 rounded-lg text-yellow-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                        <p class="text-[11px] font-black text-black uppercase tracking-widest">Maklumat Tuntutan</p>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        <div>
+                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Gaji Pokok (RM)</label>
+                            <input type="number" id="ot-gaji" placeholder="CONTOH: 2500" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Jenis Hari</label>
+                            <select id="ot-jenis-hari" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none appearance-none">
+                                <option value="biasa">HARI BEKERJA BIASA</option>
+                                <option value="rehat">HARI REHAT MINGGUAN (MINGGUAN)</option>
+                                <option value="cuti">HARI KELEPASAN AM (CUTI UMUM)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Waktu Syif</label>
+                            <select id="ot-syif" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none appearance-none">
+                                <option value="pagi">PAGI (08:00 - 15:00)</option>
+                                <option value="petang">PETANG (15:00 - 23:00)</option>
+                                <option value="malam">MALAM (23:00 - 08:00)</option>
+                            </select>
+                        </div>
+                        <button onclick="kiraOT()" class="w-full bg-black text-yellow-400 text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest mt-4 shadow-xl active:scale-95 transition-all">Kira Tuntutan</button>
+                    </div>
+                </div>
+
+                <div id="ot-result-box" class="hidden bg-black p-6 rounded-[2.5rem] shadow-xl border border-yellow-400 relative overflow-hidden mt-6">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-yellow-400"></div>
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="p-2 bg-yellow-400 text-black rounded-lg">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                        </div>
+                        <p class="text-[11px] font-black text-yellow-400 uppercase tracking-widest">Keputusan Pengiraan</p>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">Kadar Sejam Asas</span>
+                            <span id="ot-result-kadar" class="text-[13px] font-black text-white">RM 0.00</span>
+                        </div>
+                        <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                            <span class="text-[10px] font-bold text-slate-400 uppercase">Jumlah Jam Layak</span>
+                            <span id="ot-result-jam" class="text-[13px] font-black text-white">0 Jam</span>
+                        </div>
+                        <div class="flex justify-between items-center pt-2">
+                            <span class="text-[10px] font-black text-yellow-400 uppercase tracking-widest">Anggaran Tuntutan</span>
+                            <span id="ot-result-total" class="text-2xl font-black text-yellow-400 tracking-tighter">RM 0.00</span>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+    }
     closeMenu();
 }
 
