@@ -1,6 +1,6 @@
 import { auth, db } from './config.js';
 import { onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { ref, get } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { ref, get, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 import { fetchSystemData } from './duty.js';
 import { setUserData, handleAuthAction } from './auth.js';
 import { showPage, showAdminPage, showUsersListPage, closeMenu } from './ui.js';
@@ -27,6 +27,20 @@ onAuthStateChanged(auth, async (user) => {
                 if(data.role === 'admin') {
                     document.getElementById('admin-section').classList.remove('hidden');
                     document.getElementById('admin-nav').classList.remove('hidden');
+                    
+                    // --- KOD TAMBAHAN: Pemantau Badge Notifikasi (Real-time) ---
+                    onValue(ref(db, 'users'), (snap) => {
+                        let pendingCount = 0;
+                        snap.forEach(child => {
+                            if (child.val().status === 'pending') pendingCount++;
+                        });
+                        const badge = document.getElementById('pending-count');
+                        if (badge) {
+                            badge.innerText = pendingCount;
+                            badge.classList.toggle('hidden', pendingCount === 0);
+                        }
+                    });
+                    // -----------------------------------------------------------
                 }
                 if (dataReady) showPage('welcome');
             } else {
