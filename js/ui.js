@@ -209,18 +209,22 @@ export async function showPage(p, targetMonth = new Date().getMonth(), targetYea
                             <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Jenis Hari</label>
                             <select id="ot-jenis-hari" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none appearance-none">
                                 <option value="biasa">HARI BEKERJA BIASA</option>
-                                <option value="rehat">HARI REHAT MINGGUAN</option>
+                                <option value="rehat">HARI REHAT</option>
                                 <option value="cuti">HARI KELEPASAN AM</option>
                             </select>
                         </div>
-                        <div>
-                            <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Waktu Syif</label>
-                            <select id="ot-syif" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none appearance-none">
-                                <option value="pagi">PAGI (08:00 - 15:00)</option>
-                                <option value="petang">PETANG (15:00 - 23:00)</option>
-                                <option value="malam">MALAM (23:00 - 08:00)</option>
-                            </select>
+                        
+                        <div class="flex gap-4">
+                            <div class="w-1/2">
+                                <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Waktu Mula</label>
+                                <input type="time" id="ot-mula" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
+                            </div>
+                            <div class="w-1/2">
+                                <label class="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 block">Waktu Tamat</label>
+                                <input type="time" id="ot-tamat" class="w-full p-4 bg-slate-50 rounded-2xl text-[12px] font-bold uppercase outline-none focus:ring-2 focus:ring-yellow-400 border-none">
+                            </div>
                         </div>
+
                         <button onclick="kiraOT()" class="w-full bg-black text-yellow-400 text-[10px] font-black py-4 rounded-2xl uppercase tracking-widest mt-4 shadow-xl active:scale-95 transition-all">Kira Tuntutan</button>
                     </div>
                 </div>
@@ -431,15 +435,19 @@ export function showToast(msg) {
 window.kiraOT = function() {
     const gajiPokok = parseFloat(document.getElementById('ot-gaji').value);
     
-    // Semak jika pengguna tidak meletakkan nilai atau meletakkan huruf
     if (isNaN(gajiPokok) || gajiPokok <= 0) {
         return showToast("Sila masukkan Gaji Pokok yang sah.");
     }
 
     const jenisHari = document.getElementById('ot-jenis-hari').value;
-    const syif = document.getElementById('ot-syif').value;
+    const mula = document.getElementById('ot-mula').value;
+    const tamat = document.getElementById('ot-tamat').value;
 
-    // 1. Tetapkan multiplier (rate) berdasarkan pilihan jenis hari
+    if (!mula || !tamat) {
+        return showToast("Sila masukkan Waktu Mula dan Waktu Tamat dengan tepat.");
+    }
+
+    // 1. Tetapkan multiplier (rate)
     let rateSiang = 0;
     let rateMalam = 0;
 
@@ -454,41 +462,55 @@ window.kiraOT = function() {
         rateMalam = 2.0;
     }
 
-    // 2. Pecahan jam mengikut jam kelayakan tuntutan OT
-    let jamSiang = 0;
-    let jamMalam = 0;
+    // 2. Pengiraan Jam Siang & Malam (Format Minit ke Jam)
+    let totalSiangMin = 0;
+    let totalMalamMin = 0;
 
-    if (syif === 'pagi') {
-        // 08:00 - 15:00 (Layak 7 Jam)
-        jamSiang = 7;
-        jamMalam = 0;
-    } else if (syif === 'petang') {
-        // 15:00 - 23:00 (Layak 7 Jam. Pembahagian: 6j Siang, 1j Malam)
-        jamSiang = 6;
-        jamMalam = 1;
-    } else if (syif === 'malam') {
-        // 23:00 - 08:00 (Layak 8 Jam. Pembahagian: 2j Siang, 6j Malam)
-        jamSiang = 2;
-        jamMalam = 6;
+    const [startH, startM] = mula.split(':').map(Number);
+    const [endH, endM] = tamat.split(':').map(Number);
+
+    let startMins = (startH * 60) + startM;
+    let endMins = (endH * 60) + endM;
+
+    // Jika waktu tamat melepasi tengah malam (keesokan harinya)
+    if (endMins <= startMins) {
+        endMins += 24 * 60;
     }
 
+    // Loop semakan minit demi minit untuk ketepatan silang syif
+    for (let m = startMins; m < endMins; m++) {
+        let minSemasa = m % (24 * 60); // Reset ke 0 jika lebih 24 jam
+        
+        // Siang: 06:00 (360 min) hingga 21:59 (1319 min)
+        if (minSemasa >= 360 && minSemasa < 1320) {
+            totalSiangMin++;
+        } else {
+            // Malam: 22:00 ke atas, dan sebelum 06:00
+            totalMalamMin++;
+        }
+    }
+
+    // Tukar kembali minit kepada pecahan jam perpuluhan
+    const jamSiang = totalSiangMin / 60;
+    const jamMalam = totalMalamMin / 60;
     const jumlahJam = jamSiang + jamMalam;
 
     // 3. Kira Kadar Sejam Asas
-    // Formula: (Gaji * 12) / 2504
     const kadarSejamAsas = (gajiPokok * 12) / 2504;
-    
-    // 4. Sistem "Pemotongan" Perpuluhan (Contoh: 14.556 -> 14.55)
     const kadarSejamBundar = Math.floor(kadarSejamAsas * 100) / 100; 
 
-    // 5. Pengiraan Akhir: Asingkan kiraan rate siang dan malam
+    // 4. Pengiraan Akhir: Asingkan kiraan mengikut rate
     const totalOTSiang = kadarSejamBundar * rateSiang * jamSiang;
     const totalOTMalam = kadarSejamBundar * rateMalam * jamMalam;
     const totalOT = totalOTSiang + totalOTMalam;
 
-    // 6. Paparkan hasil ke skrin
+    // 5. Paparkan hasil
     document.getElementById('ot-result-kadar').innerText = "RM " + kadarSejamBundar.toFixed(2);
-    document.getElementById('ot-result-jam').innerText = jumlahJam + " Jam";
+    
+    // Format paparan jam. Jika ada perpuluhan, ia tunjuk 2 titik perpuluhan (cth: 1.20 Jam)
+    const teksJam = Number.isInteger(jumlahJam) ? jumlahJam + " Jam" : jumlahJam.toFixed(2) + " Jam";
+    document.getElementById('ot-result-jam').innerText = teksJam;
+    
     document.getElementById('ot-result-total').innerText = "RM " + totalOT.toFixed(2);
     
     // Munculkan kotak keputusan
